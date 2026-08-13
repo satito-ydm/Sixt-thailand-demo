@@ -122,7 +122,10 @@
 </aside>
 
 <!-- ══════════ SECTION: HERO + BOOKING ══════════ -->
-<section id="hero" class="pb-14 lg:pb-16">
+<!-- No bottom padding once the bar docks: the form leaves the flow at that
+     breakpoint, so the padding would just be a white strip between the banner
+     and the section below. Below it the form is in the flow and needs it. -->
+<section id="hero" class="pb-14 lg:pb-0">
 
   <!-- Full-bleed carousel. Nothing is laid over it: these banners carry their
        own Thai headlines and a second SIXT wordmark. The page heading lives on

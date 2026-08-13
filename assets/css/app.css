@@ -604,17 +604,18 @@ body .booking-title {
    banner — and every slide is `cover`. Slides whose ratio drifts far from that
    lose their baked-in type to the crop, which is why content.js keeps the
    slide list to compatible artwork. */
+/* 16:9, the ratio of the artwork itself. Keep this in step with
+   HERO_FRAME_RATIO in content.js — a test measures every slide against it. */
 .hero-slider {
   position: relative;
   width: 100%;
-  aspect-ratio: 2.6 / 1;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   background: var(--grey-50);
 }
 @media (max-width: 767px) {
-  /* A 2.6:1 strip is only ~144px tall on a phone. Squaring it up gives the
-     artwork room, at the cost of cropping the sides — see the README note on
-     why this banner really needs a portrait variant. */
+  /* Squarer on a phone so the artwork has some height, at the cost of the
+     sides — see the README note on why this banner needs a portrait variant. */
   .hero-slider { aspect-ratio: 4 / 3; }
 }
 

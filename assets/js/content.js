@@ -31,28 +31,34 @@
   ];
 
   /* Hero carousel.
-     Every slide shares one frame, so their aspect ratios have to be close or
-     `cover` eats the artwork. These two are 2.63:1 and 2.54:1 — a 1.7% trim
-     per side, which clears all the baked-in type. The KBank banner is 2:1 and
-     would lose 11.5% off the top and bottom, taking both logos and the date
-     line with it, so it stays a promotion card instead.
-     Adding a slide: convert it in tools/prepare-images.py and append here. */
+
+     The frame is 16:9, matching the primary artwork. Every slide shares that
+     one frame under object-fit: cover, so a slide whose ratio drifts loses the
+     difference off its edges — and each of these banners carries its headline,
+     logos and terms baked into the picture.
+
+     Measured against a 16:9 frame:
+       banner3        1.78:1   0.1% trimmed   — fits
+       Banner 16-9    2.63:1  32.5% off the sides
+       Xpeng G6       2.54:1  30.0% off the sides
+       KBank          2.00:1  11.1% off the sides
+       Banner         1.96:1   9.4% off the sides
+     Every one of those carries the SIXT wordmark hard against its left edge,
+     so even the mildest crop clips it. They stay promotion cards instead.
+
+     A second slide needs artwork at 16:9 (±8%). Convert it in
+     tools/prepare-images.py, append it here, and the carousel controls and
+     autoplay switch themselves back on. */
+  var HERO_FRAME_RATIO = 16 / 9;
+
   var HERO_SLIDES = [
     {
-      id: 'lionair-camry',
-      image: 'assets/img/hero-lionair-camry.webp',
-      width: 2035,
-      height: 773,
-      th: { alt: 'แคมเปญ SIXT ร่วมกับ Thai Lion Air — เช่ารถพร้อมคนขับ รับส่งสนามบิน เริ่มต้น 1,099 บาทต่อเที่ยว กับ Toyota Camry' },
-      en: { alt: 'SIXT and Thai Lion Air — chauffeured airport transfers from ฿1,099 a trip in a Toyota Camry' }
-    },
-    {
-      id: 'xpeng-g6',
-      image: 'assets/img/promo-xpeng-g6.webp',
-      width: 1600,
-      height: 630,
-      th: { alt: 'Xpeng G6 สีส้มวิ่งบนถนน พร้อมข้อความ Experience the Future — Rent the Xpeng G6' },
-      en: { alt: 'Orange Xpeng G6 on the road with the headline Experience the Future — Rent the Xpeng G6' }
+      id: 'lionair-eclass',
+      image: 'assets/img/hero-lionair-eclass.webp',
+      width: 1672,
+      height: 941,
+      th: { alt: 'แคมเปญ SIXT ร่วมกับ Thai Lion Air — เช่ารถพร้อมคนขับ รับส่งสนามบิน เริ่มต้น 1,099 บาทต่อเที่ยว กับ Mercedes-Benz E-Class' },
+      en: { alt: 'SIXT and Thai Lion Air — chauffeured airport transfers from ฿1,099 a trip in a Mercedes-Benz E-Class' }
     }
   ];
 
@@ -251,6 +257,7 @@
 
   root.SIXT.content = {
     HERO_SLIDES: HERO_SLIDES,
+    HERO_FRAME_RATIO: HERO_FRAME_RATIO,
     VALUE_PROPS: VALUE_PROPS,
     FLEET_INCLUDES: FLEET_INCLUDES,
     PROMOS: PROMOS,

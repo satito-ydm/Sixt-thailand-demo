@@ -256,17 +256,30 @@
     });
   });
 
-  T.test('hero slides share a close enough ratio that cover does not eat the artwork', function () {
-    /* Every slide is drawn in one 2.6:1 frame with object-fit: cover. A slide
-       far from that ratio loses its baked-in headline to the crop, so the
-       spread is capped rather than left to chance. */
-    var ratios = root.SIXT.content.HERO_SLIDES.map(function (s) { return s.width / s.height; });
-    var spread = Math.max.apply(null, ratios) - Math.min.apply(null, ratios);
-    T.ok(spread < 0.25, 'aspect spread too wide for one frame: ' + spread.toFixed(2));
-    ratios.forEach(function (r, i) {
-      T.ok(r > 2.3 && r < 2.9,
-        'slide ' + i + ' is ' + r.toFixed(2) + ':1, outside the 2.6:1 frame tolerance');
+  T.test('every hero slide fits the frame closely enough that cover spares the artwork', function () {
+    /* Slides share one frame under object-fit: cover, and each banner carries
+       its headline, logos and terms inside the picture. A slide more than 8%
+       off the frame ratio starts losing them, and every one of these banners
+       has the SIXT wordmark hard against its left edge. */
+    var C = root.SIXT.content;
+    var frame = C.HERO_FRAME_RATIO;
+    C.HERO_SLIDES.forEach(function (s) {
+      var ratio = s.width / s.height;
+      var drift = Math.abs(ratio - frame) / frame;
+      T.ok(drift <= 0.08, s.id + ' is ' + ratio.toFixed(2) + ':1 against a ' +
+        frame.toFixed(2) + ':1 frame — ' + Math.round(drift * 100) + '% off');
     });
+  });
+
+  T.test('the frame ratio in the data matches the one in the stylesheet', function () {
+    if (!fs) { return; }
+    var css = readProjectFile('assets/css/app.css');
+    var m = css.match(/\.hero-slider\s*\{[^}]*aspect-ratio:\s*([\d.]+)\s*\/\s*([\d.]+)/);
+    T.ok(m, '.hero-slider must declare an aspect-ratio');
+    var cssRatio = Number(m[1]) / Number(m[2]);
+    T.ok(Math.abs(cssRatio - root.SIXT.content.HERO_FRAME_RATIO) < 0.01,
+      'CSS frame is ' + cssRatio.toFixed(3) + ' but HERO_FRAME_RATIO is ' +
+      root.SIXT.content.HERO_FRAME_RATIO.toFixed(3));
   });
 
   T.test('every hero slide image exists on disk', function () {
