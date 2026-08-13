@@ -558,10 +558,11 @@ body.is-locked { overflow: hidden; }
 
 .card-body { padding: var(--space-5); }
 
-/* Vehicle cutouts are shot on white. A soft vertical wash gives them a ground
-   to sit on so they do not float in an empty rectangle. */
+/* Flat, not a gradient. The cutouts are 1.69:1 inside a 16:9 box, so they very
+   nearly fill it and only thin slivers of this ground are ever visible — a
+   gradient here buys nothing and risks banding at the card edge. */
 .card--vehicle .media {
-  background: linear-gradient(180deg, var(--grey-50) 0%, var(--white) 78%);
+  background: var(--grey-50);
 }
 
 .spec-chip {

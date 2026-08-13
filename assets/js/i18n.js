@@ -87,7 +87,7 @@
       'fleet.seats': 'ที่นั่ง',
       'fleet.bags': 'กระเป๋า',
       'fleet.auto': 'ออโต้',
-      'fleet.viewCar': 'ดูรถ',
+      'fleet.viewCar': 'ดูรถคันนี้',
       'fleet.viewAll': 'ดูรถทั้งหมด',
       'fleet.priceNote': 'ราคาเป็นตัวอย่าง รอเรตจริงจาก SIXT',
 
@@ -190,7 +190,7 @@
       'fleet.seats': 'seats',
       'fleet.bags': 'bags',
       'fleet.auto': 'Auto',
-      'fleet.viewCar': 'View car',
+      'fleet.viewCar': 'View this car',
       'fleet.viewAll': 'View all cars',
       'fleet.priceNote': 'Indicative pricing — awaiting live SIXT rates',
 

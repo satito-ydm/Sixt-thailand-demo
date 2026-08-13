@@ -127,9 +127,9 @@
       body.appendChild(badge);
       body.appendChild(el('h3', 'text-[1.125rem]', c.title));
       body.appendChild(el('p', 'lead text-[0.9375rem] flex-1', c.body));
-      var link = el('a', 'link-arrow mt-2', i18n.t('promo.view'));
-      link.href = '#';
-      body.appendChild(link);
+      var btn = el('a', 'btn-outline w-full mt-3', i18n.t('promo.view'));
+      btn.href = '#';
+      body.appendChild(btn);
       card.appendChild(body);
       host.appendChild(card);
     });
@@ -166,18 +166,17 @@
       body.appendChild(el('h3', 'text-[1.125rem] leading-snug -mt-1', vehicle.name));
       body.appendChild(specRow(vehicle));
 
-      var foot = el('div', 'flex items-end justify-between gap-2 pt-4 mt-auto');
-      foot.style.borderTop = '1px solid var(--grey-200)';
-      var price = el('div');
-      price.appendChild(el('span', 'overline block', i18n.t('fleet.from')));
-      var amount = el('span', 'price-amount block',
+      var foot = el('div', 'mt-auto pt-4');
+      var price = el('div', 'flex items-baseline gap-2 mb-3');
+      price.appendChild(el('span', 'overline', i18n.t('fleet.from')));
+      var amount = el('span', 'price-amount',
         i18n.formatPrice(vehicle.pricePerDay) + i18n.t('fleet.perDay'));
       amount.title = i18n.t('fleet.priceNote');
       price.appendChild(amount);
-      var link = el('a', 'link-arrow pb-1', i18n.t('fleet.viewCar'));
-      link.href = '#';
+      var btn = el('a', 'btn-outline w-full', i18n.t('fleet.viewCar'));
+      btn.href = '#';
       foot.appendChild(price);
-      foot.appendChild(link);
+      foot.appendChild(btn);
       body.appendChild(foot);
       card.appendChild(body);
       host.appendChild(card);
