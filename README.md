@@ -138,7 +138,12 @@ Written to be plausible, not supplied by SIXT. Replace before launch.
    assets prints `SIXT Call Center 1795`. The page uses `1798`.
 2. **Prices** — see above.
 3. **News and FAQ copy** — see above.
-4. **19 images** — see above.
+4. **The three inclusions on every vehicle card** — basic insurance, 24h
+   roadside assistance, unlimited kilometres. These are contractual claims and
+   were written as plausible defaults, not taken from SIXT's rental agreement.
+   `FLEET_INCLUDES` in `content.js` carries `isPlaceholder = true` and a test
+   asserts the flag survives. Check them against the real terms before launch.
+5. **19 images** — see above.
 5. **Tab taxonomy.** Tabs follow the wireframe and group by body type
    (Compact/SUV/MPV/Premium). The real booking engine groups by rate class
    (Economy/Compact/Standard/Premium/Electric). These will need mapping at

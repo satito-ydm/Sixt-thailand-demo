@@ -106,6 +106,28 @@
     });
   });
 
+  T.test('every vehicle declares a known fuel type', function () {
+    var D = root.SIXT.data;
+    D.FLEET.forEach(function (v) {
+      T.ok(D.FUELS.indexOf(v.fuel) !== -1, v.id + ' has a bad fuel: ' + v.fuel);
+    });
+  });
+
+  T.test('the best-deal badge is derived from price, not hand-set', function () {
+    var D = root.SIXT.data;
+    D.TABS.forEach(function (tab) {
+      var cheapest = D.cheapestIn(tab);
+      var prices = D.fleetByTab(tab).map(function (v) { return v.pricePerDay; });
+      T.eq(cheapest.pricePerDay, Math.min.apply(null, prices), tab + ' cheapest');
+    });
+    T.eq(D.cheapestIn('premium').id, 'mini-cooper-s');
+    T.eq(D.cheapestIn('compact').id, 'toyota-yaris');
+  });
+
+  T.test('cheapestIn returns null for a tab that does not exist', function () {
+    T.eq(root.SIXT.data.cheapestIn('spaceship'), null);
+  });
+
   T.test('every price is flagged as a placeholder until real rates arrive', function () {
     root.SIXT.data.FLEET.forEach(function (v) {
       T.eq(v.priceIsPlaceholder, true, v.id + ' price must be flagged');
@@ -129,7 +151,8 @@
       .concat(root.SIXT.content.PROMOS
         .filter(function (p) { return p.image; })
         .map(function (p) { return p.image; }))
-      .concat(['assets/img/hero-banner.webp', 'assets/img/logo.webp']);
+      .concat(['assets/img/hero-banner.webp', 'assets/img/logo.webp',
+               'assets/img/why-sixt.webp']);
     refs.forEach(function (rel) {
       T.ok(fs.existsSync(here + '/../' + rel), 'missing asset: ' + rel);
     });
@@ -187,6 +210,17 @@
       col.links.forEach(function (link) {
         T.ok(link.th && link.en, col.id + ' has a link missing a language');
       });
+    });
+  });
+
+  T.test('the vehicle inclusions are bilingual and flagged as unverified terms', function () {
+    var inc = root.SIXT.content.FLEET_INCLUDES;
+    T.eq(inc.length, 3);
+    T.eq(inc.isPlaceholder, true, 'these are contractual claims and must stay flagged');
+    inc.forEach(function (item) {
+      T.ok(item.id, 'inclusion needs an id');
+      T.ok(item.th && item.th.length, item.id + ' needs Thai');
+      T.ok(item.en && item.en.length, item.id + ' needs English');
     });
   });
 

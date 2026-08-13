@@ -220,12 +220,34 @@
 
 <main id="main">
 
-<!-- ══════════ SECTION: VALUE PROPS + PROOF ══════════ -->
+<!-- ══════════ SECTION: WHY SIXT + PROOF ══════════ -->
 <section class="section-y band-dark">
   <div class="container-x">
-    <p class="section-kicker" data-i18n="kicker.why">ทำไมต้อง SIXT</p>
-    <div class="grid gap-8 md:grid-cols-3 md:gap-12 mt-6" id="value-props"></div>
-    <div class="grid grid-cols-2 gap-8 lg:grid-cols-4 mt-14 pt-10" id="stats-row"
+    <div class="why-grid">
+      <div>
+        <p class="section-kicker" data-i18n="kicker.why">ทำไมต้อง SIXT</p>
+        <h2 class="mt-1" data-i18n="why.title">ทำไมต้องเลือก SIXT</h2>
+        <p class="lead mt-4" data-i18n="why.lead"></p>
+
+        <hr class="why-divider">
+
+        <div class="why-items" id="value-props"></div>
+
+        <a href="#services" class="btn-pill mt-10" id="why-cta">
+          <span data-i18n="why.cta">ดูบริการทั้งหมด</span>
+          <span class="btn-pill__disc" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 17L17 7M9 7h8v8"/>
+            </svg>
+          </span>
+        </a>
+      </div>
+
+      <div class="why-media" id="why-media"></div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-8 lg:grid-cols-4 mt-16 pt-10" id="stats-row"
          style="border-top: 1px solid rgba(255,255,255,.16)"></div>
   </div>
 </section>

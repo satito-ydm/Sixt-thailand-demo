@@ -7,6 +7,10 @@
 
   var i18n, data, content;
 
+  /* Rental length from the last search, or 0 before one has run. Vehicle cards
+     switch from a daily rate to a trip total once this is known. */
+  var activeDays = 0;
+
   /* ---------- helpers -------------------------------------------------- */
 
   function el(tag, className, text) {
@@ -45,7 +49,10 @@
     phone:    ['M4.5 5.5c0 8 6 14 14 14l1.5-3-4-2-1.8 1.8a12 12 0 01-6-6L10 8.5l-2-4z'],
     menu:     ['M4 7h16M4 12h16M4 17h16'],
     close:    ['M6 6l12 12M18 6L6 18'],
-    globe:    ['M12 3a9 9 0 100 18 9 9 0 000-18z', 'M3.5 9.5h17M3.5 14.5h17', 'M12 3c-2.5 2.4-3.8 5.5-3.8 9S9.5 18.6 12 21c2.5-2.4 3.8-5.5 3.8-9S14.5 5.4 12 3z']
+    globe:    ['M12 3a9 9 0 100 18 9 9 0 000-18z', 'M3.5 9.5h17M3.5 14.5h17', 'M12 3c-2.5 2.4-3.8 5.5-3.8 9S9.5 18.6 12 21c2.5-2.4 3.8-5.5 3.8-9S14.5 5.4 12 3z'],
+    check:    ['M4.5 12.5l5 5 10-11'],
+    snow:     ['M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9'],
+    fuel:     ['M5 21V5a2 2 0 012-2h5a2 2 0 012 2v16', 'M3.5 21h13', 'M14 10h2.5a2 2 0 012 2v4.5a1.5 1.5 0 003 0V8l-2.5-2.5']
   };
 
   /* A real photo when we have one, otherwise a labelled placeholder that names
@@ -85,17 +92,23 @@
     clear(host);
     content.VALUE_PROPS.forEach(function (item) {
       var c = copy(item);
-      var box = el('div', 'flex gap-4 md:block');
-      var mark = el('div', 'flex-none mb-0 md:mb-5');
-      mark.style.color = 'var(--sixt-orange)'; /* 5.31:1 on the black band */
-      mark.appendChild(icon(ICONS[item.icon], 36));
-      var body = el('div');
-      body.appendChild(el('h3', 'text-[1.1875rem] mb-2', c.title));
-      body.appendChild(el('p', 'lead text-[0.9375rem]', c.body));
+      var box = el('div');
+      var mark = el('span', 'why-icon');
+      mark.appendChild(icon(ICONS[item.icon], 20));
       box.appendChild(mark);
-      box.appendChild(body);
+      box.appendChild(el('h3', 'text-[1.0625rem] mb-2', c.title));
+      box.appendChild(el('p', 'lead text-[0.9375rem]', c.body));
       host.appendChild(box);
     });
+  }
+
+  function renderWhyMedia() {
+    var host = document.getElementById('why-media');
+    clear(host);
+    /* 2:3 is the photograph's own ratio (1024×1536). Forcing it into 3:4 would
+       crop the sunset sky, which is most of what makes the frame work. */
+    host.appendChild(mediaOrPlaceholder(
+      'assets/img/why-sixt.webp', 'why-sixt', '2:3', i18n.t('why.imageAlt')));
   }
 
   /* Four figures drawn from facts already stated elsewhere on the page — the
@@ -136,23 +149,57 @@
   }
 
   function specRow(vehicle) {
-    var row = el('div', 'flex flex-wrap items-center gap-2');
+    var row = el('div', 'spec-inline');
     [
-      { key: 'seats', value: vehicle.seats + ' ' + i18n.t('fleet.seats') },
-      { key: 'bags',  value: vehicle.bags + ' ' + i18n.t('fleet.bags') },
-      { key: 'gear',  value: i18n.t('fleet.auto') }
+      { key: 'seats', value: String(vehicle.seats) },
+      { key: 'bags',  value: String(vehicle.bags) },
+      { key: 'gear',  value: 'A' },
+      { key: 'snow',  value: i18n.t('fleet.ac') }
     ].forEach(function (spec) {
-      var chip = el('span', 'spec-chip');
-      chip.appendChild(icon(ICONS[spec.key], 13));
-      chip.appendChild(el('span', null, spec.value));
-      row.appendChild(chip);
+      var item = el('span', 'spec');
+      item.appendChild(icon(ICONS[spec.key], 18));
+      item.appendChild(el('span', null, spec.value));
+      row.appendChild(item);
     });
     return row;
+  }
+
+  function includeList() {
+    var ul = el('ul', 'include-list');
+    content.FLEET_INCLUDES.forEach(function (item) {
+      var li = el('li');
+      li.appendChild(icon(ICONS.check, 14));
+      li.appendChild(el('span', null, item[i18n.getLang()]));
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+
+  /* Once a search has run we know the rental length, so the card can lead with
+     the trip total the way a results listing does. Before that there is no
+     duration to multiply by and it stays a daily rate. */
+  function priceBlock(vehicle) {
+    var box = el('div');
+    if (activeDays) {
+      box.appendChild(el('div', 'price-total',
+        i18n.formatPrice(vehicle.pricePerDay * activeDays) + ' ' + i18n.t('fleet.total')));
+      box.appendChild(el('div', 'price-breakdown',
+        i18n.t('fleet.forDays', { n: activeDays }) + '  ·  ' +
+        i18n.formatPrice(vehicle.pricePerDay) + i18n.t('fleet.perDay')));
+    } else {
+      box.appendChild(el('div', 'overline', i18n.t('fleet.from')));
+      box.appendChild(el('div', 'price-total',
+        i18n.formatPrice(vehicle.pricePerDay) + i18n.t('fleet.perDay')));
+    }
+    box.title = i18n.t('fleet.priceNote');
+    return box;
   }
 
   function renderFleetGrid(tab) {
     var host = document.getElementById('fleet-grid');
     clear(host);
+    var cheapest = data.cheapestIn(tab);
+
     data.fleetByTab(tab).forEach(function (vehicle) {
       var card = el('article', 'card card--vehicle');
       card.appendChild(mediaOrPlaceholder(
@@ -160,24 +207,38 @@
         vehicle.name + ' — ' + copy({ th: vehicle.classTh, en: vehicle.classEn }),
         true
       ));
+
       var body = el('div', 'card-body');
-      body.appendChild(el('p', 'overline',
-        i18n.getLang() === 'en' ? vehicle.classEn : vehicle.classTh));
-      body.appendChild(el('h3', 'text-[1.125rem] leading-snug -mt-1', vehicle.name));
+
+      /* "or similar" gets its own line rather than trailing the name. In a
+         four-up grid it otherwise wraps on the longer names only, which drops
+         that one card's specs and checklist out of line with its neighbours. */
+      var nameRow = el('h3', 'vehicle-name');
+      nameRow.appendChild(el('span', 'block', vehicle.name));
+      nameRow.appendChild(el('span', 'vehicle-similar block', i18n.t('fleet.orSimilar')));
+      body.appendChild(nameRow);
+
+      var badges = el('div', 'flex flex-wrap items-center gap-2');
+      if (cheapest && vehicle.id === cheapest.id) {
+        badges.appendChild(el('span', 'badge-deal', i18n.t('fleet.bestDeal')));
+      }
+      var fuelBadge = el('span', 'badge-spec');
+      fuelBadge.appendChild(icon(ICONS.fuel, 13));
+      fuelBadge.appendChild(el('span', null, i18n.t('fuel.' + vehicle.fuel)));
+      badges.appendChild(fuelBadge);
+      body.appendChild(badges);
+
       body.appendChild(specRow(vehicle));
+      body.appendChild(includeList());
 
       var foot = el('div', 'mt-auto pt-4');
-      var price = el('div', 'flex items-baseline gap-2 mb-3');
-      price.appendChild(el('span', 'overline', i18n.t('fleet.from')));
-      var amount = el('span', 'price-amount',
-        i18n.formatPrice(vehicle.pricePerDay) + i18n.t('fleet.perDay'));
-      amount.title = i18n.t('fleet.priceNote');
-      price.appendChild(amount);
-      var btn = el('a', 'btn-outline w-full', i18n.t('fleet.viewCar'));
+      foot.style.borderTop = '1px solid var(--grey-200)';
+      foot.appendChild(priceBlock(vehicle));
+      var btn = el('a', 'btn-outline w-full mt-4', i18n.t('fleet.viewCar'));
       btn.href = '#';
-      foot.appendChild(price);
       foot.appendChild(btn);
       body.appendChild(foot);
+
       card.appendChild(body);
       host.appendChild(card);
     });
@@ -437,6 +498,8 @@
       lastState = e.detail.state;
       text.textContent = e.detail.summary;
       summary.classList.add('is-visible');
+      activeDays = i18n.rentalDays(lastState.pickupDate, lastState.returnDate);
+      renderFleetGrid(currentTab()); /* prices become trip totals */
       scrollToSection(document.getElementById('fleet'));
     });
 
@@ -462,6 +525,7 @@
   function renderAll() {
     var tab = currentTab();
     renderValueProps();
+    renderWhyMedia();
     renderStats();
     renderPromos();
     renderFleetTabs();

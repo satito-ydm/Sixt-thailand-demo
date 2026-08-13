@@ -20,6 +20,7 @@ JOBS = [
     ("Car/a9a4d41a-13f6-473b-818a-1925b5ebf277.png", "car-premium-mercedes-c-class"),
     ("Car/e10659e4-2939-482b-9a27-b5d4176af74c.png", "car-suv-honda-cr-v"),
     ("Car/2d906091-ff27-42d4-a2d6-a5d1e874a954.png", "car-mpv-toyota-veloz"),
+    ("why-sixt.png",                                 "why-sixt"),
     ("logo.png",                                     "logo"),
 ]
 

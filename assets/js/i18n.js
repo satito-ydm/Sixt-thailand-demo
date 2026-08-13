@@ -90,6 +90,20 @@
       'fleet.viewCar': 'ดูรถคันนี้',
       'fleet.viewAll': 'ดูรถทั้งหมด',
       'fleet.priceNote': 'ราคาเป็นตัวอย่าง รอเรตจริงจาก SIXT',
+      'fleet.orSimilar': '(หรือเทียบเท่า)',
+      'fleet.bestDeal': 'ราคาดีที่สุด',
+      'fleet.ac': 'แอร์',
+      'fleet.total': 'รวม',
+      'fleet.forDays': '{n} วัน',
+      'fuel.petrol': 'เบนซิน',
+      'fuel.diesel': 'ดีเซล',
+      'fuel.hybrid': 'ไฮบริด',
+      'fuel.ev': 'ไฟฟ้า',
+
+      'why.title': 'ทำไมต้องเลือก SIXT',
+      'why.lead': 'เลือกรถที่ใช่จากฟลีตของเรา แล้วจองได้ทันทีด้วยวันเวลาและวิธีชำระเงินที่ยืดหยุ่น',
+      'why.cta': 'ดูบริการทั้งหมด',
+      'why.imageAlt': 'ลูกค้าในชุดสูทดำยืนพิงรถ Mercedes-Benz สีดำ บนดาดฟ้าอาคารยามพระอาทิตย์ตก มองเห็นสกายไลน์กรุงเทพฯ ด้านหลัง',
 
       'services.title': 'บริการของเรา',
 
@@ -193,6 +207,20 @@
       'fleet.viewCar': 'View this car',
       'fleet.viewAll': 'View all cars',
       'fleet.priceNote': 'Indicative pricing — awaiting live SIXT rates',
+      'fleet.orSimilar': '(or similar)',
+      'fleet.bestDeal': 'Best price',
+      'fleet.ac': 'A/C',
+      'fleet.total': 'total',
+      'fleet.forDays': '{n} days',
+      'fuel.petrol': 'Petrol',
+      'fuel.diesel': 'Diesel',
+      'fuel.hybrid': 'Hybrid',
+      'fuel.ev': 'Electric',
+
+      'why.title': 'Why choose SIXT',
+      'why.lead': 'Browse our fleet and pick the right vehicle, then reserve instantly with flexible dates and payment options.',
+      'why.cta': 'See all services',
+      'why.imageAlt': 'A customer in a black suit leaning against a black Mercedes-Benz on a rooftop at sunset, with the Bangkok skyline behind',
 
       'services.title': 'Our Services',
 

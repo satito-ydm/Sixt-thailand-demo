@@ -30,6 +30,16 @@
     }
   ];
 
+  /* Shown on every vehicle card. PLACEHOLDER TERMS: these are plausible for a
+     Thai rental but have not been confirmed against SIXT Thailand's actual
+     rental agreement. They are contractual claims, so verify before launch. */
+  var FLEET_INCLUDES = [
+    { id: 'insurance', th: 'รวมประกันภัยพื้นฐาน', en: 'Basic insurance included' },
+    { id: 'roadside',  th: 'ช่วยเหลือฉุกเฉิน 24 ชม.', en: '24h roadside assistance' },
+    { id: 'mileage',   th: 'ไมล์ไม่จำกัด',           en: 'Unlimited kilometres' }
+  ];
+  FLEET_INCLUDES.isPlaceholder = true;
+
   var PROMOS = [
     {
       id: 'xpeng-g6',
@@ -215,6 +225,7 @@
 
   root.SIXT.content = {
     VALUE_PROPS: VALUE_PROPS,
+    FLEET_INCLUDES: FLEET_INCLUDES,
     PROMOS: PROMOS,
     SERVICES: SERVICES,
     NEWS: NEWS,

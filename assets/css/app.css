@@ -210,6 +210,7 @@ body h3 { font-size: var(--text-h3); }
 .ph[data-ratio="16:9"] { aspect-ratio: 16 / 9; }
 .ph[data-ratio="2:1"]  { aspect-ratio: 2 / 1; }
 .ph[data-ratio="3:4"]  { aspect-ratio: 3 / 4; }
+.ph[data-ratio="2:3"]  { aspect-ratio: 2 / 3; }
 .ph::before {
   content: '';
   position: absolute;
@@ -239,6 +240,7 @@ body h3 { font-size: var(--text-h3); }
 .media[data-ratio="16:9"] { aspect-ratio: 16 / 9; }
 .media[data-ratio="2:1"]  { aspect-ratio: 2 / 1; }
 .media[data-ratio="3:4"]  { aspect-ratio: 3 / 4; }
+.media[data-ratio="2:3"]  { aspect-ratio: 2 / 3; }
 .media img {
   width: 100%;
   height: 100%;
@@ -600,6 +602,85 @@ body.is-locked { overflow: hidden; }
 .band-orange .btn-outline:hover { background: var(--sixt-black); color: var(--white); }
 .band-orange a { color: var(--on-orange); }
 
+/* ══ Why SIXT split ══════════════════════════════════════════════════════
+   Copy on one side, a tall picture on the other. The items sit under a rule
+   so the eye reads heading → promise → detail rather than one long column. */
+.why-grid {
+  display: grid;
+  gap: var(--space-12);
+  align-items: center;
+}
+@media (min-width: 1024px) {
+  .why-grid { grid-template-columns: 1fr 0.85fr; gap: 4.5rem; }
+}
+
+.why-divider {
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  margin: var(--space-8) 0;
+}
+
+.why-items {
+  display: grid;
+  gap: var(--space-8);
+}
+@media (min-width: 640px) {
+  .why-items { grid-template-columns: 1fr 1fr; }
+}
+
+/* Outlined rather than filled: three solid orange discs would shout over the
+   heading, and the icons are decoration, not the message. */
+.why-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  margin-bottom: var(--space-4);
+}
+
+.why-media {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+/* Pill with a trailing disc, inverted for the dark band. */
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 8px 8px 8px var(--space-6);
+  border: 0;
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--sixt-black);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+.btn-pill__disc {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--sixt-orange);
+  color: var(--sixt-black);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  transition: transform var(--transition);
+}
+.btn-pill:hover { background: var(--sixt-orange); color: var(--sixt-black); }
+.btn-pill:hover .btn-pill__disc { background: var(--sixt-black); color: var(--white); transform: translateX(2px); }
+
 /* ══ Statistics row ══════════════════════════════════════════════════════ */
 .stat-value {
   font-size: 2rem;
@@ -629,11 +710,102 @@ body.is-locked { overflow: hidden; }
 
 .card-body { padding: var(--space-5); }
 
-/* Flat, not a gradient. The cutouts are 1.69:1 inside a 16:9 box, so they very
-   nearly fill it and only thin slivers of this ground are ever visible — a
-   gradient here buys nothing and risks banding at the card edge. */
-.card--vehicle .media {
+/* ══ Vehicle card ════════════════════════════════════════════════════════
+   The picture sits in its own inset panel rather than running to the card
+   edge, which is what separates a catalogue entry from a banner. */
+.card--vehicle {
+  padding: var(--space-3);
+  background: var(--white);
+}
+.card--vehicle .media,
+.card--vehicle .ph {
+  border-radius: var(--radius-md);
   background: var(--grey-50);
+}
+.card--vehicle .card-body {
+  padding: var(--space-4) var(--space-2) var(--space-2);
+  gap: var(--space-3);
+}
+
+.vehicle-name {
+  font-size: 1.1875rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.vehicle-similar {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--grey-500);
+  white-space: nowrap;
+}
+
+/* Solid orange with black type — 5.31:1. White type here would be 3.28:1 and
+   a badge is far too small to claim the large-text exemption. */
+.badge-deal {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--sixt-orange);
+  color: var(--sixt-black);
+}
+.badge-spec {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-input);
+  color: var(--sixt-black);
+}
+
+/* Icon muted, value in full black — the number is the information. */
+.spec-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+.spec-inline .spec {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--sixt-black);
+}
+.spec-inline .spec svg { color: var(--grey-500); flex: none; }
+
+.include-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.include-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: 0.8125rem;
+  font-weight: 300;
+  color: var(--grey-500);
+}
+/* A tick is non-text, so orange clears the 3:1 bar it has to meet. */
+.include-list svg { color: var(--sixt-orange); flex: none; margin-top: 2px; }
+
+.price-total {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.price-breakdown {
+  font-size: 0.8125rem;
+  color: var(--grey-500);
 }
 
 .spec-chip {
