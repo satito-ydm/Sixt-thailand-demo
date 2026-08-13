@@ -55,6 +55,23 @@
       'group.bangkok': 'กรุงเทพฯ',
       'group.upcountry': 'ต่างจังหวัด',
 
+      'stat.branchesValue': '17',
+      'stat.branchesLabel': 'สาขาทั่วไทย',
+      'stat.countriesValue': '100+',
+      'stat.countriesLabel': 'ประเทศทั่วโลก',
+      'stat.foundedValue': '1912',
+      'stat.foundedLabel': 'ปีที่ SIXT ก่อตั้ง',
+      'stat.supportValue': '24/7',
+      'stat.supportLabel': 'ทีมดูแลลูกค้า',
+
+      'kicker.why': 'ทำไมต้อง SIXT',
+      'kicker.promo': 'ข้อเสนอพิเศษ',
+      'kicker.fleet': 'ฟลีตรถยนต์',
+      'kicker.services': 'บริการ',
+      'kicker.member': 'สิทธิประโยชน์สมาชิก',
+      'kicker.news': 'อัปเดตล่าสุด',
+      'kicker.faq': 'ช่วยเหลือ',
+
       'promo.title': 'โปรโมชันล่าสุด',
       'promo.badge': 'PROMO',
       'promo.view': 'ดูโปรโมชัน',
@@ -140,6 +157,23 @@
 
       'group.bangkok': 'Bangkok',
       'group.upcountry': 'Upcountry',
+
+      'stat.branchesValue': '17',
+      'stat.branchesLabel': 'branches nationwide',
+      'stat.countriesValue': '100+',
+      'stat.countriesLabel': 'countries worldwide',
+      'stat.foundedValue': '1912',
+      'stat.foundedLabel': 'year SIXT was founded',
+      'stat.supportValue': '24/7',
+      'stat.supportLabel': 'customer care team',
+
+      'kicker.why': 'Why SIXT',
+      'kicker.promo': 'Special offers',
+      'kicker.fleet': 'Our fleet',
+      'kicker.services': 'Services',
+      'kicker.member': 'Member benefits',
+      'kicker.news': 'Latest updates',
+      'kicker.faq': 'Support',
 
       'promo.title': 'Latest Promotions',
       'promo.badge': 'PROMO',

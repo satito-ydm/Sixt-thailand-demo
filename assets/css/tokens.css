@@ -21,6 +21,21 @@
      This is deliberately darker than the card edges. 3.45:1 on white. */
   --border-input: #8A8A8A;
 
+  /* Text on the dark and orange bands.
+     Secondary copy on black cannot use --grey-500 (3.3:1, fails AA), so it is
+     a white wash instead. Over --sixt-black this composites to ~#CCC, 10.8:1.
+     On the orange band every text colour is black: white is only 3.28:1 there
+     and clears AA solely at large-text sizes. */
+  --on-dark:        #FFFFFF;
+  --on-dark-muted:  rgba(255, 255, 255, 0.78);
+  --on-orange:      #1A1A1A;
+
+  /* There is deliberately no --on-orange-muted. Orange is a dark enough ground
+     that black at 78% falls to 4.01:1, under the 4.5:1 AA needs for body copy,
+     and the alpha required to pass (0.88) is visually indistinguishable from
+     solid black anyway. On the orange band, hierarchy comes from weight and
+     size, never from a lighter text tone. */
+
   /* The only permitted non-brand colour -------------------------------- */
   --error: #D32F2F;
 
@@ -40,6 +55,7 @@
   --space-2:  0.5rem;
   --space-3:  0.75rem;
   --space-4:  1rem;
+  --space-5:  1.25rem;
   --space-6:  1.5rem;
   --space-8:  2rem;
   --space-12: 3rem;
@@ -51,6 +67,9 @@
   /* Shape and depth ------------------------------------------------------- */
   --radius-sm: 8px;
   --radius-md: 12px;
+  --radius-lg: 18px;
+  --shadow-rest:   0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-lift:   0 14px 34px rgba(0, 0, 0, 0.12);
   --shadow-card:   0 2px 16px rgba(0, 0, 0, 0.10);
   --shadow-widget: 0 4px 24px rgba(0, 0, 0, 0.08);
   --shadow-header: 0 1px 8px rgba(0, 0, 0, 0.06);

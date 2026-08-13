@@ -495,10 +495,164 @@ body.is-locked { overflow: hidden; }
 }
 .search-summary.is-visible { display: flex; }
 
+/* ══ Colour bands ═══════════════════════════════════════════════════════
+   Full-bleed sections that invert the palette. Each band restates every
+   colour it needs rather than inheriting, because the defaults assume a white
+   ground and would silently drop to unreadable ratios here. */
+
+.band-dark {
+  background: var(--sixt-black);
+  color: var(--on-dark);
+}
+.band-dark h1, .band-dark h2, .band-dark h3 { color: var(--on-dark); }
+.band-dark .lead { color: var(--on-dark-muted); }
+/* The orange focus ring is only 1.9:1 on black. Swap it for white. */
+.band-dark :focus-visible { outline-color: var(--white); }
+.band-dark .btn-outline { border-color: var(--white); color: var(--white); }
+.band-dark .btn-outline:hover { background: var(--white); color: var(--sixt-black); }
+
+.band-orange {
+  background: var(--sixt-orange);
+  color: var(--on-orange);
+}
+.band-orange h1, .band-orange h2, .band-orange h3 { color: var(--on-orange); }
+/* Solid black, not a tint — see the note in tokens.css. Light weight is what
+   separates this from the heading. */
+.band-orange .lead { color: var(--on-orange); font-weight: 300; }
+/* Orange-on-orange is invisible; black scores 5.31:1. */
+.band-orange :focus-visible { outline-color: var(--sixt-black); }
+/* The brand colour is the ground here, so a filled orange button would vanish.
+   Black inverts cleanly at 17.4:1. */
+.band-orange .btn-primary { background: var(--sixt-black); color: var(--white); }
+.band-orange .btn-primary:hover { background: var(--white); color: var(--sixt-black); }
+.band-orange .btn-outline { border-color: var(--sixt-black); color: var(--sixt-black); }
+.band-orange .btn-outline:hover { background: var(--sixt-black); color: var(--white); }
+.band-orange a { color: var(--on-orange); }
+
+/* ══ Statistics row ══════════════════════════════════════════════════════ */
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--sixt-orange); /* 5.31:1 on black */
+}
+.stat-label {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--on-dark-muted);
+}
+
+/* ══ Card refinements ════════════════════════════════════════════════════
+   Cards carry weight through elevation rather than a hairline border, which
+   keeps them from reading as boxes stacked on a form. */
+.card {
+  border: 0;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-rest);
+}
+.card:hover {
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-4px);
+}
+
+.card-body { padding: var(--space-5); }
+
+/* Vehicle cutouts are shot on white. A soft vertical wash gives them a ground
+   to sit on so they do not float in an empty rectangle. */
+.card--vehicle .media {
+  background: linear-gradient(180deg, var(--grey-50) 0%, var(--white) 78%);
+}
+
+.spec-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: var(--grey-50);
+  color: var(--grey-500);
+  white-space: nowrap;
+}
+
+.overline {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--grey-500);
+}
+
+.price-amount {
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+/* ══ Service cards ═══════════════════════════════════════════════════════
+   Black bodies under the image. The three of them give the section its own
+   weight without another full-bleed band, and the picture stays uncovered. */
+.service-card {
+  background: var(--sixt-black);
+  color: var(--on-dark);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-rest);
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+.service-card:hover { box-shadow: var(--shadow-lift); transform: translateY(-4px); }
+.service-card h3 { color: var(--on-dark); }
+.service-card .service-body {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex: 1;
+}
+.service-card .service-text {
+  font-size: 0.9375rem;
+  font-weight: 300;
+  color: var(--on-dark-muted);
+  flex: 1;
+}
+/* A black button on a black card is invisible — invert it to white. */
+.service-card .btn-secondary { background: var(--white); color: var(--sixt-black); }
+.service-card .btn-secondary:hover { opacity: 0.88; }
+.service-card :focus-visible { outline-color: var(--white); }
+
+/* ══ Section headings ════════════════════════════════════════════════════ */
+.section-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--grey-500);
+  margin-bottom: var(--space-2);
+}
+.section-kicker::before {
+  content: '';
+  width: 22px;
+  height: 2px;
+  background: var(--sixt-orange);
+}
+.band-dark .section-kicker { color: var(--on-dark-muted); }
+.band-orange .section-kicker { color: var(--on-orange-muted); }
+.band-orange .section-kicker::before { background: var(--sixt-black); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     transition-duration: 0ms !important;
     animation-duration: 0ms !important;
     scroll-behavior: auto !important;
   }
+  .card:hover, .service-card:hover { transform: none; }
 }

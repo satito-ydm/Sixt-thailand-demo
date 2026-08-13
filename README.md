@@ -165,6 +165,19 @@ text (≥18.66px bold). The button size is what makes the brand's white-on-orang
 combination legal. Shrink the label and it fails. This is why the `PROMO` badge
 sits on black instead — at 11px there is no size exemption available.
 
+**Colour bands invert the whole palette, so use `.band-dark` / `.band-orange`
+rather than setting a background by hand.** Each class restates every colour it
+needs — text, links, buttons and the focus ring. Miss one and it silently drops
+to an unreadable ratio: the orange focus ring is 1.9:1 on black, and a filled
+orange button disappears entirely on the orange band, which is why it inverts
+to black there.
+
+**The orange band has no muted text tone, deliberately.** Orange is a dark
+enough ground that black at 78% falls to 4.01:1 — under AA — and the alpha
+needed to pass (0.88) looks the same as solid black. Hierarchy on that band
+comes from weight and size. `--on-orange-muted` does not exist; do not add it.
+`--on-dark-muted` does exist, because black has the range for it (10.95:1).
+
 **Input borders use `--border-input`, not `--grey-200`.** An input boundary is
 a UI component under WCAG 1.4.11 and needs 3:1; `--grey-200` manages 1.3:1 and
 is for decorative card edges only.

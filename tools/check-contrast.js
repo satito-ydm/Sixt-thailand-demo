@@ -38,6 +38,18 @@ function ratio(a, b) {
   return (hi + 0.05) / (lo + 0.05);
 }
 
+/* --on-dark-muted is rgba, so composite it over its band before measuring. */
+function over(rgbaHexish, alpha, bgHex) {
+  function mix(i) {
+    var fg = parseInt(rgbaHexish.slice(1 + i * 2, 3 + i * 2), 16);
+    var bg = parseInt(bgHex.slice(1 + i * 2, 3 + i * 2), 16);
+    return Math.round(fg * alpha + bg * (1 - alpha));
+  }
+  return '#' + [0, 1, 2].map(function (i) {
+    return ('0' + mix(i).toString(16)).slice(-2);
+  }).join('').toUpperCase();
+}
+
 var C = {
   orange: token('sixt-orange'),
   orangeDeep: token('sixt-orange-deep'),
@@ -49,6 +61,11 @@ var C = {
   borderInput: token('border-input'),
   error: token('error')
 };
+
+C.onDarkMuted = over(C.white, 0.78, C.black);
+/* Not a token — measured here to document why the orange band has no muted
+   text tone. See the note in tokens.css. */
+C.orangeMutedRejected = over(C.black, 0.78, C.orange);
 
 var PAIRS = [
   // where                                  fg            bg          min   note
@@ -71,7 +88,27 @@ var PAIRS = [
   ['active tab underline (non-text)',       C.orange,     C.white,    3.0, ''],
   ['input border on white',                 C.borderInput, C.white,   3.0,
     'WCAG 1.4.11 — an input boundary is a UI component, not decoration'],
-  ['input border on grey-50',               C.borderInput, C.grey50,  3.0, '']
+  ['input border on grey-50',               C.borderInput, C.grey50,  3.0, ''],
+
+  // .band-dark — value props, service cards, footer
+  ['heading on the black band',             C.white,      C.black,    4.5, ''],
+  ['muted copy on the black band',          C.onDarkMuted, C.black,   4.5,
+    'white at 78% — --grey-500 reaches only 3.3:1 here and cannot be used'],
+  ['stat figure on the black band',         C.orange,     C.black,    3.0,
+    '32px bold, so the large-text bar applies'],
+  ['value-prop icon on black (non-text)',   C.orange,     C.black,    3.0, ''],
+  ['focus ring on the black band',          C.white,      C.black,    3.0,
+    'the orange ring is 1.9:1 on black — .band-dark swaps it to white'],
+  ['white button on a service card',        C.black,      C.white,    4.5, ''],
+
+  // .band-orange — membership
+  ['heading on the orange band',            C.black,      C.orange,   4.5,
+    'this is why the orange band sets black text, not white'],
+  ['body copy on the orange band',          C.black,      C.orange,   4.5,
+    'solid black at weight 300 — a lighter tone cannot pass here'],
+  ['inverted CTA on the orange band',       C.white,      C.black,    4.5, ''],
+  ['focus ring on the orange band',         C.black,      C.orange,   3.0, ''],
+  ['kicker rule on the orange band',        C.black,      C.orange,   3.0, '']
 ];
 
 /* --grey-200 is intentionally absent above. It edges cards and dividers, which
@@ -81,7 +118,9 @@ var PAIRS = [
 // Documented as failing on purpose, so nobody "fixes" it by shipping it.
 var FORBIDDEN = [
   ['white on orange at normal text size',   C.white,      C.orange,   4.5,
-    'never allowed below 19px bold — use black text or a black ground instead']
+    'never allowed below 19px bold — use black text or a black ground instead'],
+  ['black at 78% on orange',                C.orangeMutedRejected, C.orange, 4.5,
+    'why the orange band has no muted text tone; hierarchy uses weight instead']
 ];
 
 var failures = 0;

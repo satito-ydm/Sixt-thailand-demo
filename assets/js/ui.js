@@ -86,14 +86,29 @@
     content.VALUE_PROPS.forEach(function (item) {
       var c = copy(item);
       var box = el('div', 'flex gap-4 md:block');
-      var mark = el('div', 'flex-none mb-0 md:mb-4');
-      mark.style.color = 'var(--sixt-orange)';
-      mark.appendChild(icon(ICONS[item.icon], 40));
+      var mark = el('div', 'flex-none mb-0 md:mb-5');
+      mark.style.color = 'var(--sixt-orange)'; /* 5.31:1 on the black band */
+      mark.appendChild(icon(ICONS[item.icon], 36));
       var body = el('div');
-      body.appendChild(el('h3', 'text-[1.125rem] mb-1', c.title));
+      body.appendChild(el('h3', 'text-[1.1875rem] mb-2', c.title));
       body.appendChild(el('p', 'lead text-[0.9375rem]', c.body));
       box.appendChild(mark);
       box.appendChild(body);
+      host.appendChild(box);
+    });
+  }
+
+  /* Four figures drawn from facts already stated elsewhere on the page — the
+     branch list, the ISO badge and the SIXT history line in the footer. */
+  var STATS = ['branches', 'countries', 'founded', 'support'];
+
+  function renderStats() {
+    var host = document.getElementById('stats-row');
+    clear(host);
+    STATS.forEach(function (key) {
+      var box = el('div');
+      box.appendChild(el('div', 'stat-value', i18n.t('stat.' + key + 'Value')));
+      box.appendChild(el('div', 'stat-label mt-1', i18n.t('stat.' + key + 'Label')));
       host.appendChild(box);
     });
   }
@@ -121,17 +136,16 @@
   }
 
   function specRow(vehicle) {
-    var row = el('div', 'flex items-center gap-4 text-[0.8125rem]');
-    row.style.color = 'var(--grey-500)';
+    var row = el('div', 'flex flex-wrap items-center gap-2');
     [
       { key: 'seats', value: vehicle.seats + ' ' + i18n.t('fleet.seats') },
       { key: 'bags',  value: vehicle.bags + ' ' + i18n.t('fleet.bags') },
       { key: 'gear',  value: i18n.t('fleet.auto') }
     ].forEach(function (spec) {
-      var item = el('span', 'inline-flex items-center gap-1');
-      item.appendChild(icon(ICONS[spec.key], 15));
-      item.appendChild(el('span', null, spec.value));
-      row.appendChild(item);
+      var chip = el('span', 'spec-chip');
+      chip.appendChild(icon(ICONS[spec.key], 13));
+      chip.appendChild(el('span', null, spec.value));
+      row.appendChild(chip);
     });
     return row;
   }
@@ -140,30 +154,27 @@
     var host = document.getElementById('fleet-grid');
     clear(host);
     data.fleetByTab(tab).forEach(function (vehicle) {
-      var card = el('article', 'card');
+      var card = el('article', 'card card--vehicle');
       card.appendChild(mediaOrPlaceholder(
         vehicle.image, vehicle.imageSlot, '16:9',
         vehicle.name + ' — ' + copy({ th: vehicle.classTh, en: vehicle.classEn }),
         true
       ));
       var body = el('div', 'card-body');
-      body.appendChild(el('h3', 'text-[1.0625rem] leading-snug', vehicle.name));
-      var cls = el('p', 'text-[0.8125rem] -mt-1',
-        i18n.getLang() === 'en' ? vehicle.classEn : vehicle.classTh);
-      cls.style.color = 'var(--grey-500)';
-      body.appendChild(cls);
+      body.appendChild(el('p', 'overline',
+        i18n.getLang() === 'en' ? vehicle.classEn : vehicle.classTh));
+      body.appendChild(el('h3', 'text-[1.125rem] leading-snug -mt-1', vehicle.name));
       body.appendChild(specRow(vehicle));
 
-      var foot = el('div', 'flex items-end justify-between gap-2 pt-3 mt-auto');
+      var foot = el('div', 'flex items-end justify-between gap-2 pt-4 mt-auto');
       foot.style.borderTop = '1px solid var(--grey-200)';
       var price = el('div');
-      price.appendChild(el('span', 'text-[0.75rem] block', i18n.t('fleet.from')));
-      price.lastChild.style.color = 'var(--grey-500)';
-      var amount = el('span', 'font-bold text-[1.0625rem]',
+      price.appendChild(el('span', 'overline block', i18n.t('fleet.from')));
+      var amount = el('span', 'price-amount block',
         i18n.formatPrice(vehicle.pricePerDay) + i18n.t('fleet.perDay'));
       amount.title = i18n.t('fleet.priceNote');
       price.appendChild(amount);
-      var link = el('a', 'link-arrow', i18n.t('fleet.viewCar'));
+      var link = el('a', 'link-arrow pb-1', i18n.t('fleet.viewCar'));
       link.href = '#';
       foot.appendChild(price);
       foot.appendChild(link);
@@ -229,11 +240,11 @@
     clear(host);
     content.SERVICES.forEach(function (item) {
       var c = copy(item);
-      var card = el('article', 'card');
-      card.appendChild(mediaOrPlaceholder(null, item.imageSlot, '3:4', c.title));
-      var body = el('div', 'card-body');
+      var card = el('article', 'service-card');
+      card.appendChild(mediaOrPlaceholder(item.image, item.imageSlot, '3:4', c.title));
+      var body = el('div', 'service-body');
       body.appendChild(el('h3', null, c.title));
-      body.appendChild(el('p', 'lead text-[0.9375rem] flex-1', c.body));
+      body.appendChild(el('p', 'service-text', c.body));
       var btn = el('a', item.variant === 'primary' ? 'btn-primary mt-2' : 'btn-secondary mt-2', c.cta);
       btn.href = '#';
       body.appendChild(btn);
@@ -250,11 +261,10 @@
       var card = el('article', 'card');
       card.appendChild(mediaOrPlaceholder(null, item.imageSlot, '16:9', c.title));
       var body = el('div', 'card-body');
-      var date = el('time', 'text-[0.75rem] tracking-wide', i18n.formatDate(item.date));
+      var date = el('time', 'overline', i18n.formatDate(item.date));
       date.setAttribute('datetime', item.date);
-      date.style.color = 'var(--grey-500)';
       body.appendChild(date);
-      body.appendChild(el('h3', 'text-[1.0625rem] leading-snug clamp-2', c.title));
+      body.appendChild(el('h3', 'text-[1.125rem] leading-snug clamp-2', c.title));
       body.appendChild(el('p', 'lead text-[0.9375rem] clamp-2', c.body));
       card.appendChild(body);
       host.appendChild(card);
@@ -453,6 +463,7 @@
   function renderAll() {
     var tab = currentTab();
     renderValueProps();
+    renderStats();
     renderPromos();
     renderFleetTabs();
     selectTab(tab, false);

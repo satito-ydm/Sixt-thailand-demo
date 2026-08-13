@@ -221,14 +221,20 @@
 
 <main id="main">
 
-<!-- ══════════ SECTION: VALUE PROPS ══════════ -->
-<section class="section-y" style="background: var(--grey-50)">
-  <div class="container-x grid gap-8 md:grid-cols-3 md:gap-10" id="value-props"></div>
+<!-- ══════════ SECTION: VALUE PROPS + PROOF ══════════ -->
+<section class="section-y band-dark">
+  <div class="container-x">
+    <p class="section-kicker" data-i18n="kicker.why">ทำไมต้อง SIXT</p>
+    <div class="grid gap-8 md:grid-cols-3 md:gap-12 mt-6" id="value-props"></div>
+    <div class="grid grid-cols-2 gap-8 lg:grid-cols-4 mt-14 pt-10" id="stats-row"
+         style="border-top: 1px solid rgba(255,255,255,.16)"></div>
+  </div>
 </section>
 
 <!-- ══════════ SECTION: PROMOTIONS ══════════ -->
 <section class="section-y">
   <div class="container-x">
+    <p class="section-kicker" data-i18n="kicker.promo">ข้อเสนอพิเศษ</p>
     <h2 class="mb-8" data-i18n="promo.title">โปรโมชันล่าสุด</h2>
     <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" id="promo-grid"></div>
     <div class="flex justify-center mt-10">
@@ -241,7 +247,10 @@
 <section class="section-y" id="fleet" style="scroll-margin-top: 96px">
   <div class="container-x">
     <div class="flex flex-col gap-4 mb-6 lg:flex-row lg:items-end lg:justify-between">
-      <h2 data-i18n="fleet.title">ค้นหารถที่ใช่</h2>
+      <div>
+        <p class="section-kicker" data-i18n="kicker.fleet">ฟลีตรถยนต์</p>
+        <h2 data-i18n="fleet.title">ค้นหารถที่ใช่</h2>
+      </div>
       <div class="flex gap-6 overflow-x-auto -mx-4 px-4 lg:mx-0 lg:px-0"
            id="fleet-tabs" role="tablist" aria-label="Vehicle categories"></div>
     </div>
@@ -261,25 +270,30 @@
 </section>
 
 <!-- ══════════ SECTION: SERVICES ══════════ -->
+<!-- No quarter-circle accent here: the orange Membership band starts directly
+     below, and an orange shape bleeding into it reads as a smear rather than a
+     deliberate mark. -->
 <section class="section-y relative overflow-hidden" id="services" style="background: var(--grey-50)">
-  <span class="quarter quarter--bl" aria-hidden="true"></span>
   <div class="container-x relative">
+    <p class="section-kicker" data-i18n="kicker.services">บริการ</p>
     <h2 class="mb-8" data-i18n="services.title">บริการของเรา</h2>
     <div class="grid gap-6 md:grid-cols-3" id="service-grid"></div>
   </div>
 </section>
 
 <!-- ══════════ SECTION: MEMBERSHIP ══════════ -->
-<section class="relative overflow-hidden text-center" style="background: var(--grey-50); padding-block: var(--space-22)">
-  <span class="quarter quarter--tr" aria-hidden="true"></span>
-  <div class="container-x relative">
+<!-- The page's single orange band. Orange is the loudest thing in the palette,
+     so it is spent once, on the moment that asks for the biggest commitment. -->
+<section class="band-orange text-center" style="padding-block: var(--space-22)">
+  <div class="container-x">
+    <p class="section-kicker justify-center" data-i18n="kicker.member">สิทธิประโยชน์สมาชิก</p>
     <h2 data-i18n="member.title">SIXT Thailand Membership</h2>
     <p class="lead mx-auto mt-4 mb-8 max-w-[620px]" data-i18n="member.body"></p>
     <div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
       <a href="#" class="btn-primary" data-i18n="member.cta">สมัครสมาชิกเลย</a>
       <p class="text-[0.9375rem]">
         <span data-i18n="member.have">เป็นสมาชิกอยู่แล้ว?</span>
-        <a href="#" class="font-bold underline ml-1" style="color: var(--sixt-black)" data-i18n="member.login">เข้าสู่ระบบที่นี่</a>
+        <a href="#" class="font-bold underline ml-1" data-i18n="member.login">เข้าสู่ระบบที่นี่</a>
       </p>
     </div>
   </div>
@@ -290,6 +304,7 @@
   <div class="container-x">
     <div class="flex flex-col gap-3 mb-8 lg:flex-row lg:items-end lg:justify-between">
       <div>
+        <p class="section-kicker" data-i18n="kicker.news">อัปเดตล่าสุด</p>
         <h2 data-i18n="news.title">ข่าวสารและกิจกรรม</h2>
         <p class="lead mt-2" data-i18n="news.lead"></p>
       </div>
@@ -304,6 +319,7 @@
   <div class="container-x">
     <div class="flex flex-col gap-3 mb-8 lg:flex-row lg:items-end lg:justify-between">
       <div>
+        <p class="section-kicker" data-i18n="kicker.faq">ช่วยเหลือ</p>
         <h2 data-i18n="faq.title">คำถามที่พบบ่อย</h2>
         <p class="lead mt-2" data-i18n="faq.lead"></p>
       </div>

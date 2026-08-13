@@ -57,6 +57,7 @@
   var SERVICES = [
     {
       id: 'self-drive',
+      image: null,
       imageSlot: 'service-self-drive',
       variant: 'primary',
       th: { title: 'ขับเอง', body: 'ควบคุมการเดินทางได้เต็มที่ด้วยรถเช่าระยะสั้นที่ยืดหยุ่นตามแผนของคุณ', cta: 'เช่ารถ' },
@@ -64,6 +65,7 @@
     },
     {
       id: 'limousine',
+      image: null,
       imageSlot: 'service-limousine',
       variant: 'secondary',
       th: { title: 'ลีมูซีนพร้อมคนขับ', body: 'เดินทางอย่างมืออาชีพกับบริการรถพร้อมคนขับที่ผ่านการอบรมมาตรฐาน SIXT', cta: 'ดูบริการลีมูซีน' },
@@ -71,6 +73,7 @@
     },
     {
       id: 'subscription',
+      image: null,
       imageSlot: 'service-subscription',
       variant: 'secondary',
       th: { title: 'เช่ารถรายเดือน', body: 'ทางเลือกแทนการเช่าซื้อ จ่ายรายเดือนครบจบในราคาเดียว เปลี่ยนรุ่นรถได้', cta: 'ดูแพ็กเกจรายเดือน' },
@@ -82,6 +85,7 @@
     {
       id: 'ev-fleet',
       date: '2026-10-12',
+      image: null,
       imageSlot: 'news-ev-fleet',
       th: { title: 'SIXT ขยายฟลีตรถยนต์ไฟฟ้าในกรุงเทพฯ', body: 'เพิ่มรถ SUV ไฟฟ้าระยะทางไกลเข้าสู่คลาสรถพรีเมียม เปิดให้จองโดยตรงผ่านเว็บไซต์แล้ววันนี้' },
       en: { title: 'SIXT Expands Its Electric Fleet in Bangkok', body: 'Long-range electric SUVs join the premium class and are now bookable directly on the website.' }
@@ -89,6 +93,7 @@
     {
       id: 'chiang-mai-counter',
       date: '2026-09-28',
+      image: null,
       imageSlot: 'news-chiang-mai',
       th: { title: 'เปิดเคาน์เตอร์ใหม่ที่สนามบินเชียงใหม่', body: 'รับรถได้เร็วขึ้นด้วยขั้นตอนเอกสารแบบดิจิทัลเต็มรูปแบบที่เคาน์เตอร์แห่งใหม่ของเรา' },
       en: { title: 'New Airport Counter Opens in Chiang Mai', body: 'Faster pickups with fully paperless digital onboarding at our newest northern counter.' }
@@ -96,6 +101,7 @@
     {
       id: 'southern-routes',
       date: '2026-08-15',
+      image: null,
       imageSlot: 'news-southern-routes',
       th: { title: 'เส้นทางขับรถเที่ยวชายฝั่งภาคใต้', body: 'แนะนำจุดแวะพัก ที่เที่ยวที่คนยังไม่ค่อยรู้จัก และรุ่นรถที่เหมาะกับเส้นทางเลียบทะเล' },
       en: { title: 'Road Trip Guide: Southern Coastal Routes', body: 'Recommended stopovers, lesser-known spots and the vehicle classes best suited to seaside driving.' }
