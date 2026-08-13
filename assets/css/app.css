@@ -475,15 +475,21 @@ body.is-locked { overflow: hidden; }
 /* The wordmark is black artwork; invert it to sit on the dark footer. */
 .footer-logo { filter: brightness(0) invert(1); }
 
+/* Reads as the active search context, so it is shaped like a filter chip
+   rather than a callout. An accent stripe down one edge was the first idea and
+   the wrong one: it implies severity the message does not carry. */
 .search-summary {
   display: none;
   align-items: center;
   gap: var(--space-3);
   flex-wrap: wrap;
+  align-self: start;
+  width: fit-content;
+  max-width: 100%;
   background: var(--grey-50);
-  border-inline-start: 3px solid var(--sixt-orange);
-  border-radius: var(--radius-sm);
-  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--grey-200);
+  border-radius: 999px;
+  padding: var(--space-2) var(--space-4);
   font-size: var(--text-small);
   font-weight: 700;
 }
