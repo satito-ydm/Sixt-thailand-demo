@@ -239,7 +239,6 @@ body h3 { font-size: var(--text-h3); }
 .media[data-ratio="16:9"] { aspect-ratio: 16 / 9; }
 .media[data-ratio="2:1"]  { aspect-ratio: 2 / 1; }
 .media[data-ratio="3:4"]  { aspect-ratio: 3 / 4; }
-.media[data-ratio="native"] { aspect-ratio: auto; }
 .media img {
   width: 100%;
   height: 100%;
@@ -250,7 +249,6 @@ body h3 { font-size: var(--text-h3); }
    The card keeps a fixed ratio for grid alignment and the image is letterboxed
    inside it instead. */
 .media--contain img { object-fit: contain; }
-.media[data-ratio="native"] img { height: auto; }
 
 /* Form fields ------------------------------------------------------------------ */
 .field-label {
@@ -494,6 +492,79 @@ body.is-locked { overflow: hidden; }
   font-weight: 700;
 }
 .search-summary.is-visible { display: flex; }
+
+/* ══ Editorial hero ══════════════════════════════════════════════════════
+   A large picture inset in the page rather than bled to the window edge, with
+   the booking bar riding over its lower edge. Nothing is laid over the
+   photograph: this banner carries its own headline and wordmark, so type on
+   top of it would collide. */
+
+.hero-title {
+  font-size: clamp(2.25rem, 5vw, 3.25rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+.hero-media {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: var(--grey-50);
+  display: block;
+}
+.hero-media img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.booking-card {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 1120px);
+  margin-inline: auto;
+  margin-top: -76px; /* rides over the picture, as in the reference */
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-widget);
+  padding: var(--space-6);
+}
+/* Below the large breakpoint the picture is too short to give away 76px, and
+   the bar needs the full width for stacked fields. */
+@media (max-width: 1023px) {
+  .booking-card {
+    margin-top: var(--space-6);
+    width: 100%;
+    padding: var(--space-5);
+  }
+}
+
+/* Horizontal booking bar. Flex rather than grid so that revealing the return
+   location simply reflows the row instead of needing a second column recipe. */
+.booking-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+}
+/* The date cells need a wider basis than the location: a native date input and
+   a native time input side by side have a combined intrinsic width of roughly
+   215px in Chrome, and they will not shrink below it without min-width: 0. */
+.booking-field { flex: 1 1 232px; min-width: 0; }
+.booking-field--wide { flex: 1.4 1 240px; }
+.booking-field--pair { display: flex; gap: var(--space-2); }
+.booking-field--pair .field { min-width: 0; padding-inline: var(--space-2); }
+.booking-field--pair .field:first-child { flex: 1 1 60%; }
+.booking-field--pair .field:last-child { flex: 1 1 40%; }
+.booking-submit { flex: 0 0 auto; }
+.booking-submit .btn-primary { height: 48px; min-height: 48px; }
+
+@media (max-width: 639px) {
+  .booking-field,
+  .booking-field--wide,
+  .booking-submit { flex: 1 1 100%; }
+  .booking-submit .btn-primary { width: 100%; }
+}
 
 /* ══ Colour bands ═══════════════════════════════════════════════════════
    Full-bleed sections that invert the palette. Each band restates every

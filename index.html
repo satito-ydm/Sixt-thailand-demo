@@ -120,103 +120,102 @@
 </aside>
 
 <!-- ══════════ SECTION: HERO + BOOKING ══════════ -->
-<section id="hero" class="container-x pt-10 pb-14 lg:pt-14 lg:pb-16">
-  <div class="grid gap-10 lg:gap-12 lg:grid-cols-[1.05fr_1fr] lg:items-start">
+<section id="hero" class="container-x pt-8 pb-14 lg:pt-10 lg:pb-16">
 
-    <div class="order-1">
-      <h1>Drive Your Way</h1>
-      <p class="lead mt-3 mb-8" data-i18n="hero.subtitle">
-        เลือกสถานที่และวันที่ แล้วค้นหารถที่ว่างในพื้นที่ของคุณได้ทันที
-      </p>
+  <div class="flex flex-col gap-3 mb-6 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
+    <div>
+      <p class="section-kicker">SIXT Thailand</p>
+      <h1 class="hero-title">Drive Your Way</h1>
+    </div>
+    <p class="lead lg:max-w-[40ch] lg:text-right" data-i18n="hero.subtitle">
+      เลือกสถานที่และวันที่ แล้วค้นหารถที่ว่างในพื้นที่ของคุณได้ทันที
+    </p>
+  </div>
 
-      <form id="booking-form" novalidate
-            class="rounded-[12px] bg-white p-6 md:p-7"
-            style="box-shadow: var(--shadow-widget); border: 1px solid var(--grey-200)">
-        <h2 class="text-[1.25rem] mb-5" data-i18n="booking.title">จองรถ</h2>
+  <!-- Nothing is laid over this picture. The banner already carries its own
+       Thai headline and SIXT wordmark; type on top would collide with both.
+       Native ratio (1756×895) so neither is cropped at the edges. -->
+  <div class="hero-media">
+    <img src="assets/img/hero-banner.webp" width="1756" height="895" fetchpriority="high"
+         alt="แคมเปญ SIXT ร่วมกับ Thai Lion Air — เช่ารถพร้อมคนขับ รับส่งสนามบิน เริ่มต้น 1,099 บาทต่อเที่ยว กับ Mercedes-Benz E-Class">
+  </div>
 
-        <!-- pick-up location -->
-        <div class="mb-1">
-          <label class="field-label" for="pickup-location" data-i18n="booking.locationLabel">สถานที่รับรถ</label>
-          <div class="combo" id="combo-pickup">
-            <input type="text" id="pickup-location" class="field" autocomplete="off"
-                   role="combobox" aria-expanded="false" aria-autocomplete="list"
-                   aria-controls="pickup-location-list" aria-invalid="false"
-                   data-field="pickupLocation"
-                   data-i18n-attr="placeholder:booking.locationPlaceholder"
-                   placeholder="พิมพ์ชื่อเมือง สนามบิน หรือสาขา"
-                   aria-describedby="err-pickupLocation">
-            <input type="hidden" id="pickup-location-id" value="">
-            <ul class="combo-list" id="pickup-location-list" role="listbox" hidden></ul>
-          </div>
-          <p class="field-error" id="err-pickupLocation" role="alert"></p>
-        </div>
-
-        <button type="button" id="toggle-return-location" aria-expanded="false"
-                aria-controls="return-location-row"
-                class="link-toggle mb-4 mt-2 bg-transparent border-0 cursor-pointer p-0"
-                data-i18n="booking.differentReturn">+ คืนรถคนละที่</button>
-
-        <!-- return location -->
-        <div class="mb-4" id="return-location-row" hidden>
-          <label class="field-label" for="return-location" data-i18n="booking.returnLocationLabel">สถานที่คืนรถ</label>
-          <div class="combo" id="combo-return">
-            <input type="text" id="return-location" class="field" autocomplete="off"
-                   role="combobox" aria-expanded="false" aria-autocomplete="list"
-                   aria-controls="return-location-list" aria-invalid="false"
-                   data-field="returnLocation"
-                   data-i18n-attr="placeholder:booking.locationPlaceholder"
-                   placeholder="พิมพ์ชื่อเมือง สนามบิน หรือสาขา"
-                   aria-describedby="err-returnLocation">
-            <input type="hidden" id="return-location-id" value="">
-            <ul class="combo-list" id="return-location-list" role="listbox" hidden></ul>
-          </div>
-          <p class="field-error" id="err-returnLocation" role="alert"></p>
-        </div>
-
-        <!-- dates -->
-        <div class="grid grid-cols-2 gap-3 mb-4">
-          <div>
-            <label class="field-label" for="pickup-date" data-i18n="booking.pickupDate">วันที่รับรถ</label>
-            <input type="date" id="pickup-date" class="field" data-field="pickupDate"
-                   aria-invalid="false" aria-describedby="err-pickupDate">
-            <p class="field-error" id="err-pickupDate" role="alert"></p>
-          </div>
-          <div>
-            <label class="field-label" for="pickup-time" data-i18n="booking.pickupTime">เวลารับรถ</label>
-            <input type="time" id="pickup-time" class="field" value="10:00" data-field="pickupTime"
-                   aria-invalid="false" aria-describedby="err-pickupTime">
-            <p class="field-error" id="err-pickupTime" role="alert"></p>
-          </div>
-          <div>
-            <label class="field-label" for="return-date" data-i18n="booking.returnDate">วันที่คืนรถ</label>
-            <input type="date" id="return-date" class="field" data-field="returnDate"
-                   aria-invalid="false" aria-describedby="err-returnDate">
-            <p class="field-error" id="err-returnDate" role="alert"></p>
-          </div>
-          <div>
-            <label class="field-label" for="return-time" data-i18n="booking.returnTime">เวลาคืนรถ</label>
-            <input type="time" id="return-time" class="field" value="10:00" data-field="returnTime"
-                   aria-invalid="false" aria-describedby="err-returnTime">
-            <p class="field-error" id="err-returnTime" role="alert"></p>
-          </div>
-        </div>
-
-        <button type="submit" class="btn-primary w-full" data-i18n="booking.submit">ค้นหารถที่ว่าง</button>
-      </form>
+  <form id="booking-form" novalidate class="booking-card">
+    <div class="flex items-baseline justify-between gap-4 mb-4">
+      <h2 class="text-[1.25rem]" data-i18n="booking.title">จองรถ</h2>
+      <button type="button" id="toggle-return-location" aria-expanded="false"
+              aria-controls="return-location-row"
+              class="link-toggle bg-transparent border-0 cursor-pointer p-0"
+              data-i18n="booking.differentReturn">+ คืนรถคนละที่</button>
     </div>
 
-    <!-- The supplied banner carries its own headline and wordmark. Framing it
-         as a card makes it read as a campaign shown on the page rather than as
-         the page's own artwork, so it does not fight the H1 beside it. -->
-    <div class="order-2 lg:sticky lg:top-28">
-      <!-- Native ratio (1756×895), not a fixed 16:9 slot: cropping this banner
-           would clip the SIXT wordmark at its left edge. -->
-      <div class="media rounded-[12px]" data-ratio="native" style="box-shadow: var(--shadow-card)">
-        <img src="assets/img/hero-banner.webp" width="1756" height="895"
-             alt="แคมเปญ SIXT ร่วมกับ Thai Lion Air — เช่ารถพร้อมคนขับ รับส่งสนามบิน เริ่มต้น 1,099 บาทต่อเที่ยว กับ Mercedes-Benz E-Class">
+    <div class="booking-bar">
+      <!-- pick-up location -->
+      <div class="booking-field booking-field--wide">
+        <label class="field-label" for="pickup-location" data-i18n="booking.locationLabel">สถานที่รับรถ</label>
+        <div class="combo" id="combo-pickup">
+          <input type="text" id="pickup-location" class="field" autocomplete="off"
+                 role="combobox" aria-expanded="false" aria-autocomplete="list"
+                 aria-controls="pickup-location-list" aria-invalid="false"
+                 data-field="pickupLocation"
+                 data-i18n-attr="placeholder:booking.locationPlaceholder"
+                 placeholder="พิมพ์ชื่อเมือง สนามบิน หรือสาขา"
+                 aria-describedby="err-pickupLocation">
+          <input type="hidden" id="pickup-location-id" value="">
+          <ul class="combo-list" id="pickup-location-list" role="listbox" hidden></ul>
+        </div>
+        <p class="field-error" id="err-pickupLocation" role="alert"></p>
+      </div>
+
+      <!-- return location, revealed by the toggle -->
+      <div class="booking-field booking-field--wide" id="return-location-row" hidden>
+        <label class="field-label" for="return-location" data-i18n="booking.returnLocationLabel">สถานที่คืนรถ</label>
+        <div class="combo" id="combo-return">
+          <input type="text" id="return-location" class="field" autocomplete="off"
+                 role="combobox" aria-expanded="false" aria-autocomplete="list"
+                 aria-controls="return-location-list" aria-invalid="false"
+                 data-field="returnLocation"
+                 data-i18n-attr="placeholder:booking.locationPlaceholder"
+                 placeholder="พิมพ์ชื่อเมือง สนามบิน หรือสาขา"
+                 aria-describedby="err-returnLocation">
+          <input type="hidden" id="return-location-id" value="">
+          <ul class="combo-list" id="return-location-list" role="listbox" hidden></ul>
+        </div>
+        <p class="field-error" id="err-returnLocation" role="alert"></p>
+      </div>
+
+      <!-- pick-up date and time share one cell so neither gets squeezed -->
+      <div class="booking-field">
+        <label class="field-label" for="pickup-date" data-i18n="booking.pickupDate">วันที่รับรถ</label>
+        <div class="booking-field--pair">
+          <input type="date" id="pickup-date" class="field" data-field="pickupDate"
+                 aria-invalid="false" aria-describedby="err-pickupDate">
+          <input type="time" id="pickup-time" class="field" value="10:00" data-field="pickupTime"
+                 aria-invalid="false" aria-describedby="err-pickupTime"
+                 data-i18n-attr="aria-label:booking.pickupTime">
+        </div>
+        <p class="field-error" id="err-pickupDate" role="alert"></p>
+        <p class="field-error" id="err-pickupTime" role="alert"></p>
+      </div>
+
+      <div class="booking-field">
+        <label class="field-label" for="return-date" data-i18n="booking.returnDate">วันที่คืนรถ</label>
+        <div class="booking-field--pair">
+          <input type="date" id="return-date" class="field" data-field="returnDate"
+                 aria-invalid="false" aria-describedby="err-returnDate">
+          <input type="time" id="return-time" class="field" value="10:00" data-field="returnTime"
+                 aria-invalid="false" aria-describedby="err-returnTime"
+                 data-i18n-attr="aria-label:booking.returnTime">
+        </div>
+        <p class="field-error" id="err-returnDate" role="alert"></p>
+        <p class="field-error" id="err-returnTime" role="alert"></p>
+      </div>
+
+      <div class="booking-submit">
+        <button type="submit" class="btn-primary" data-i18n="booking.submit">ค้นหารถที่ว่าง</button>
       </div>
     </div>
-  </div>
+  </form>
 </section>
 
 <main id="main">

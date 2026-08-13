@@ -146,10 +146,17 @@ Written to be plausible, not supplied by SIXT. Replace before launch.
 6. **Language switcher placement.** It sits in the footer, as the wireframe
    specifies. An English-speaking visitor landing on the Thai default has to
    scroll the entire page to find it. Recommend adding one to the header next.
-7. **Two headlines in the hero.** `Banner.png` has its own Thai headline and
-   SIXT wordmark baked in, and sits beside the page's own `Drive Your Way`
-   heading. Framing the banner as a card softens the clash but does not remove
-   it. A version of the banner without type would.
+7. **The hero banner needs a mobile crop.** `Banner.png` is 1756×895 with its
+   Thai headline, prices and fine print baked into the artwork. At 375px wide
+   it renders 191px tall and the small type inside is illegible. Nothing in
+   CSS can fix that — a portrait or square variant of the same campaign is
+   required. Until one arrives, phone users get a decorative strip rather than
+   a readable message.
+8. **The hero carries no overlaid type, by request.** The page heading sits
+   above the picture instead of on it, because the banner already contains its
+   own headline and a second SIXT wordmark. If a clean photograph without type
+   is supplied, the heading can move onto the image and the hero becomes the
+   full cinematic treatment the reference calls for.
 
 ---
 
