@@ -1,0 +1,498 @@
+/* SIXT Thailand — component classes.
+   Layout is done with Tailwind utilities in the markup; anything repeated,
+   or anything carrying an accessibility guarantee, lives here. */
+
+/* Base ------------------------------------------------------------------ */
+body {
+  font-family: var(--font-sans);
+  color: var(--sixt-black);
+  background: var(--white);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Thai glyphs are taller than Latin and stack diacritics above and below,
+   so they need more leading or the marks collide. */
+:lang(th) { line-height: 1.7; }
+:lang(en) { line-height: 1.5; }
+:lang(th) h1, :lang(th) h2, :lang(th) h3 { line-height: 1.35; }
+
+/* Scoped under `body` on purpose. The Tailwind Play CDN injects its preflight
+   reset into a <style> element at runtime, which lands after these link tags,
+   so a bare `h1 { font-size }` would lose the cascade to preflight's reset.
+   The extra element in the selector wins it back without !important. */
+body h1, body h2, body h3 { font-weight: 700; letter-spacing: -0.015em; }
+body h1 { font-size: var(--text-display); }
+body h2 { font-size: var(--text-h2); }
+body h3 { font-size: var(--text-h3); }
+
+.container-x {
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+@media (min-width: 640px)  { .container-x { padding-inline: var(--space-6); } }
+@media (min-width: 1024px) { .container-x { padding-inline: 2.5rem; } }
+
+.section-y { padding-block: var(--space-18); }
+
+.lead {
+  font-size: var(--text-body);
+  font-weight: 300;
+  color: var(--grey-500);
+  max-width: 62ch;
+}
+
+/* Focus ------------------------------------------------------------------ */
+:focus-visible {
+  outline: 2px solid var(--sixt-orange);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: var(--space-2);
+  z-index: 100;
+  background: var(--sixt-black);
+  color: var(--white);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+}
+.skip-link:focus { left: var(--space-4); }
+
+/* Buttons ----------------------------------------------------------------- */
+/* ACCESSIBILITY CONTRACT — do not weaken.
+   White on --sixt-orange is 3.28:1. WCAG AA needs 4.5:1 for normal text but
+   only 3.0:1 for large text (>=18.66px bold). Holding every primary button at
+   19px/700 is what makes the brand's white-on-orange pass. Never override
+   font-size or font-weight on .btn-primary at the call site. */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: 1.1875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  padding: var(--space-3) var(--space-8);
+  min-height: 52px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--sixt-orange);
+  color: var(--white);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background var(--transition);
+}
+.btn-primary:hover,
+.btn-primary:active { background: var(--sixt-orange-deep); }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: 700;
+  line-height: 1.2;
+  padding: var(--space-3) var(--space-8);
+  min-height: 48px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--sixt-black);
+  color: var(--white);
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity var(--transition);
+}
+.btn-secondary:hover { opacity: 0.85; }
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: 700;
+  line-height: 1.2;
+  padding: var(--space-3) var(--space-6);
+  min-height: 44px;
+  border: 1px solid var(--sixt-black);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--sixt-black);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background var(--transition), color var(--transition);
+}
+.btn-outline:hover { background: var(--sixt-black); color: var(--white); }
+
+/* Link with an orange arrow. The word stays black because orange text at body
+   size is only 3.28:1; the arrow is non-text and may be orange at 3.0:1. */
+.link-arrow {
+  display: inline-block;
+  font-weight: 700;
+  font-size: var(--text-small);
+  color: var(--sixt-black);
+  text-decoration: none;
+}
+.link-arrow::after {
+  content: ' \2192';
+  color: var(--sixt-orange);
+  display: inline-block;
+  transition: transform var(--transition);
+}
+.link-arrow:hover::after { transform: translateX(3px); }
+
+/* Same weight as .link-arrow but with no trailing glyph — for controls whose
+   label already carries its own +/− affordance. */
+.link-toggle {
+  font-weight: 700;
+  font-size: var(--text-small);
+  color: var(--sixt-black);
+  text-decoration: none;
+}
+.link-toggle:hover { color: var(--sixt-orange-deep); }
+
+/* Cards -------------------------------------------------------------------- */
+.card {
+  background: var(--white);
+  border: 1px solid var(--grey-200);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+.card:hover { box-shadow: var(--shadow-card); }
+
+.card-body {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+/* Small badge. Black ground, not orange — 11px white on orange cannot reach
+   the large-text exemption, so it would fail AA. */
+.badge {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--sixt-black);
+  color: var(--white);
+}
+
+.clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Image placeholder --------------------------------------------------------- */
+.ph {
+  position: relative;
+  display: block;
+  width: 100%;
+  background: var(--grey-100);
+  overflow: hidden;
+}
+.ph[data-ratio="16:9"] { aspect-ratio: 16 / 9; }
+.ph[data-ratio="2:1"]  { aspect-ratio: 2 / 1; }
+.ph[data-ratio="3:4"]  { aspect-ratio: 3 / 4; }
+.ph::before {
+  content: '';
+  position: absolute;
+  inset: 26% 20%;
+  border-radius: 44% 44% 34% 34% / 62% 62% 38% 38%;
+  background: var(--sixt-black);
+  opacity: 0.10;
+}
+.ph-label {
+  position: absolute;
+  left: var(--space-3);
+  bottom: var(--space-2);
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: var(--grey-500);
+  letter-spacing: 0.02em;
+}
+
+/* Fixed-ratio real image ------------------------------------------------------ */
+.media {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  background: var(--grey-50);
+}
+.media[data-ratio="16:9"] { aspect-ratio: 16 / 9; }
+.media[data-ratio="2:1"]  { aspect-ratio: 2 / 1; }
+.media[data-ratio="3:4"]  { aspect-ratio: 3 / 4; }
+.media[data-ratio="native"] { aspect-ratio: auto; }
+.media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* Campaign artwork carries baked-in headlines, so it must never be cropped.
+   The card keeps a fixed ratio for grid alignment and the image is letterboxed
+   inside it instead. */
+.media--contain img { object-fit: contain; }
+.media[data-ratio="native"] img { height: auto; }
+
+/* Form fields ------------------------------------------------------------------ */
+.field-label {
+  display: block;
+  font-size: var(--text-label);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--grey-500);
+  margin-bottom: var(--space-2);
+}
+.field {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  color: var(--sixt-black);
+  background: var(--white);
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  min-height: 48px;
+  transition: border-color var(--transition);
+}
+.field:hover { border-color: var(--sixt-black); }
+.field[aria-invalid="true"] { border-color: var(--error); }
+.field-error {
+  display: none;
+  font-size: 0.8125rem;
+  color: var(--error);
+  margin-top: var(--space-1);
+}
+.field-error.is-visible { display: block; }
+
+/* Location combobox ------------------------------------------------------------- */
+.combo { position: relative; }
+.combo-list {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 280px;
+  overflow-y: auto;
+  background: var(--white);
+  border: 1px solid var(--grey-200);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-1) 0;
+  margin: 0;
+  list-style: none;
+}
+.combo-list[hidden] { display: none; }
+.combo-group {
+  font-size: var(--text-label);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--grey-500);
+  padding: var(--space-2) var(--space-3) var(--space-1);
+}
+.combo-option {
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+  font-size: var(--text-body);
+}
+.combo-option:hover,
+.combo-option.is-active { background: var(--grey-50); }
+.combo-empty {
+  padding: var(--space-3);
+  font-size: var(--text-small);
+  color: var(--grey-500);
+}
+
+/* Tabs ---------------------------------------------------------------------------- */
+.tab {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: 700;
+  color: var(--grey-500);
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: var(--space-2) var(--space-1);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--transition), border-color var(--transition);
+}
+.tab[aria-selected="true"] {
+  color: var(--sixt-black);
+  border-bottom-color: var(--sixt-orange);
+}
+
+/* Accordion ------------------------------------------------------------------------ */
+.acc-item { border-bottom: 1px solid var(--grey-200); }
+.acc-item:last-child { border-bottom: 0; }
+.acc-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  text-align: start;
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: 700;
+  color: var(--sixt-black);
+  background: none;
+  border: 0;
+  padding: var(--space-4);
+  cursor: pointer;
+}
+.acc-icon {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  position: relative;
+  transition: transform var(--transition);
+}
+.acc-icon::before,
+.acc-icon::after {
+  content: '';
+  position: absolute;
+  background: var(--sixt-orange);
+  inset-inline: 0;
+  top: 9px;
+  height: 2px;
+}
+.acc-icon::after { transform: rotate(90deg); }
+.acc-trigger[aria-expanded="true"] .acc-icon { transform: rotate(45deg); }
+.acc-panel {
+  padding: 0 var(--space-4) var(--space-4);
+  font-weight: 300;
+  color: var(--grey-500);
+  max-width: 82ch;
+}
+.acc-panel[hidden] { display: none; }
+
+/* Header ------------------------------------------------------------------------------ */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--white);
+  transition: box-shadow var(--transition);
+}
+.site-header.is-stuck { box-shadow: var(--shadow-header); }
+
+.nav-link {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--sixt-black);
+  text-decoration: none;
+  padding-block: var(--space-2);
+  border-bottom: 2px solid transparent;
+  transition: border-color var(--transition);
+}
+.nav-link:hover { border-bottom-color: var(--sixt-orange); }
+
+/* Mobile drawer ------------------------------------------------------------------------- */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition);
+}
+.drawer-overlay.is-open { opacity: 1; pointer-events: auto; }
+
+.drawer {
+  position: fixed;
+  inset-block: 0;
+  inset-inline-start: 0;
+  z-index: 70;
+  width: min(320px, 86vw);
+  background: var(--white);
+  padding: var(--space-6) var(--space-4);
+  transform: translateX(-100%);
+  transition: transform var(--transition);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  overflow-y: auto;
+}
+.drawer.is-open { transform: translateX(0); }
+body.is-locked { overflow: hidden; }
+
+/* Decorative quarter circle (moodboard accent). Used twice on the page only. */
+.quarter {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  background: var(--sixt-orange);
+  pointer-events: none;
+}
+.quarter--tr { top: 0; right: 0; border-bottom-left-radius: 100%; }
+.quarter--bl { bottom: 0; left: 0; border-top-right-radius: 100%; }
+@media (max-width: 767px) { .quarter { width: 96px; height: 96px; } }
+
+/* Footer ---------------------------------------------------------------------------------- */
+.site-footer {
+  background: var(--sixt-black);
+  color: var(--white);
+}
+.site-footer a {
+  color: var(--white);
+  text-decoration: none;
+  font-size: var(--text-small);
+  font-weight: 300;
+  opacity: 0.82;
+  transition: opacity var(--transition);
+}
+.site-footer a:hover { opacity: 1; text-decoration: underline; }
+.footer-heading {
+  font-size: var(--text-label);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-4);
+}
+/* The wordmark is black artwork; invert it to sit on the dark footer. */
+.footer-logo { filter: brightness(0) invert(1); }
+
+.search-summary {
+  display: none;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  background: var(--grey-50);
+  border-inline-start: 3px solid var(--sixt-orange);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-small);
+  font-weight: 700;
+}
+.search-summary.is-visible { display: flex; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}

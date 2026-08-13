@@ -1,0 +1,376 @@
+(function (root) {
+  'use strict';
+  var T = root.SIXT.test;
+  var fs = typeof require === 'function' ? require('fs') : null;
+  var here = typeof __dirname !== 'undefined' ? __dirname : null;
+
+  function readProjectFile(rel) {
+    return fs.readFileSync(here + '/../' + rel, 'utf8');
+  }
+
+  /* ═══ Tokens and the accessibility contract ═══════════════════════════ */
+
+  T.test('brand tokens hold the values measured from logo.png, not the brief estimates', function () {
+    if (!fs) { return; } /* browser run — the Node run covers this */
+    var css = readProjectFile('assets/css/tokens.css');
+    T.ok(/--sixt-orange:\s*#FF5000/i.test(css), 'orange must be #FF5000');
+    T.ok(/--sixt-black:\s*#1A1A1A/i.test(css), 'black must be #1A1A1A');
+    T.ok(/--sixt-orange-deep:\s*#E04400/i.test(css), 'deep orange must be #E04400');
+    T.ok(!/#FF5F00/i.test(css), 'the brief estimate #FF5F00 must not appear');
+    T.ok(!/#111111/i.test(css), 'the brief estimate #111111 must not appear');
+  });
+
+  T.test('.btn-primary meets the WCAG large-text threshold that makes white-on-orange pass', function () {
+    if (!fs) { return; }
+    var css = readProjectFile('assets/css/app.css');
+    var rule = css.match(/\.btn-primary\s*\{[^}]*\}/);
+    T.ok(rule, '.btn-primary rule must exist');
+    T.ok(/font-size:\s*1\.1875rem/.test(rule[0]), '.btn-primary must be 19px');
+    T.ok(/font-weight:\s*700/.test(rule[0]), '.btn-primary must be bold');
+  });
+
+  T.test('the PROMO badge sits on black, never on orange', function () {
+    if (!fs) { return; }
+    var css = readProjectFile('assets/css/app.css');
+    var rule = css.match(/\.badge\s*\{[^}]*\}/);
+    T.ok(rule, '.badge rule must exist');
+    T.ok(/background:\s*var\(--sixt-black\)/.test(rule[0]),
+      '11px white on orange cannot reach the large-text exemption');
+  });
+
+  T.test('colour lives only in tokens.css — no hex literals leak into markup or logic', function () {
+    if (!fs) { return; }
+    ['index.html', 'assets/css/app.css', 'assets/js/ui.js', 'assets/js/i18n.js']
+      .forEach(function (rel) {
+        var text = readProjectFile(rel);
+        var hits = text.match(/#[0-9A-Fa-f]{6}\b/g) || [];
+        T.eq(hits, [], rel + ' must not contain hex colours');
+      });
+  });
+
+  /* ═══ data.js ═════════════════════════════════════════════════════════ */
+
+  T.test('there are 17 locations: 5 in Bangkok, 12 upcountry', function () {
+    var D = root.SIXT.data;
+    T.eq(D.LOCATIONS.length, 17);
+    T.eq(D.locationsByGroup('bangkok').length, 5);
+    T.eq(D.locationsByGroup('upcountry').length, 12);
+  });
+
+  T.test('every location has a unique id, a valid group and both languages', function () {
+    var seen = {};
+    root.SIXT.data.LOCATIONS.forEach(function (l) {
+      T.ok(l.id, 'location needs an id');
+      T.ok(!seen[l.id], 'duplicate location id: ' + l.id);
+      seen[l.id] = true;
+      T.ok(l.th && l.th.length, l.id + ' needs Thai');
+      T.ok(l.en && l.en.length, l.id + ' needs English');
+      T.ok(l.group === 'bangkok' || l.group === 'upcountry', l.id + ' has a bad group');
+    });
+  });
+
+  T.test('findLocation returns the record, and undefined for a miss', function () {
+    T.eq(root.SIXT.data.findLocation('suvarnabhumi').en, 'Suvarnabhumi Airport');
+    T.eq(root.SIXT.data.findLocation('nope'), undefined);
+  });
+
+  T.test('the fleet has 16 vehicles, four in each of the four wireframe tabs', function () {
+    var D = root.SIXT.data;
+    T.eq(D.FLEET.length, 16);
+    T.eq(D.TABS, ['compact', 'suv', 'mpv', 'premium']);
+    D.TABS.forEach(function (tab) {
+      T.eq(D.fleetByTab(tab).length, 4, tab + ' must hold exactly four vehicles');
+    });
+  });
+
+  T.test('the default tab is premium, the only tab with real photography', function () {
+    var D = root.SIXT.data;
+    T.eq(D.DEFAULT_TAB, 'premium');
+    T.eq(D.fleetByTab('premium').filter(function (v) { return v.image; }).length, 2);
+  });
+
+  T.test('every vehicle carries complete, well-typed specs', function () {
+    var D = root.SIXT.data;
+    var seen = {};
+    D.FLEET.forEach(function (v) {
+      T.ok(!seen[v.id], 'duplicate vehicle id: ' + v.id);
+      seen[v.id] = true;
+      T.ok(D.TABS.indexOf(v.tab) !== -1, v.id + ' has a bad tab');
+      T.ok(typeof v.name === 'string' && v.name.length, v.id + ' needs a name');
+      T.ok(v.classTh && v.classEn, v.id + ' needs a class in both languages');
+      T.ok(typeof v.seats === 'number' && v.seats > 0, v.id + ' needs seats');
+      T.ok(typeof v.bags === 'number' && v.bags >= 0, v.id + ' needs bags');
+      T.eq(v.transmission, 'auto', v.id + ' transmission');
+      T.ok(typeof v.pricePerDay === 'number' && v.pricePerDay > 0, v.id + ' needs a price');
+      T.ok(typeof v.imageSlot === 'string' && v.imageSlot.length, v.id + ' needs an imageSlot');
+    });
+  });
+
+  T.test('every price is flagged as a placeholder until real rates arrive', function () {
+    root.SIXT.data.FLEET.forEach(function (v) {
+      T.eq(v.priceIsPlaceholder, true, v.id + ' price must be flagged');
+    });
+  });
+
+  T.test('exactly four vehicles have real photography and the paths are webp', function () {
+    var withImage = root.SIXT.data.FLEET.filter(function (v) { return v.image; });
+    T.eq(withImage.map(function (v) { return v.id; }).sort(),
+      ['bmw-3-series', 'honda-cr-v', 'mercedes-c-class', 'toyota-veloz']);
+    withImage.forEach(function (v) {
+      T.ok(/^assets\/img\/car-[a-z0-9-]+\.webp$/.test(v.image), v.id + ' bad path: ' + v.image);
+    });
+  });
+
+  T.test('every referenced image file actually exists on disk', function () {
+    if (!fs) { return; }
+    var refs = root.SIXT.data.FLEET
+      .filter(function (v) { return v.image; })
+      .map(function (v) { return v.image; })
+      .concat(root.SIXT.content.PROMOS
+        .filter(function (p) { return p.image; })
+        .map(function (p) { return p.image; }))
+      .concat(['assets/img/hero-banner.webp', 'assets/img/logo.webp']);
+    refs.forEach(function (rel) {
+      T.ok(fs.existsSync(here + '/../' + rel), 'missing asset: ' + rel);
+    });
+  });
+
+  /* ═══ content.js ══════════════════════════════════════════════════════ */
+
+  T.test('every content entry carries both Thai and English', function () {
+    var C = root.SIXT.content;
+    [['VALUE_PROPS', ['title', 'body']],
+     ['PROMOS', ['title', 'body']],
+     ['SERVICES', ['title', 'body', 'cta']],
+     ['NEWS', ['title', 'body']],
+     ['FAQ', ['q', 'a']]].forEach(function (pair) {
+      var listName = pair[0];
+      var fields = pair[1];
+      C[listName].forEach(function (entry) {
+        ['th', 'en'].forEach(function (lang) {
+          T.ok(entry[lang], listName + '/' + entry.id + ' is missing ' + lang);
+          fields.forEach(function (f) {
+            T.ok(entry[lang][f] && entry[lang][f].length,
+              listName + '/' + entry.id + '.' + lang + '.' + f + ' is empty');
+          });
+        });
+      });
+    });
+  });
+
+  T.test('the wireframe counts hold: 3 value props, 3 promos, 3 services, 3 news, 4 FAQs', function () {
+    var C = root.SIXT.content;
+    T.eq(C.VALUE_PROPS.length, 3);
+    T.eq(C.PROMOS.length, 3);
+    T.eq(C.SERVICES.length, 3);
+    T.eq(C.NEWS.length, 3);
+    T.eq(C.FAQ.length, 4);
+  });
+
+  T.test('two promos use real artwork and the third is an honest placeholder', function () {
+    var real = root.SIXT.content.PROMOS.filter(function (p) { return p.image; });
+    T.eq(real.map(function (p) { return p.id; }), ['xpeng-g6', 'kbank-domestic']);
+    T.eq(root.SIXT.content.PROMOS[2].image, null);
+  });
+
+  T.test('the Thai Lion Air promo card is not repeated — it is already the hero', function () {
+    var ids = root.SIXT.content.PROMOS.map(function (p) { return p.id; });
+    T.eq(ids.indexOf('thai-lion-air'), -1);
+  });
+
+  T.test('the footer has five columns of five links, each bilingual', function () {
+    var F = root.SIXT.content.FOOTER;
+    T.eq(F.length, 5);
+    F.forEach(function (col) {
+      T.ok(col.th && col.en, col.id + ' heading needs both languages');
+      T.eq(col.links.length, 5, col.id + ' must have five links');
+      col.links.forEach(function (link) {
+        T.ok(link.th && link.en, col.id + ' has a link missing a language');
+      });
+    });
+  });
+
+  T.test('news dates are ISO strings so they format correctly in both calendars', function () {
+    root.SIXT.content.NEWS.forEach(function (item) {
+      T.ok(/^\d{4}-\d{2}-\d{2}$/.test(item.date), item.id + ' bad date: ' + item.date);
+    });
+  });
+
+  /* ═══ i18n.js ═════════════════════════════════════════════════════════ */
+
+  T.test('the Thai and English dictionaries hold exactly the same keys', function () {
+    var d = root.SIXT.i18n.dict;
+    var th = Object.keys(d.th).sort();
+    var en = Object.keys(d.en).sort();
+    var missingEn = th.filter(function (k) { return en.indexOf(k) === -1; });
+    var missingTh = en.filter(function (k) { return th.indexOf(k) === -1; });
+    T.eq(missingEn, [], 'keys missing from en');
+    T.eq(missingTh, [], 'keys missing from th');
+  });
+
+  T.test('no dictionary value is left empty', function () {
+    var d = root.SIXT.i18n.dict;
+    ['th', 'en'].forEach(function (lang) {
+      Object.keys(d[lang]).forEach(function (key) {
+        T.ok(d[lang][key] && d[lang][key].length, lang + '.' + key + ' is empty');
+      });
+    });
+  });
+
+  T.test('Thai is the default language', function () {
+    T.eq(root.SIXT.i18n.DEFAULT_LANG, 'th');
+  });
+
+  T.test('t() returns the active language and interpolates variables', function () {
+    var i18n = root.SIXT.i18n;
+    i18n.setLang('th');
+    T.eq(i18n.t('booking.submit'), 'ค้นหารถที่ว่าง');
+    T.eq(i18n.t('booking.summaryDays', { n: 2 }), '2 วัน');
+    i18n.setLang('en');
+    T.eq(i18n.t('booking.submit'), 'Search Available Car');
+    T.eq(i18n.t('booking.summaryDays', { n: 3 }), '3 days');
+    i18n.setLang('th');
+  });
+
+  T.test('an unknown key returns the key itself rather than blank text', function () {
+    T.eq(root.SIXT.i18n.t('does.not.exist'), 'does.not.exist');
+  });
+
+  T.test('an unknown language falls back to Thai instead of breaking', function () {
+    var i18n = root.SIXT.i18n;
+    T.eq(i18n.setLang('de'), 'th');
+    T.eq(i18n.getLang(), 'th');
+  });
+
+  T.test('setLang persists the choice so it survives a reload', function () {
+    var i18n = root.SIXT.i18n;
+    i18n.setLang('en');
+    T.eq(localStorage.getItem(i18n.STORAGE_KEY), 'en');
+    T.eq(i18n.restore(), 'en');
+    i18n.setLang('th');
+  });
+
+  T.test('Thai dates use the Buddhist era and abbreviated Thai months', function () {
+    T.eq(root.SIXT.i18n.formatDate('2026-08-15', 'th'), '15 ส.ค. 2569');
+    T.eq(root.SIXT.i18n.formatDate('2026-01-01', 'th'), '1 ม.ค. 2569');
+    T.eq(root.SIXT.i18n.formatDate('2026-12-31', 'th'), '31 ธ.ค. 2569');
+  });
+
+  T.test('English dates use the Gregorian year', function () {
+    T.eq(root.SIXT.i18n.formatDate('2026-08-15', 'en'), '15 Aug 2026');
+  });
+
+  T.test('dates are parsed by hand, so no timezone shifts the day', function () {
+    /* new Date('2026-01-01') is UTC midnight and renders as 31 Dec in the
+       Americas. Parsing the string directly keeps the day stable everywhere. */
+    T.eq(root.SIXT.i18n.formatDate('2026-01-01', 'en'), '1 Jan 2026');
+  });
+
+  T.test('date ranges collapse the shared month and year', function () {
+    var f = root.SIXT.i18n.formatDateRange;
+    T.eq(f('2026-08-15', '2026-08-16', 'th'), '15–16 ส.ค. 2569');
+    T.eq(f('2026-08-28', '2026-09-02', 'th'), '28 ส.ค. – 2 ก.ย. 2569');
+    T.eq(f('2026-12-28', '2027-01-02', 'th'), '28 ธ.ค. 2569 – 2 ม.ค. 2570');
+    T.eq(f('2026-08-15', '2026-08-16', 'en'), '15–16 Aug 2026');
+  });
+
+  T.test('rental days are counted inclusively, matching the spec example', function () {
+    var d = root.SIXT.i18n.rentalDays;
+    T.eq(d('2026-08-15', '2026-08-16'), 2);
+    T.eq(d('2026-08-15', '2026-08-15'), 1);
+    T.eq(d('2026-08-01', '2026-08-07'), 7);
+    T.eq(d('2026-12-30', '2027-01-02'), 4); /* crosses a year boundary */
+  });
+
+  T.test('prices are grouped with thousands separators', function () {
+    T.eq(root.SIXT.i18n.formatPrice(5900), '฿5,900');
+    T.eq(root.SIXT.i18n.formatPrice(950), '฿950');
+    T.eq(root.SIXT.i18n.formatPrice(1200000), '฿1,200,000');
+  });
+
+  /* ═══ booking.js ══════════════════════════════════════════════════════ */
+
+  function state(extra) {
+    var base = {
+      pickupLocation: 'suvarnabhumi',
+      returnLocation: '',
+      differentReturn: false,
+      pickupDate: '2026-08-15',
+      pickupTime: '10:00',
+      returnDate: '2026-08-16',
+      returnTime: '10:00'
+    };
+    Object.keys(extra || {}).forEach(function (k) { base[k] = extra[k]; });
+    return base;
+  }
+
+  T.test('a complete booking passes validation', function () {
+    var r = root.SIXT.booking.validate(state());
+    T.eq(r.valid, true);
+    T.eq(r.errors, {});
+  });
+
+  T.test('a missing pick-up location is rejected', function () {
+    var r = root.SIXT.booking.validate(state({ pickupLocation: '' }));
+    T.eq(r.valid, false);
+    T.eq(r.errors.pickupLocation, 'booking.err.pickupLocationRequired');
+  });
+
+  T.test('a return location is only required once the toggle is open', function () {
+    T.eq(root.SIXT.booking.validate(state()).valid, true);
+    var r = root.SIXT.booking.validate(state({ differentReturn: true }));
+    T.eq(r.errors.returnLocation, 'booking.err.returnLocationRequired');
+    T.eq(root.SIXT.booking.validate(
+      state({ differentReturn: true, returnLocation: 'phuket-air' })).valid, true);
+  });
+
+  T.test('both dates are required', function () {
+    T.eq(root.SIXT.booking.validate(state({ pickupDate: '' })).errors.pickupDate,
+      'booking.err.pickupDateRequired');
+    T.eq(root.SIXT.booking.validate(state({ returnDate: '' })).errors.returnDate,
+      'booking.err.returnDateRequired');
+  });
+
+  T.test('a return date before the pick-up date is rejected', function () {
+    var r = root.SIXT.booking.validate(state({ returnDate: '2026-08-14' }));
+    T.eq(r.valid, false);
+    T.eq(r.errors.returnDate, 'booking.err.returnBeforePickup');
+  });
+
+  T.test('a same-day return must be later in the day', function () {
+    var same = { returnDate: '2026-08-15' };
+    T.eq(root.SIXT.booking.validate(state(same)).errors.returnTime,
+      'booking.err.returnTimeBeforePickup');
+    same.returnTime = '09:00';
+    T.eq(root.SIXT.booking.validate(state(same)).errors.returnTime,
+      'booking.err.returnTimeBeforePickup');
+    same.returnTime = '18:30';
+    T.eq(root.SIXT.booking.validate(state(same)).valid, true);
+  });
+
+  T.test('several problems are reported together, not one at a time', function () {
+    var r = root.SIXT.booking.validate({ differentReturn: true });
+    T.eq(Object.keys(r.errors).sort(),
+      ['pickupDate', 'pickupLocation', 'returnDate', 'returnLocation']);
+  });
+
+  T.test('the summary reads as one line of Thai', function () {
+    root.SIXT.i18n.setLang('th');
+    T.eq(root.SIXT.booking.summarize(state()),
+      'สุวรรณภูมิ (สนามบิน) · 15–16 ส.ค. 2569 · 2 วัน');
+  });
+
+  T.test('the summary follows the language switch', function () {
+    root.SIXT.i18n.setLang('en');
+    T.eq(root.SIXT.booking.summarize(state()),
+      'Suvarnabhumi Airport · 15–16 Aug 2026 · 2 days');
+    root.SIXT.i18n.setLang('th');
+  });
+
+  T.test('a one-way rental shows both ends of the trip', function () {
+    root.SIXT.i18n.setLang('th');
+    T.eq(root.SIXT.booking.summarize(
+      state({ differentReturn: true, returnLocation: 'chiang-mai' })),
+      'สุวรรณภูมิ (สนามบิน) → เชียงใหม่ · 15–16 ส.ค. 2569 · 2 วัน');
+  });
+})(typeof window !== 'undefined' ? window : globalThis);

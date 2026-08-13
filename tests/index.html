@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIXT Home — Tests</title>
+<style>
+  body { font: 14px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; padding: 24px; }
+  ul { list-style: none; padding: 0; }
+  li { margin: 2px 0; white-space: pre-wrap; }
+  .pass { color: #137333; }
+  .fail { color: #c5221f; font-weight: 700; }
+  #summary { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+  .note { color: #6B6B6B; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+  <div id="summary">Running…</div>
+  <p class="note">Filesystem-backed checks are skipped here; run <code>node tests/run.js</code> for those.</p>
+  <ul id="results"></ul>
+
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/content.js"></script>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/booking.js"></script>
+  <script src="harness.js"></script>
+  <script src="tests.js"></script>
+  <script>SIXT.test.run();</script>
+</body>
+</html>
