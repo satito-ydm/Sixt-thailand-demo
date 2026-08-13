@@ -91,6 +91,40 @@
       'car-compact-honda-civic')
   ];
 
+  /* TEMPORARY: only four vehicles have real photography, so the rest borrow a
+     picture of a different model to fill the grid for review. Matched by body
+     shape — sedans borrow a sedan, SUVs an SUV — so at least the silhouette is
+     honest. Every borrowed card is flagged and labelled in the UI, because a
+     BMW photograph on a Yaris card is a factual claim about what the customer
+     is renting. Delete this block once the real shots land. */
+  /* What a borrowed photograph is allowed to look like. Tabs are commercial
+     classes, not shapes: `compact` and `premium` are both three-box cars, and
+     compact owns no photograph of its own, so it borrows from premium. */
+  var BODY_GROUP = { compact: 'car', premium: 'car', suv: 'suv', mpv: 'van' };
+
+  var STAND_INS = {
+    'bmw-5-series':    'car-premium-bmw-3-series',
+    'mini-cooper-s':   'car-premium-mercedes-c-class',
+    'honda-hr-v':      'car-suv-honda-cr-v',
+    'toyota-fortuner': 'car-suv-honda-cr-v',
+    'bmw-x1':          'car-suv-honda-cr-v',
+    'toyota-alphard':  'car-mpv-toyota-veloz',
+    'toyota-commuter': 'car-mpv-toyota-veloz',
+    'peugeot-5008':    'car-mpv-toyota-veloz',
+    'toyota-yaris':    'car-premium-bmw-3-series',
+    'honda-city':      'car-premium-mercedes-c-class',
+    'toyota-altis':    'car-premium-bmw-3-series',
+    'honda-civic':     'car-premium-mercedes-c-class'
+  };
+
+  FLEET.forEach(function (vehicle) {
+    vehicle.imageIsStandIn = false;
+    if (!vehicle.image && STAND_INS[vehicle.id]) {
+      vehicle.image = 'assets/img/' + STAND_INS[vehicle.id] + '.webp';
+      vehicle.imageIsStandIn = true;
+    }
+  });
+
   /* The cheapest vehicle in a tab earns the "best deal" flag. Derived from the
      price data rather than hand-set, so it cannot go stale. */
   function cheapestIn(tab) {
@@ -122,6 +156,7 @@
     FLEET: FLEET,
     TABS: TABS,
     FUELS: FUELS,
+    BODY_GROUP: BODY_GROUP,
     DEFAULT_TAB: DEFAULT_TAB,
     cheapestIn: cheapestIn,
     fleetByTab: fleetByTab,

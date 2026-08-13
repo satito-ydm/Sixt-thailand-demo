@@ -198,10 +198,19 @@
       }
     }
 
+    /* The bar can be docked to the bottom of the window, where a list opening
+       downward would fall off the screen. Flip it above the input when there
+       is not enough room below. */
+    function placeList() {
+      var space = window.innerHeight - input.getBoundingClientRect().bottom;
+      list.classList.toggle('combo-list--up', space < 300);
+    }
+
     /* When a location is already chosen the input holds its full name, which
        would filter the list down to that one entry. Show everything instead. */
     function open() {
       build(hidden.value ? '' : input.value);
+      placeList();
       list.hidden = false;
       input.setAttribute('aria-expanded', 'true');
     }
@@ -210,6 +219,7 @@
     input.addEventListener('input', function () {
       hidden.value = '';
       build(input.value);
+      placeList();
       list.hidden = false;
       input.setAttribute('aria-expanded', 'true');
       highlight(options.length ? 0 : -1);

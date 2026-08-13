@@ -63,6 +63,10 @@ var C = {
 };
 
 C.onDarkMuted = over(C.white, 0.78, C.black);
+/* The language toggle on the dark header: a translucent track with
+   translucent type on it, so both need compositing before measurement. */
+C.langTrackDark = over(C.white, 0.14, C.black);
+C.langIdleDark = over(C.white, 0.72, C.langTrackDark);
 /* Not a token — measured here to document why the orange band has no muted
    text tone. See the note in tokens.css. */
 C.orangeMutedRejected = over(C.black, 0.78, C.orange);
@@ -78,6 +82,16 @@ var PAIRS = [
     'passes only as WCAG large text — .btn-primary is locked to 19px/700'],
   ['.btn-primary label on hover',           C.white,      C.orangeDeep, 3.0,
     'same large-text rule'],
+  ['.btn-hotline label (19px bold)',        C.white,      C.orange,   3.0,
+    'inherits .btn-primary, so the large-text threshold applies'],
+  ['header nav on the black state',          C.white,     C.black,    4.5, ''],
+  ['header focus ring on the black state',   C.white,     C.black,    3.0,
+    'the orange ring is 1.9:1 on black'],
+  ['.lang-btn idle on the black state',      C.langIdleDark, C.langTrackDark, 4.5,
+    'white at 72% over a 14% white track, both composited over black'],
+  ['.lang-btn active on the black state',    C.black,     C.white,    4.5, ''],
+  ['.lang-btn active on the white state',    C.white,     C.black,    4.5, ''],
+  ['.lang-btn idle on grey-50',              C.grey500,    C.grey50,  4.5, ''],
   ['.btn-secondary label',                  C.white,      C.black,    4.5, ''],
   ['.btn-outline label',                    C.black,      C.white,    4.5, ''],
   ['.badge label on black',                 C.white,      C.black,    4.5,

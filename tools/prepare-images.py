@@ -13,6 +13,7 @@ OUT.mkdir(parents=True, exist_ok=True)
 
 # source relative to repo root  ->  output stem
 JOBS = [
+    ("Banner 16-9.png",                              "hero-lionair-camry"),
     ("Banner.png",                                   "hero-banner"),
     ("Car/70YDMMJR.jpg",                             "promo-xpeng-g6"),
     ("54QYBUJF.jpg",                                 "promo-kbank-domestic"),

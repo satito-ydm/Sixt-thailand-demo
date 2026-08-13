@@ -86,7 +86,7 @@
   T.test('the default tab is premium, the only tab with real photography', function () {
     var D = root.SIXT.data;
     T.eq(D.DEFAULT_TAB, 'premium');
-    T.eq(D.fleetByTab('premium').filter(function (v) { return v.image; }).length, 2);
+    T.eq(D.fleetByTab('premium').filter(function (v) { return !v.imageIsStandIn; }).length, 2);
   });
 
   T.test('every vehicle carries complete, well-typed specs', function () {
@@ -134,12 +134,40 @@
     });
   });
 
-  T.test('exactly four vehicles have real photography and the paths are webp', function () {
-    var withImage = root.SIXT.data.FLEET.filter(function (v) { return v.image; });
-    T.eq(withImage.map(function (v) { return v.id; }).sort(),
+  T.test('exactly four vehicles own their photograph; the rest are flagged stand-ins', function () {
+    var D = root.SIXT.data;
+    var real = D.FLEET.filter(function (v) { return v.image && !v.imageIsStandIn; });
+    T.eq(real.map(function (v) { return v.id; }).sort(),
       ['bmw-3-series', 'honda-cr-v', 'mercedes-c-class', 'toyota-veloz']);
-    withImage.forEach(function (v) {
+    /* Every card shows something, so the grid reads as complete for review. */
+    D.FLEET.forEach(function (v) {
+      T.ok(v.image, v.id + ' has no image at all');
       T.ok(/^assets\/img\/car-[a-z0-9-]+\.webp$/.test(v.image), v.id + ' bad path: ' + v.image);
+      T.eq(typeof v.imageIsStandIn, 'boolean', v.id + ' must declare imageIsStandIn');
+    });
+    T.eq(D.FLEET.filter(function (v) { return v.imageIsStandIn; }).length, 12);
+  });
+
+  T.test('a stand-in only borrows a photograph of the same body shape', function () {
+    /* Shape has to survive the substitution: an SUV card showing a sedan
+       misrepresents the vehicle class, not merely the model. Matching on tab
+       would be wrong here — compact owns no photograph and legitimately
+       borrows a premium sedan. */
+    var D = root.SIXT.data;
+    var ownerBody = {};
+    D.FLEET.forEach(function (v) {
+      if (!v.imageIsStandIn) { ownerBody[v.image] = D.BODY_GROUP[v.tab]; }
+    });
+    D.FLEET.filter(function (v) { return v.imageIsStandIn; }).forEach(function (v) {
+      T.eq(ownerBody[v.image], D.BODY_GROUP[v.tab],
+        v.id + ' is a ' + D.BODY_GROUP[v.tab] + ' borrowing a ' + ownerBody[v.image]);
+    });
+  });
+
+  T.test('every tab has a body group, so no stand-in can slip through unchecked', function () {
+    var D = root.SIXT.data;
+    D.TABS.forEach(function (tab) {
+      T.ok(D.BODY_GROUP[tab], tab + ' has no body group');
     });
   });
 
@@ -210,6 +238,41 @@
       col.links.forEach(function (link) {
         T.ok(link.th && link.en, col.id + ' has a link missing a language');
       });
+    });
+  });
+
+  T.test('every hero slide declares real dimensions and bilingual alt text', function () {
+    var slides = root.SIXT.content.HERO_SLIDES;
+    T.ok(slides.length >= 1, 'the carousel needs at least one slide');
+    var seen = {};
+    slides.forEach(function (s) {
+      T.ok(!seen[s.id], 'duplicate slide id: ' + s.id);
+      seen[s.id] = true;
+      T.ok(/^assets\/img\/[a-z0-9-]+\.webp$/.test(s.image), s.id + ' bad path: ' + s.image);
+      T.ok(typeof s.width === 'number' && s.width > 0, s.id + ' needs a width');
+      T.ok(typeof s.height === 'number' && s.height > 0, s.id + ' needs a height');
+      T.ok(s.th && s.th.alt && s.th.alt.length, s.id + ' needs Thai alt text');
+      T.ok(s.en && s.en.alt && s.en.alt.length, s.id + ' needs English alt text');
+    });
+  });
+
+  T.test('hero slides share a close enough ratio that cover does not eat the artwork', function () {
+    /* Every slide is drawn in one 2.6:1 frame with object-fit: cover. A slide
+       far from that ratio loses its baked-in headline to the crop, so the
+       spread is capped rather than left to chance. */
+    var ratios = root.SIXT.content.HERO_SLIDES.map(function (s) { return s.width / s.height; });
+    var spread = Math.max.apply(null, ratios) - Math.min.apply(null, ratios);
+    T.ok(spread < 0.25, 'aspect spread too wide for one frame: ' + spread.toFixed(2));
+    ratios.forEach(function (r, i) {
+      T.ok(r > 2.3 && r < 2.9,
+        'slide ' + i + ' is ' + r.toFixed(2) + ':1, outside the 2.6:1 frame tolerance');
+    });
+  });
+
+  T.test('every hero slide image exists on disk', function () {
+    if (!fs) { return; }
+    root.SIXT.content.HERO_SLIDES.forEach(function (s) {
+      T.ok(fs.existsSync(here + '/../' + s.image), 'missing slide asset: ' + s.image);
     });
   });
 

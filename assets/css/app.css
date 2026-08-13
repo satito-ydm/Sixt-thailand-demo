@@ -271,7 +271,8 @@ body h3 { font-size: var(--text-h3); }
   border: 1px solid var(--border-input);
   border-radius: var(--radius-sm);
   padding: var(--space-3);
-  min-height: 48px;
+  /* Matches .btn-primary so the booking bar sits on one clean baseline. */
+  min-height: 52px;
   transition: border-color var(--transition);
 }
 .field:hover { border-color: var(--sixt-black); }
@@ -389,14 +390,102 @@ body h3 { font-size: var(--text-h3); }
 .acc-panel[hidden] { display: none; }
 
 /* Header ------------------------------------------------------------------------------ */
+/* Two states: black on arrival, white once the page moves. Every child that
+   carries its own colour has to be restated in both, or something silently
+   drops to an unreadable ratio on one of the two grounds. */
 .site-header {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: var(--white);
-  transition: box-shadow var(--transition);
+  background: var(--sixt-black);
+  color: var(--white);
+  transition: background var(--transition), color var(--transition),
+              box-shadow var(--transition);
 }
-.site-header.is-stuck { box-shadow: var(--shadow-header); }
+.site-header .nav-link { color: var(--white); }
+.site-header .header-logo { filter: brightness(0) invert(1); transition: filter var(--transition); }
+.site-header .btn-outline { border-color: var(--white); color: var(--white); }
+.site-header .btn-outline:hover { background: var(--white); color: var(--sixt-black); }
+.site-header .lang-switch { background: rgba(255, 255, 255, 0.14); }
+.site-header .lang-btn { color: rgba(255, 255, 255, 0.72); }
+.site-header .lang-btn:hover { color: var(--white); }
+.site-header .lang-btn[aria-pressed="true"] { background: var(--white); color: var(--sixt-black); }
+/* The orange focus ring is 1.9:1 on black. */
+.site-header :focus-visible { outline-color: var(--white); }
+
+.site-header.is-stuck {
+  background: var(--white);
+  color: var(--sixt-black);
+  box-shadow: var(--shadow-header);
+}
+.site-header.is-stuck .nav-link { color: var(--sixt-black); }
+.site-header.is-stuck .header-logo { filter: none; }
+.site-header.is-stuck .btn-outline { border-color: var(--sixt-black); color: var(--sixt-black); }
+.site-header.is-stuck .btn-outline:hover { background: var(--sixt-black); color: var(--white); }
+.site-header.is-stuck .lang-switch { background: var(--grey-50); }
+.site-header.is-stuck .lang-btn { color: var(--grey-500); }
+.site-header.is-stuck .lang-btn:hover { color: var(--sixt-black); }
+.site-header.is-stuck .lang-btn[aria-pressed="true"] { background: var(--sixt-black); color: var(--white); }
+.site-header.is-stuck :focus-visible { outline-color: var(--sixt-orange); }
+
+.header-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 84px;
+}
+@media (max-width: 1023px) {
+  .header-row { gap: var(--space-3); min-height: 68px; }
+  /* Push the hotline to the far edge once the nav is in the drawer. */
+  .header-row > a:first-of-type { margin-inline-end: auto; }
+}
+
+.header-logo {
+  height: 44px;
+  width: auto;
+  display: block;
+}
+@media (max-width: 1023px) { .header-logo { height: 34px; } }
+
+/* Language switch — two states, so a pair of buttons rather than a select. */
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--grey-50);
+}
+.lang-btn {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--grey-500);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+.lang-btn:hover { color: var(--sixt-black); }
+.lang-btn[aria-pressed="true"] { background: var(--sixt-black); color: var(--white); }
+
+/* Carries .btn-primary and only reshapes it into a pill. Inheriting that
+   class is the point: it brings the 19px/700 contract, which is exactly what
+   lets white sit on orange here — 3.28:1 passes as large text and nowhere
+   else. Never add a font-size to this rule. */
+.btn-hotline {
+  border-radius: 999px;
+  padding-inline: var(--space-6);
+  flex: none;
+  white-space: nowrap;
+  text-decoration: none;
+}
+@media (max-width: 640px) {
+  .btn-hotline { padding-inline: var(--space-4); }
+}
 
 .nav-link {
   font-size: 0.9375rem;
@@ -501,31 +590,101 @@ body.is-locked { overflow: hidden; }
    photograph: this banner carries its own headline and wordmark, so type on
    top of it would collide. */
 
-.hero-title {
-  font-size: clamp(2.25rem, 5vw, 3.25rem);
+/* The page heading, which lives on the booking bar. */
+body .booking-title {
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
   font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 1.05;
+  line-height: 1.1;
+  transition: font-size var(--transition);
 }
 
-.hero-media {
-  border-radius: var(--radius-xl);
+/* Full-bleed carousel. The frame runs at 2.6:1 — the ratio of the widest
+   banner — and every slide is `cover`. Slides whose ratio drifts far from that
+   lose their baked-in type to the crop, which is why content.js keeps the
+   slide list to compatible artwork. */
+.hero-slider {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2.6 / 1;
   overflow: hidden;
   background: var(--grey-50);
-  display: block;
 }
-.hero-media img {
+@media (max-width: 767px) {
+  /* A 2.6:1 strip is only ~144px tall on a phone. Squaring it up gives the
+     artwork room, at the cost of cropping the sides — see the README note on
+     why this banner really needs a portrait variant. */
+  .hero-slider { aspect-ratio: 4 / 3; }
+}
+
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 700ms ease;
+}
+.hero-slide.is-active { opacity: 1; }
+.hero-slide img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
   display: block;
 }
 
+.hero-controls {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: clamp(1rem, 6vw, 5.5rem);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(26, 26, 26, 0.55);
+  backdrop-filter: blur(6px);
+}
+.hero-dot {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  transition: background var(--transition), width var(--transition);
+}
+.hero-dot[aria-current="true"] { background: var(--sixt-orange); width: 26px; border-radius: 999px; }
+.hero-controls button:focus-visible { outline-color: var(--white); }
+
+.hero-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--white);
+  cursor: pointer;
+}
+.hero-toggle:hover { background: rgba(255, 255, 255, 0.18); }
+
+/* The banner is a clean full-bleed rectangle — no curved cap, no corner
+   sweep. The quarter-circle motif still runs elsewhere on the page (the
+   Membership band and the pill button's disc). */
+.hero-slider { border-radius: 0; }
+
+/* In-flow form, used below the breakpoint where the bar docks. The container
+   already caps it to the 1280 grid, so no width of its own here. */
 .booking-card {
   position: relative;
   z-index: 2;
-  width: min(100%, 1120px);
+  width: 100%;
   margin-inline: auto;
-  margin-top: -76px; /* rides over the picture, as in the reference */
   background: var(--white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-widget);
@@ -535,11 +694,64 @@ body.is-locked { overflow: hidden; }
    the bar needs the full width for stacked fields. */
 @media (max-width: 1023px) {
   .booking-card {
-    margin-top: var(--space-6);
+    margin-top: 0;
     width: 100%;
     padding: var(--space-5);
   }
 }
+/* The curved shelf already lifts the area over the picture, so in the flow
+   (below the large breakpoint) the card just sits in it. */
+.booking-card { margin-top: 0; }
+
+/* ── Docked booking bar ──────────────────────────────────────────────────
+   From the large breakpoint up, the bar leaves the flow and rides the bottom
+   of the viewport: over the hero on arrival, then flush to the edge and
+   shortened once the picture has scrolled by.
+
+   Deliberately not applied below 1024px. Four stacked fields pinned to a phone
+   screen would cover most of it, and the page behind becomes unreadable. */
+@media (min-width: 1024px) {
+  .booking-card {
+    position: fixed;
+    z-index: 45;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: var(--space-6);
+    /* Held to the same 1280 grid as the rest of the page rather than a width
+       of its own. */
+    width: min(calc(100vw - 3rem), var(--container));
+    margin-top: 0;
+    padding: var(--space-5) var(--space-6);
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+    transition: bottom var(--transition), padding var(--transition),
+                border-radius var(--transition);
+  }
+
+  .booking-card.is-compact {
+    bottom: 0;
+    padding-block: var(--space-3);
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+  }
+  /* When the bar shortens the heading shrinks with it rather than vanishing:
+     it is the document's only h1, and display:none would take it out of the
+     accessibility tree, leaving the page with no heading at all. */
+  .booking-card.is-compact .booking-head { margin-bottom: var(--space-2); }
+  body .booking-card.is-compact .booking-title { font-size: 1.125rem; }
+  /* The return-location toggle is optional; the shortened bar drops it. */
+  .booking-card.is-compact .booking-foot { display: none; }
+
+  /* The bar floats over everything, so the last of the page needs clearance
+     or the footer's bottom row sits underneath it. */
+  body { padding-bottom: 150px; }
+
+}
+
+/* A listbox opening downward from a bar at the bottom of the window falls off
+   the screen. This flips it above the input instead. */
+.combo-list--up { top: auto; bottom: calc(100% + 4px); }
 
 /* Horizontal booking bar. Flex rather than grid so that revealing the return
    location simply reflows the row instead of needing a second column recipe. */
@@ -549,17 +761,23 @@ body.is-locked { overflow: hidden; }
   align-items: flex-end;
   gap: var(--space-3);
 }
+.booking-head { margin-bottom: var(--space-4); }
+.booking-foot { margin-top: var(--space-3); }
+
 /* The date cells need a wider basis than the location: a native date input and
    a native time input side by side have a combined intrinsic width of roughly
-   215px in Chrome, and they will not shrink below it without min-width: 0. */
-.booking-field { flex: 1 1 232px; min-width: 0; }
-.booking-field--wide { flex: 1.4 1 240px; }
+   215px in Chrome, and they will not shrink below it without min-width: 0.
+   Growth factors are weighted so the location reads as the primary field and
+   the two date groups stay identical to each other. */
+.booking-field { flex: 1.1 1 236px; min-width: 0; }
+.booking-field--wide { flex: 1.6 1 260px; }
+/* Wide enough to balance a field group rather than trailing off the end. */
+.booking-submit .btn-primary { min-width: 196px; }
 .booking-field--pair { display: flex; gap: var(--space-2); }
 .booking-field--pair .field { min-width: 0; padding-inline: var(--space-2); }
 .booking-field--pair .field:first-child { flex: 1 1 60%; }
 .booking-field--pair .field:last-child { flex: 1 1 40%; }
 .booking-submit { flex: 0 0 auto; }
-.booking-submit .btn-primary { height: 48px; min-height: 48px; }
 
 @media (max-width: 639px) {
   .booking-field,
@@ -725,6 +943,22 @@ body.is-locked { overflow: hidden; }
 .card--vehicle .card-body {
   padding: var(--space-4) var(--space-2) var(--space-2);
   gap: var(--space-3);
+}
+
+/* Marks a card whose photograph belongs to another model. Deliberately plain
+   and always visible — this is a correctness notice, not decoration. */
+.standin-flag {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: 2;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--sixt-black);
+  color: var(--white);
 }
 
 .vehicle-name {

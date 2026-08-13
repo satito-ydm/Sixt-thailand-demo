@@ -51,44 +51,46 @@
 
 <a class="skip-link" href="#main" data-i18n="a11y.skip">ข้ามไปยังเนื้อหาหลัก</a>
 
-<!-- ══════════ SECTION: UTILITY BAR + HEADER ══════════ -->
-<div class="bg-sixt-black text-white hidden md:block">
-  <div class="container-x flex items-center justify-between h-9 text-[0.8125rem]">
-    <a href="tel:1798" class="inline-flex items-center gap-2 font-bold no-underline text-white"
-       data-i18n-attr="aria-label:top.hotlineAria">
-      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
-           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M4.5 5.5c0 8 6 14 14 14l1.5-3-4-2-1.8 1.8a12 12 0 01-6-6L10 8.5l-2-4z"/>
-      </svg>
-      <span data-i18n="top.hotline">โทร 1798</span>
-    </a>
-    <nav class="flex items-center gap-5" aria-label="Social">
-      <a href="https://www.facebook.com/SixtThailand" class="text-white no-underline opacity-80 hover:opacity-100">Facebook</a>
-      <a href="https://www.instagram.com/sixt_thailand" class="text-white no-underline opacity-80 hover:opacity-100">Instagram</a>
-      <a href="#" class="text-white no-underline opacity-80 hover:opacity-100">LINE</a>
-    </nav>
-  </div>
-</div>
-
+<!-- ══════════ SECTION: HEADER ══════════ -->
+<!-- One row: mark, menu, language, account, hotline. The separate black
+     utility strip is gone; its hotline is now the loudest thing in the bar and
+     its social links already live in the footer. -->
 <header class="site-header" id="site-header">
-  <div class="container-x flex items-center justify-between gap-6 h-[72px]">
-    <div class="flex items-center gap-3">
-      <button type="button" id="menu-open" class="lg:hidden p-2 -ml-2 bg-transparent border-0 cursor-pointer"
-              aria-expanded="false" aria-controls="drawer" data-i18n-attr="aria-label:a11y.openMenu">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
-             stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-      </button>
-      <a href="#" class="block"><img src="assets/img/logo.webp" alt="SIXT Rent a Car" width="112" height="64" class="h-8 w-auto"></a>
-    </div>
+  <div class="container-x header-row">
+    <button type="button" id="menu-open" class="lg:hidden p-2 -ml-2 bg-transparent border-0 cursor-pointer"
+            aria-expanded="false" aria-controls="drawer" data-i18n-attr="aria-label:a11y.openMenu">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
+           stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
 
-    <nav class="hidden lg:flex items-center gap-8" aria-label="Main">
+    <a href="#" class="flex-none"><img src="assets/img/logo.webp" alt="SIXT Rent a Car"
+       width="112" height="64" class="header-logo"></a>
+
+    <nav class="hidden lg:flex items-center gap-7 mr-auto ml-4" aria-label="Main">
       <a href="#" class="nav-link" data-i18n="nav.manageBooking">จัดการการจอง</a>
       <a href="#fleet" class="nav-link" data-i18n="nav.vehicles">รถยนต์</a>
       <a href="#services" class="nav-link" data-i18n="nav.subscription">เช่ารถรายเดือน</a>
       <a href="#" class="nav-link" data-i18n="nav.contact">ติดต่อเรา</a>
     </nav>
 
-    <a href="#" class="btn-outline hidden sm:inline-flex" data-i18n="nav.login">เข้าสู่ระบบ / สมัครสมาชิก</a>
+    <!-- Moved up from the footer. A visitor landing on the Thai default should
+         not have to scroll the whole page to find the switch. -->
+    <div class="lang-switch hidden md:flex" role="group" data-i18n-attr="aria-label:footer.langLabel">
+      <button type="button" class="lang-btn" data-lang="th" aria-pressed="true">ไทย</button>
+      <button type="button" class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+
+    <a href="#" class="btn-outline hidden xl:inline-flex" data-i18n="nav.login">เข้าสู่ระบบ / สมัครสมาชิก</a>
+
+    <!-- Same primary treatment as every other main action on the page, which
+         also brings the 19px/700 that makes white-on-orange legal. -->
+    <a href="tel:1798" class="btn-primary btn-hotline" data-i18n-attr="aria-label:top.hotlineAria">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4.5 5.5c0 8 6 14 14 14l1.5-3-4-2-1.8 1.8a12 12 0 01-6-6L10 8.5l-2-4z"/>
+      </svg>
+      <span data-i18n="top.hotline">โทร 1798</span>
+    </a>
   </div>
 </header>
 
@@ -109,44 +111,35 @@
     <a href="#" class="nav-link py-3" data-i18n="nav.contact">ติดต่อเรา</a>
   </nav>
   <a href="#" class="btn-outline w-full" data-i18n="nav.login">เข้าสู่ระบบ / สมัครสมาชิก</a>
-  <a href="tel:1798" class="inline-flex items-center gap-2 font-bold no-underline mt-auto"
-     style="color: var(--sixt-black)">
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M4.5 5.5c0 8 6 14 14 14l1.5-3-4-2-1.8 1.8a12 12 0 01-6-6L10 8.5l-2-4z"/>
-    </svg>
-    <span data-i18n="top.hotline">โทร 1798</span>
-  </a>
+
+  <!-- The header switcher is hidden below the medium breakpoint, so the drawer
+       carries its own. Both are kept in sync by initLangSwitcher. -->
+  <div class="lang-switch self-start mt-auto" role="group"
+       data-i18n-attr="aria-label:footer.langLabel">
+    <button type="button" class="lang-btn" data-lang="th" aria-pressed="true">ไทย</button>
+    <button type="button" class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
+  </div>
 </aside>
 
 <!-- ══════════ SECTION: HERO + BOOKING ══════════ -->
-<section id="hero" class="container-x pt-8 pb-14 lg:pt-10 lg:pb-16">
+<section id="hero" class="pb-14 lg:pb-16">
 
-  <div class="flex flex-col gap-3 mb-6 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
-    <div>
-      <p class="section-kicker">SIXT Thailand</p>
-      <h1 class="hero-title">Drive Your Way</h1>
-    </div>
-    <p class="lead lg:max-w-[40ch] lg:text-right" data-i18n="hero.subtitle">
-      เลือกสถานที่และวันที่ แล้วค้นหารถที่ว่างในพื้นที่ของคุณได้ทันที
-    </p>
-  </div>
+  <!-- Full-bleed carousel. Nothing is laid over it: these banners carry their
+       own Thai headlines and a second SIXT wordmark. The page heading lives on
+       the booking bar, which is the only thing guaranteed to stay in view. -->
+  <div class="hero-slider" id="hero-slider"
+       aria-roledescription="carousel" data-i18n-attr="aria-label:hero.carousel"></div>
 
-  <!-- Nothing is laid over this picture. The banner already carries its own
-       Thai headline and SIXT wordmark; type on top would collide with both.
-       Native ratio (1756×895) so neither is cropped at the edges. -->
-  <div class="hero-media">
-    <img src="assets/img/hero-banner.webp" width="1756" height="895" fetchpriority="high"
-         alt="แคมเปญ SIXT ร่วมกับ Thai Lion Air — เช่ารถพร้อมคนขับ รับส่งสนามบิน เริ่มต้น 1,099 บาทต่อเที่ยว กับ Mercedes-Benz E-Class">
-  </div>
-
+  <div class="container-x">
   <form id="booking-form" novalidate class="booking-card">
-    <div class="flex items-baseline justify-between gap-4 mb-4">
-      <h2 class="text-[1.25rem]" data-i18n="booking.title">จองรถ</h2>
-      <button type="button" id="toggle-return-location" aria-expanded="false"
-              aria-controls="return-location-row"
-              class="link-toggle bg-transparent border-0 cursor-pointer p-0"
-              data-i18n="booking.differentReturn">+ คืนรถคนละที่</button>
+    <!-- The heading sits alone on its row. Pairing it with the return-location
+         toggle left a wide dead gap between two small items; the toggle now
+         has its own line under the fields, which is also where it belongs
+         since it modifies them. -->
+    <div class="booking-head">
+      <!-- The page's only h1. It shrinks with the bar rather than hiding, so
+           the document never ends up with no heading at all. -->
+      <h1 class="booking-title">Drive Your Way</h1>
     </div>
 
     <div class="booking-bar">
@@ -215,7 +208,16 @@
         <button type="submit" class="btn-primary" data-i18n="booking.submit">ค้นหารถที่ว่าง</button>
       </div>
     </div>
+
+    <div class="booking-foot">
+      <button type="button" id="toggle-return-location" aria-expanded="false"
+              aria-controls="return-location-row"
+              class="link-toggle bg-transparent border-0 cursor-pointer p-0"
+              data-i18n="booking.differentReturn">+ คืนรถคนละที่</button>
+    </div>
   </form>
+    </div>
+  </div>
 </section>
 
 <main id="main">
@@ -368,20 +370,8 @@
 
       <div class="flex flex-col gap-3 lg:items-end">
         <p class="text-[0.75rem] opacity-70" data-i18n="footer.iso">ได้รับการรับรอง ISO 9001 (SGS/UKAS)</p>
-        <div class="flex items-center gap-2">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-               stroke-width="1.5" aria-hidden="true">
-            <path d="M12 3a9 9 0 100 18 9 9 0 000-18z"/><path d="M3.5 9.5h17M3.5 14.5h17"/>
-            <path d="M12 3c-2.5 2.4-3.8 5.5-3.8 9S9.5 18.6 12 21c2.5-2.4 3.8-5.5 3.8-9S14.5 5.4 12 3z"/>
-          </svg>
-          <label for="lang-select" class="sr-only" data-i18n="footer.langLabel">เลือกภาษา</label>
-          <select id="lang-select"
-                  class="bg-transparent text-white text-[0.8125rem] font-bold cursor-pointer py-1 pr-1 rounded"
-                  style="border: 1px solid rgba(255,255,255,.3)">
-            <option value="th" style="color: var(--sixt-black)">ไทย (TH)</option>
-            <option value="en" style="color: var(--sixt-black)">English (EN)</option>
-          </select>
-        </div>
+        <!-- The switcher lives in the header now, where it is reachable
+             without scrolling the whole page. -->
         <p class="text-[0.75rem] opacity-70" data-i18n="footer.copyright"></p>
       </div>
     </div>

@@ -30,6 +30,32 @@
     }
   ];
 
+  /* Hero carousel.
+     Every slide shares one frame, so their aspect ratios have to be close or
+     `cover` eats the artwork. These two are 2.63:1 and 2.54:1 — a 1.7% trim
+     per side, which clears all the baked-in type. The KBank banner is 2:1 and
+     would lose 11.5% off the top and bottom, taking both logos and the date
+     line with it, so it stays a promotion card instead.
+     Adding a slide: convert it in tools/prepare-images.py and append here. */
+  var HERO_SLIDES = [
+    {
+      id: 'lionair-camry',
+      image: 'assets/img/hero-lionair-camry.webp',
+      width: 2035,
+      height: 773,
+      th: { alt: 'แคมเปญ SIXT ร่วมกับ Thai Lion Air — เช่ารถพร้อมคนขับ รับส่งสนามบิน เริ่มต้น 1,099 บาทต่อเที่ยว กับ Toyota Camry' },
+      en: { alt: 'SIXT and Thai Lion Air — chauffeured airport transfers from ฿1,099 a trip in a Toyota Camry' }
+    },
+    {
+      id: 'xpeng-g6',
+      image: 'assets/img/promo-xpeng-g6.webp',
+      width: 1600,
+      height: 630,
+      th: { alt: 'Xpeng G6 สีส้มวิ่งบนถนน พร้อมข้อความ Experience the Future — Rent the Xpeng G6' },
+      en: { alt: 'Orange Xpeng G6 on the road with the headline Experience the Future — Rent the Xpeng G6' }
+    }
+  ];
+
   /* Shown on every vehicle card. PLACEHOLDER TERMS: these are plausible for a
      Thai rental but have not been confirmed against SIXT Thailand's actual
      rental agreement. They are contractual claims, so verify before launch. */
@@ -224,6 +250,7 @@
   ];
 
   root.SIXT.content = {
+    HERO_SLIDES: HERO_SLIDES,
     VALUE_PROPS: VALUE_PROPS,
     FLEET_INCLUDES: FLEET_INCLUDES,
     PROMOS: PROMOS,

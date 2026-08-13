@@ -102,6 +102,134 @@
     });
   }
 
+  /* ---------- hero carousel ------------------------------------------- */
+
+  var SLIDE_MS = 6000;
+  var heroTimer = null;
+  var heroIndex = 0;
+  var heroPaused = false;
+  var heroRelabel = null;
+
+  function initHeroSlider() {
+    var root_ = document.getElementById('hero-slider');
+    if (!root_) { return; }
+
+    var slides = content.HERO_SLIDES;
+    var total = slides.length;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    clear(root_);
+
+    var figures = slides.map(function (slide, index) {
+      var fig = el('div', 'hero-slide' + (index === 0 ? ' is-active' : ''));
+      fig.setAttribute('role', 'group');
+      fig.setAttribute('aria-roledescription', 'slide');
+      fig.setAttribute('aria-label', i18n.t('hero.slideOf', { n: index + 1, total: total }));
+      var img = el('img');
+      img.src = slide.image;
+      img.width = slide.width;
+      img.height = slide.height;
+      img.alt = copy(slide).alt;
+      /* The first slide is the largest thing above the fold. */
+      if (index === 0) { img.setAttribute('fetchpriority', 'high'); }
+      else { img.loading = 'lazy'; }
+      fig.appendChild(img);
+      root_.appendChild(fig);
+      return fig;
+    });
+
+    if (total < 2) { return; } /* one slide needs no controls */
+
+    var controls = el('div', 'hero-controls');
+    var dots = slides.map(function (slide, index) {
+      var dot = el('button', 'hero-dot');
+      dot.type = 'button';
+      dot.setAttribute('aria-label', i18n.t('hero.goToSlide', { n: index + 1 }));
+      dot.setAttribute('aria-current', index === 0 ? 'true' : 'false');
+      dot.addEventListener('click', function () { show(index); restart(); });
+      controls.appendChild(dot);
+      return dot;
+    });
+
+    /* WCAG 2.2.2: anything that moves on its own for more than five seconds
+       needs a control to stop it. This button is that control. */
+    var toggle = el('button', 'hero-toggle');
+    toggle.type = 'button';
+    controls.appendChild(toggle);
+    root_.appendChild(controls);
+
+    var ICON_PAUSE = ['M9 5v14M15 5v14'];
+    var ICON_PLAY = ['M7 4.5l12 7.5-12 7.5z'];
+
+    function paintToggle() {
+      clear(toggle);
+      toggle.appendChild(icon(heroPaused ? ICON_PLAY : ICON_PAUSE, 14));
+      toggle.setAttribute('aria-label', i18n.t(heroPaused ? 'hero.play' : 'hero.pause'));
+    }
+
+    function show(index) {
+      heroIndex = (index + total) % total;
+      figures.forEach(function (fig, i) {
+        var on = i === heroIndex;
+        fig.classList.toggle('is-active', on);
+        fig.setAttribute('aria-hidden', String(!on));
+        if (on) { fig.removeAttribute('inert'); } else { fig.setAttribute('inert', ''); }
+      });
+      dots.forEach(function (dot, i) {
+        dot.setAttribute('aria-current', String(i === heroIndex));
+      });
+    }
+
+    function stop() { if (heroTimer) { window.clearInterval(heroTimer); heroTimer = null; } }
+
+    function start() {
+      stop();
+      if (heroPaused || reduce || document.hidden) { return; }
+      heroTimer = window.setInterval(function () { show(heroIndex + 1); }, SLIDE_MS);
+    }
+
+    function restart() { if (!heroPaused) { start(); } }
+
+    toggle.addEventListener('click', function () {
+      heroPaused = !heroPaused;
+      paintToggle();
+      if (heroPaused) { stop(); } else { start(); }
+    });
+
+    /* Hold still while someone is reading or tabbing through it, and stop
+       burning cycles when the tab is in the background. */
+    root_.addEventListener('mouseenter', stop);
+    root_.addEventListener('mouseleave', restart);
+    root_.addEventListener('focusin', stop);
+    root_.addEventListener('focusout', restart);
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) { stop(); } else { restart(); }
+    });
+
+    /* Reduced motion: no crossfade, no autoplay — the dots still work. */
+    if (reduce) {
+      figures.forEach(function (fig) { fig.style.transition = 'none'; });
+      heroPaused = true;
+    }
+
+    show(0);
+    paintToggle();
+    start();
+
+    /* Re-labelling in place rather than rebuilding: a language switch should
+       not throw the viewer back to the first slide. */
+    heroRelabel = function () {
+      figures.forEach(function (fig, index) {
+        fig.setAttribute('aria-label', i18n.t('hero.slideOf', { n: index + 1, total: total }));
+        fig.querySelector('img').alt = copy(slides[index]).alt;
+      });
+      dots.forEach(function (dot, index) {
+        dot.setAttribute('aria-label', i18n.t('hero.goToSlide', { n: index + 1 }));
+      });
+      paintToggle();
+    };
+  }
+
   function renderWhyMedia() {
     var host = document.getElementById('why-media');
     clear(host);
@@ -202,11 +330,20 @@
 
     data.fleetByTab(tab).forEach(function (vehicle) {
       var card = el('article', 'card card--vehicle');
-      card.appendChild(mediaOrPlaceholder(
-        vehicle.image, vehicle.imageSlot, '16:9',
-        vehicle.name + ' — ' + copy({ th: vehicle.classTh, en: vehicle.classEn }),
-        true
-      ));
+
+      /* Borrowed photographs get an explicit label and honest alt text — the
+         picture is otherwise a claim about which car the customer receives. */
+      var alt = vehicle.imageIsStandIn
+        ? i18n.t('fleet.standInFull')
+        : vehicle.name + ' — ' + copy({ th: vehicle.classTh, en: vehicle.classEn });
+      var shot = mediaOrPlaceholder(vehicle.image, vehicle.imageSlot, '16:9', alt, true);
+      if (vehicle.imageIsStandIn) {
+        shot.style.position = 'relative';
+        var flag = el('span', 'standin-flag', i18n.t('fleet.standIn'));
+        flag.title = i18n.t('fleet.standInFull');
+        shot.appendChild(flag);
+      }
+      card.appendChild(shot);
 
       var body = el('div', 'card-body');
 
@@ -387,6 +524,25 @@
 
   /* ---------- chrome ---------------------------------------------------- */
 
+  /* The docked booking bar shortens once the hero picture is mostly past.
+     Only meaningful at the breakpoint where the bar is actually fixed. */
+  function initBookingDock() {
+    var card = document.querySelector('.booking-card');
+    var slider = document.getElementById('hero-slider');
+    if (!card || !slider) { return; }
+    var wide = window.matchMedia('(min-width: 1024px)');
+
+    function onScroll() {
+      if (!wide.matches) { card.classList.remove('is-compact'); return; }
+      card.classList.toggle('is-compact', window.scrollY > slider.offsetHeight * 0.55);
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    if (wide.addEventListener) { wide.addEventListener('change', onScroll); }
+    onScroll();
+  }
+
   function initStickyHeader() {
     var header = document.getElementById('site-header');
     function onScroll() {
@@ -459,12 +615,28 @@
     drawer.setAttribute('inert', '');
   }
 
+  /* Two buttons rather than a select: with exactly two languages a toggle
+     shows the current state without being opened. There may be more than one
+     switcher on the page (header and drawer), so all of them stay in sync. */
   function initLangSwitcher() {
-    var select = document.getElementById('lang-select');
-    select.value = i18n.getLang();
-    select.addEventListener('change', function () {
-      i18n.setLang(select.value);
+    var buttons = Array.prototype.slice.call(document.querySelectorAll('.lang-btn'));
+    if (!buttons.length) { return; }
+
+    function paint() {
+      var current = i18n.getLang();
+      buttons.forEach(function (btn) {
+        btn.setAttribute('aria-pressed', String(btn.getAttribute('data-lang') === current));
+      });
+    }
+
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        i18n.setLang(btn.getAttribute('data-lang'));
+      });
     });
+
+    document.addEventListener('sixt:langchange', paint);
+    paint();
   }
 
   var HEADER_OFFSET = 88; /* sticky utility bar + header */
@@ -504,7 +676,10 @@
     });
 
     editBtn.addEventListener('click', function () {
-      scrollToSection(document.getElementById('hero'));
+      /* When the bar is docked it is already on screen, so scrolling the page
+         back to the top would just throw away the reader's position. */
+      var docked = window.matchMedia('(min-width: 1024px)').matches;
+      if (!docked) { scrollToSection(document.getElementById('hero')); }
       document.getElementById('pickup-location').focus();
     });
 
@@ -542,16 +717,21 @@
     content = root.SIXT.content;
 
     i18n.restore();   /* sets <html lang> and swaps every [data-i18n] node */
+    initHeroSlider(); /* once only — renderAll must not restart the carousel */
     renderAll();      /* builds the tab strip before it is wired up */
     initFleetTabs();
 
     root.SIXT.booking.init();
+    initBookingDock();
     initStickyHeader();
     initDrawer();
     initLangSwitcher();
     initSearchHandoff();
 
-    document.addEventListener('sixt:langchange', renderAll);
+    document.addEventListener('sixt:langchange', function () {
+      renderAll();
+      if (heroRelabel) { heroRelabel(); }
+    });
   }
 
   root.SIXT.ui = { init: init, renderAll: renderAll, selectTab: selectTab };
