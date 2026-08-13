@@ -130,6 +130,9 @@
       img.width = slide.width;
       img.height = slide.height;
       img.alt = copy(slide).alt;
+      /* Optional per-slide crop bias, for artwork whose logo or terms sit too
+         close to an edge for a centred crop. */
+      if (slide.focus) { img.style.objectPosition = slide.focus; }
       /* The first slide is the largest thing above the fold. */
       if (index === 0) { img.setAttribute('fetchpriority', 'high'); }
       else { img.loading = 'lazy'; }

@@ -265,9 +265,15 @@
     var frame = C.HERO_FRAME_RATIO;
     C.HERO_SLIDES.forEach(function (s) {
       var ratio = s.width / s.height;
-      var drift = Math.abs(ratio - frame) / frame;
-      T.ok(drift <= 0.08, s.id + ' is ' + ratio.toFixed(2) + ':1 against a ' +
-        frame.toFixed(2) + ':1 frame — ' + Math.round(drift * 100) + '% off');
+      /* cover trims whichever axis is proportionally longer, split across the
+         two opposite edges. 6% per edge is what these banners tolerate before
+         the crop reaches their wordmarks and terms. */
+      var lost = ratio > frame
+        ? (ratio - frame) / ratio          /* wider than the frame: sides */
+        : (1 / ratio - 1 / frame) * ratio; /* taller: top and bottom */
+      var perEdge = lost / 2;
+      T.ok(perEdge <= 0.06, s.id + ' is ' + ratio.toFixed(2) + ':1 in a ' +
+        frame.toFixed(2) + ':1 frame — ' + (perEdge * 100).toFixed(1) + '% off each edge');
     });
   });
 

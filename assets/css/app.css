@@ -604,12 +604,15 @@ body .booking-title {
    banner — and every slide is `cover`. Slides whose ratio drifts far from that
    lose their baked-in type to the crop, which is why content.js keeps the
    slide list to compatible artwork. */
-/* 16:9, the ratio of the artwork itself. Keep this in step with
-   HERO_FRAME_RATIO in content.js — a test measures every slide against it. */
+/* 2:1. 16:9 made the banner 827px tall at a 1470px window — nearly the whole
+   screen. This trims 5.6% off the top and bottom of the 16:9 artwork, which
+   lands clear of the logos and the date bar, and lets the 2:1 KBank banner
+   join the rotation exactly. Keep in step with HERO_FRAME_RATIO in
+   content.js — a test measures every slide against it. */
 .hero-slider {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 2 / 1;
   overflow: hidden;
   background: var(--grey-50);
 }

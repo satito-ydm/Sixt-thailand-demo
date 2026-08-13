@@ -32,33 +32,47 @@
 
   /* Hero carousel.
 
-     The frame is 16:9, matching the primary artwork. Every slide shares that
-     one frame under object-fit: cover, so a slide whose ratio drifts loses the
-     difference off its edges — and each of these banners carries its headline,
-     logos and terms baked into the picture.
+     The frame is 2:1. Every slide shares it under object-fit: cover, so a
+     slide whose ratio drifts loses the difference off its edges — and each of
+     these banners carries its headline, logos and terms baked into the
+     picture.
 
-     Measured against a 16:9 frame:
-       banner3        1.78:1   0.1% trimmed   — fits
-       Banner 16-9    2.63:1  32.5% off the sides
-       Xpeng G6       2.54:1  30.0% off the sides
-       KBank          2.00:1  11.1% off the sides
-       Banner         1.96:1   9.4% off the sides
-     Every one of those carries the SIXT wordmark hard against its left edge,
-     so even the mildest crop clips it. They stay promotion cards instead.
+     Measured against a 2:1 frame, per edge:
+       KBank          2.00:1   exact
+       banner3        1.78:1   5.6% off the top and bottom — clears the logos
+                               at 8% and the date bar ending at 90%
+       Banner         1.96:1   1.0% off the sides, but it is the same Thai
+                               Lion Air campaign as banner3
+       Xpeng G6       2.54:1  10.6% off the sides — takes the headline
+       Banner 16-9    2.63:1  12.0% off the sides — takes the wordmark
+     The last two stay promotion cards.
 
-     A second slide needs artwork at 16:9 (±8%). Convert it in
-     tools/prepare-images.py, append it here, and the carousel controls and
-     autoplay switch themselves back on. */
-  var HERO_FRAME_RATIO = 16 / 9;
+     Adding a slide: keep it within 6% per edge of the frame, convert it in
+     tools/prepare-images.py, and append it here. */
+  var HERO_FRAME_RATIO = 2 / 1;
 
   var HERO_SLIDES = [
     {
-      id: 'lionair-eclass',
-      image: 'assets/img/hero-lionair-eclass.webp',
+      id: 'lionair-skyline',
+      image: 'assets/img/hero-lionair-skyline.webp',
       width: 1672,
       height: 941,
-      th: { alt: 'แคมเปญ SIXT ร่วมกับ Thai Lion Air — เช่ารถพร้อมคนขับ รับส่งสนามบิน เริ่มต้น 1,099 บาทต่อเที่ยว กับ Mercedes-Benz E-Class' },
-      en: { alt: 'SIXT and Thai Lion Air — chauffeured airport transfers from ฿1,099 a trip in a Mercedes-Benz E-Class' }
+      /* 1.78:1 in a 2:1 frame loses 11.2% of its height. Centred, the top cut
+         would land 13px above the SIXT wordmark — too close to trust across
+         rounding and browsers. Biasing to 40% takes more from the empty
+         pavement at the bottom: 23px of clearance above the mark, 21px below
+         the lowest content. */
+      focus: 'center 40%',
+      th: { alt: 'แคมเปญ SIXT ร่วมกับ Thai Lion Air — เช่ารถพร้อมคนขับ รับส่งสนามบิน กับ Mercedes-Benz E-Class หน้าอาคารผู้โดยสาร มีสกายไลน์กรุงเทพฯ เป็นฉากหลัง' },
+      en: { alt: 'SIXT and Thai Lion Air — chauffeured airport transfers in a Mercedes-Benz E-Class outside the terminal, Bangkok skyline behind' }
+    },
+    {
+      id: 'kbank-domestic',
+      image: 'assets/img/promo-kbank-domestic.webp',
+      width: 1774,
+      height: 887,
+      th: { alt: 'แคมเปญ SIXT ร่วมกับ KBank — การเดินทางภายในประเทศ เช่ารถขับเอง 799 บาทต่อวัน ลีมูซีน 1,090 บาทต่อเที่ยว ส่วนลดตั๋วเครื่องบิน 300 บาท' },
+      en: { alt: 'SIXT and KBank domestic travel — self-drive from ฿799 a day, limousine from ฿1,090 a trip, ฿300 off flights' }
     }
   ];
 
