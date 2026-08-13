@@ -47,24 +47,28 @@
        Banner 16-9    2.63:1  12.0% off the sides — takes the wordmark
      The last two stay promotion cards.
 
-     Adding a slide: keep it within 6% per edge of the frame, convert it in
-     tools/prepare-images.py, and append it here. */
+     6% per edge is the default budget, and it assumes the worst: artwork with
+     its wordmark hard against the edge, which is how every banner above was
+     drawn. A slide laid out with real margin can afford more, but only after
+     someone has cropped the file to the frame and looked at the result — say
+     so with `safeEdge` on that slide and write down what was measured. Guessing
+     it defeats the check.
+
+     Adding a slide: convert it in tools/prepare-images.py and append it here. */
   var HERO_FRAME_RATIO = 2 / 1;
 
   var HERO_SLIDES = [
     {
       id: 'lionair-skyline',
       image: 'assets/img/hero-lionair-skyline.webp',
-      width: 1672,
-      height: 941,
-      /* 1.78:1 in a 2:1 frame loses 11.2% of its height. Centred, the top cut
-         would land 13px above the SIXT wordmark — too close to trust across
-         rounding and browsers. Biasing to 40% takes more from the empty
-         pavement at the bottom: 23px of clearance above the mark, 21px below
-         the lowest content. */
-      focus: 'center 40%',
-      th: { alt: 'แคมเปญ SIXT ร่วมกับ Thai Lion Air — เช่ารถพร้อมคนขับ รับส่งสนามบิน กับ Mercedes-Benz E-Class หน้าอาคารผู้โดยสาร มีสกายไลน์กรุงเทพฯ เป็นฉากหลัง' },
-      en: { alt: 'SIXT and Thai Lion Air — chauffeured airport transfers in a Mercedes-Benz E-Class outside the terminal, Bangkok skyline behind' }
+      width: 2138,
+      height: 1029,
+      /* 2.08:1, drawn all but on the frame: cover trims 40px off each side,
+         1.9%, comfortably inside the default 6% budget — so no safeEdge
+         override, and no focus bias either, since nothing is cropped
+         vertically and the sides lose only sky and terminal glass. */
+      th: { alt: 'แคมเปญ SIXT ร่วมกับ Thai Lion Air — เช่ารถพร้อมคนขับ รับ-ส่งสนามบิน สิทธิพิเศษสำหรับผู้โดยสาร Thai Lion Air เพียงแสดงบัตรโดยสารหรือ E-Ticket ภาพ Mercedes-Benz E-Class สีขาวหน้าอาคารผู้โดยสาร มีเครื่องบิน Thai Lion Air และสกายไลน์กรุงเทพฯ เป็นฉากหลัง' },
+      en: { alt: 'SIXT with Thai Lion Air — chauffeured airport transfers, a perk for Thai Lion Air passengers on showing a boarding pass or e-ticket; a white Mercedes-Benz E-Class outside the terminal, a Thai Lion Air aircraft and the Bangkok skyline behind' }
     },
     {
       id: 'kbank-domestic',

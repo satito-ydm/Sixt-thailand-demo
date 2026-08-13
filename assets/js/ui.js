@@ -104,12 +104,11 @@
 
   /* ---------- hero carousel ------------------------------------------- */
 
-  var SLIDE_MS = 6000;
-  var heroTimer = null;
+  /* The banner advances only when the reader asks it to. Nothing moves on its
+     own, so there is no timer to pause and WCAG 2.2.2 has nothing to bite on —
+     which is why the row of dots and its pause button are gone. */
   var heroIndex = 0;
-  var heroPaused = false;
   var heroRelabel = null;
-  var bookingDock = null;
 
   function initHeroSlider() {
     var root_ = document.getElementById('hero-slider');
@@ -144,33 +143,6 @@
 
     if (total < 2) { return; } /* one slide needs no controls */
 
-    var controls = el('div', 'hero-controls');
-    var dots = slides.map(function (slide, index) {
-      var dot = el('button', 'hero-dot');
-      dot.type = 'button';
-      dot.setAttribute('aria-label', i18n.t('hero.goToSlide', { n: index + 1 }));
-      dot.setAttribute('aria-current', index === 0 ? 'true' : 'false');
-      dot.addEventListener('click', function () { show(index); restart(); });
-      controls.appendChild(dot);
-      return dot;
-    });
-
-    /* WCAG 2.2.2: anything that moves on its own for more than five seconds
-       needs a control to stop it. This button is that control. */
-    var toggle = el('button', 'hero-toggle');
-    toggle.type = 'button';
-    controls.appendChild(toggle);
-    root_.appendChild(controls);
-
-    var ICON_PAUSE = ['M9 5v14M15 5v14'];
-    var ICON_PLAY = ['M7 4.5l12 7.5-12 7.5z'];
-
-    function paintToggle() {
-      clear(toggle);
-      toggle.appendChild(icon(heroPaused ? ICON_PLAY : ICON_PAUSE, 14));
-      toggle.setAttribute('aria-label', i18n.t(heroPaused ? 'hero.play' : 'hero.pause'));
-    }
-
     function show(index) {
       heroIndex = (index + total) % total;
       figures.forEach(function (fig, i) {
@@ -179,46 +151,38 @@
         fig.setAttribute('aria-hidden', String(!on));
         if (on) { fig.removeAttribute('inert'); } else { fig.setAttribute('inert', ''); }
       });
-      dots.forEach(function (dot, i) {
-        dot.setAttribute('aria-current', String(i === heroIndex));
-      });
     }
 
-    function stop() { if (heroTimer) { window.clearInterval(heroTimer); heroTimer = null; } }
+    /* Chevrons rather than a filled triangle: the arrow sits on photography,
+       and an outline reads against both a bright sky and a dark car. */
+    var ICON_PREV = ['M15 5l-7 7 7 7'];
+    var ICON_NEXT = ['M9 5l7 7-7 7'];
 
-    function start() {
-      stop();
-      if (heroPaused || reduce || document.hidden) { return; }
-      heroTimer = window.setInterval(function () { show(heroIndex + 1); }, SLIDE_MS);
+    function arrow(variant, path, step, key) {
+      var button = el('button', 'hero-arrow hero-arrow--' + variant);
+      button.type = 'button';
+      button.appendChild(icon(path, 20));
+      button.addEventListener('click', function () { show(heroIndex + step); });
+      root_.appendChild(button);
+      return { el: button, key: key };
     }
 
-    function restart() { if (!heroPaused) { start(); } }
+    var arrows = [
+      arrow('prev', ICON_PREV, -1, 'hero.prev'),
+      arrow('next', ICON_NEXT, 1, 'hero.next')
+    ];
 
-    toggle.addEventListener('click', function () {
-      heroPaused = !heroPaused;
-      paintToggle();
-      if (heroPaused) { stop(); } else { start(); }
-    });
+    function label() {
+      arrows.forEach(function (a) { a.el.setAttribute('aria-label', i18n.t(a.key)); });
+    }
 
-    /* Hold still while someone is reading or tabbing through it, and stop
-       burning cycles when the tab is in the background. */
-    root_.addEventListener('mouseenter', stop);
-    root_.addEventListener('mouseleave', restart);
-    root_.addEventListener('focusin', stop);
-    root_.addEventListener('focusout', restart);
-    document.addEventListener('visibilitychange', function () {
-      if (document.hidden) { stop(); } else { restart(); }
-    });
-
-    /* Reduced motion: no crossfade, no autoplay — the dots still work. */
+    /* Reduced motion: the slide still changes, it just does not fade. */
     if (reduce) {
       figures.forEach(function (fig) { fig.style.transition = 'none'; });
-      heroPaused = true;
     }
 
     show(0);
-    paintToggle();
-    start();
+    label();
 
     /* Re-labelling in place rather than rebuilding: a language switch should
        not throw the viewer back to the first slide. */
@@ -227,10 +191,7 @@
         fig.setAttribute('aria-label', i18n.t('hero.slideOf', { n: index + 1, total: total }));
         fig.querySelector('img').alt = copy(slides[index]).alt;
       });
-      dots.forEach(function (dot, index) {
-        dot.setAttribute('aria-label', i18n.t('hero.goToSlide', { n: index + 1 }));
-      });
-      paintToggle();
+      label();
     };
   }
 
@@ -245,19 +206,6 @@
 
   /* Four figures drawn from facts already stated elsewhere on the page — the
      branch list, the ISO badge and the SIXT history line in the footer. */
-  var STATS = ['branches', 'countries', 'founded', 'support'];
-
-  function renderStats() {
-    var host = document.getElementById('stats-row');
-    clear(host);
-    STATS.forEach(function (key) {
-      var box = el('div');
-      box.appendChild(el('div', 'stat-value', i18n.t('stat.' + key + 'Value')));
-      box.appendChild(el('div', 'stat-label mt-1', i18n.t('stat.' + key + 'Label')));
-      host.appendChild(box);
-    });
-  }
-
   function renderPromos() {
     var host = document.getElementById('promo-grid');
     clear(host);
@@ -528,76 +476,6 @@
 
   /* ---------- chrome ---------------------------------------------------- */
 
-  /* The docked bar has three states, and only at the breakpoint where it is
-     actually fixed:
-       at the top   — full form, no way to collapse
-       scrolled     — collapsed to a single pill
-       scrolled and reopened by the reader — full form with a close control
-     Reopening is sticky until the reader closes it or scrolls back up, so the
-     form does not snap shut under someone who is mid-way through filling it. */
-  function initBookingDock() {
-    var dock = document.getElementById('booking-dock');
-    var slider = document.getElementById('hero-slider');
-    var trigger = document.getElementById('booking-trigger');
-    var closeBtn = document.getElementById('booking-close');
-    if (!dock || !slider || !trigger || !closeBtn) { return; }
-
-    var wide = window.matchMedia('(min-width: 1024px)');
-    var reopened = false;
-
-    /* Handed to the search hand-off so it can open or shut the bar. */
-    bookingDock = {
-      open: function () { reopened = true; apply(); },
-      close: function () { reopened = false; apply(); },
-      isCollapsed: function () { return dock.classList.contains('is-collapsed'); }
-    };
-
-    function pastHero() {
-      return window.scrollY > slider.offsetHeight * 0.55;
-    }
-
-    function apply() {
-      var canCollapse = wide.matches && pastHero();
-      dock.classList.toggle('can-collapse', canCollapse);
-      dock.classList.toggle('is-collapsed', canCollapse && !reopened);
-      trigger.setAttribute('aria-expanded', String(!(canCollapse && !reopened)));
-    }
-
-    function onScroll() {
-      /* Back above the hero, the form is on show anyway — forget the reopen so
-         the next scroll down collapses it again. */
-      if (!pastHero()) { reopened = false; }
-      apply();
-    }
-
-    trigger.addEventListener('click', function () {
-      reopened = true;
-      apply();
-      document.getElementById('pickup-location').focus();
-    });
-
-    closeBtn.addEventListener('click', function () {
-      reopened = false;
-      apply();
-      /* Focus follows the control that replaces this one. */
-      if (dock.classList.contains('is-collapsed')) { trigger.focus(); }
-    });
-
-    /* Escape collapses it, matching the drawer and the combobox. */
-    document.addEventListener('keydown', function (e) {
-      if (e.key !== 'Escape' || !reopened) { return; }
-      if (!dock.contains(document.activeElement)) { return; }
-      reopened = false;
-      apply();
-      if (dock.classList.contains('is-collapsed')) { trigger.focus(); }
-    });
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    if (wide.addEventListener) { wide.addEventListener('change', onScroll); }
-    onScroll();
-  }
-
   function initStickyHeader() {
     var header = document.getElementById('site-header');
     function onScroll() {
@@ -609,7 +487,6 @@
 
   function initDrawer() {
     var drawer = document.getElementById('drawer');
-    var overlay = document.getElementById('drawer-overlay');
     var openBtn = document.getElementById('menu-open');
     var closeBtn = document.getElementById('menu-close');
 
@@ -621,7 +498,6 @@
 
     function open() {
       drawer.classList.add('is-open');
-      overlay.classList.add('is-open');
       drawer.removeAttribute('inert');
       document.body.classList.add('is-locked');
       openBtn.setAttribute('aria-expanded', 'true');
@@ -631,7 +507,6 @@
 
     function close() {
       drawer.classList.remove('is-open');
-      overlay.classList.remove('is-open');
       drawer.setAttribute('inert', '');
       document.body.classList.remove('is-locked');
       openBtn.setAttribute('aria-expanded', 'false');
@@ -645,7 +520,6 @@
 
     openBtn.addEventListener('click', open);
     closeBtn.addEventListener('click', close);
-    overlay.addEventListener('click', close);
 
     document.addEventListener('keydown', function (e) {
       if (!drawer.classList.contains('is-open')) { return; }
@@ -727,20 +601,15 @@
       summary.classList.add('is-visible');
       activeDays = i18n.rentalDays(lastState.pickupDate, lastState.returnDate);
       renderFleetGrid(currentTab()); /* prices become trip totals */
-      /* The search is done; fold the bar away so it is not sitting on top of
-         the results the reader just asked for. */
-      if (bookingDock) { bookingDock.close(); }
+      /* The panel rides with the banner and has scrolled away by now, so there
+         is nothing sitting on top of the results to fold. */
       scrollToSection(document.getElementById('fleet'));
     });
 
     editBtn.addEventListener('click', function () {
-      var docked = window.matchMedia('(min-width: 1024px)').matches;
-      /* Collapsed, the fields are display:none and cannot take focus, so the
-         bar has to be opened before reaching into it. */
-      if (docked && bookingDock) { bookingDock.open(); }
-      /* When the bar is docked it is already on screen, so scrolling the page
-         back to the top would just throw away the reader's position. */
-      if (!docked) { scrollToSection(document.getElementById('hero')); }
+      /* The form lives on the banner at every width now, so editing always
+         means going back up to it. */
+      scrollToSection(document.getElementById('hero'));
       document.getElementById('pickup-location').focus();
     });
 
@@ -762,7 +631,6 @@
     var tab = currentTab();
     renderValueProps();
     renderWhyMedia();
-    renderStats();
     renderPromos();
     renderFleetTabs();
     selectTab(tab, false);
@@ -783,7 +651,6 @@
     initFleetTabs();
 
     root.SIXT.booking.init();
-    initBookingDock();
     initStickyHeader();
     initDrawer();
     initLangSwitcher();

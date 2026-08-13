@@ -62,7 +62,9 @@
   --space-18: 4.5rem;
   --space-22: 5.5rem;
 
-  --container: 1280px;
+  /* Widened for 1920-class monitors, where 1280 left 312px of dead ground on
+     each side. */
+  --container: 1536px;
 
   /* Shape and depth ------------------------------------------------------- */
   --radius-sm: 8px;

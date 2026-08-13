@@ -158,6 +158,34 @@ body h3 { font-size: var(--text-h3); }
 }
 .link-toggle:hover { color: var(--sixt-orange-deep); }
 
+/* ── Touch targets ────────────────────────────────────────────────────────
+   These three controls are drawn well under the 44px a finger needs: the
+   language buttons run 27px, the return-location toggle and the section links
+   24px. Growing the boxes themselves would push the header taller and open a
+   gap under the booking fields, so the hit area is grown instead and not one
+   drawn pixel moves.
+
+   .link-arrow already spends its ::after on the trailing glyph, hence ::before
+   there. Each overlay is centred on its own control and none reaches a
+   neighbour: the toggle has 12px of clear space above it and the language
+   buttons sit side by side, not stacked. */
+.lang-btn,
+.link-toggle,
+.link-arrow { position: relative; }
+
+.lang-btn::after,
+.link-toggle::after,
+.link-arrow::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 44px;
+  transform: translateY(-50%);
+  /* Decorative only — never announced, never painted. */
+  pointer-events: auto;
+}
+
 /* Cards -------------------------------------------------------------------- */
 .card {
   background: var(--white);
@@ -403,7 +431,17 @@ body h3 { font-size: var(--text-h3); }
               box-shadow var(--transition);
 }
 .site-header .nav-link { color: var(--white); }
-.site-header .header-logo { filter: brightness(0) invert(1); transition: filter var(--transition); }
+/* Black header on arrival, white once the page moves — so the lockup swaps
+   rather than being filtered. Both files are already decoded by the time the
+   header changes state, so the switch costs nothing at scroll time.
+
+   Scoped through .site-header on purpose. `.header-logo` further down this
+   file sets `display: block`, and at equal specificity the later rule wins —
+   which left both lockups stacked, the light one showing nothing but its
+   orange accent against the black bar. */
+.site-header .header-logo--on-light { display: none; }
+.site-header.is-stuck .header-logo--on-dark { display: none; }
+.site-header.is-stuck .header-logo--on-light { display: block; }
 .site-header .btn-outline { border-color: var(--white); color: var(--white); }
 .site-header .btn-outline:hover { background: var(--white); color: var(--sixt-black); }
 .site-header .lang-switch { background: rgba(255, 255, 255, 0.14); }
@@ -419,7 +457,6 @@ body h3 { font-size: var(--text-h3); }
   box-shadow: var(--shadow-header);
 }
 .site-header.is-stuck .nav-link { color: var(--sixt-black); }
-.site-header.is-stuck .header-logo { filter: none; }
 .site-header.is-stuck .btn-outline { border-color: var(--sixt-black); color: var(--sixt-black); }
 .site-header.is-stuck .btn-outline:hover { background: var(--sixt-black); color: var(--white); }
 .site-header.is-stuck .lang-switch { background: var(--grey-50); }
@@ -472,20 +509,34 @@ body h3 { font-size: var(--text-h3); }
 .lang-btn:hover { color: var(--sixt-black); }
 .lang-btn[aria-pressed="true"] { background: var(--sixt-black); color: var(--white); }
 
-/* Carries .btn-primary and only reshapes it into a pill. Inheriting that
-   class is the point: it brings the 19px/700 contract, which is exactly what
-   lets white sit on orange here — 3.28:1 passes as large text and nowhere
-   else. Never add a font-size to this rule. */
+/* ACCESSIBILITY CONTRACT — do not weaken.
+   Orange text, no button. The header changes ground under it: --sixt-black on
+   arrival, white once the page moves. Orange is 5.30:1 on the black and only
+   3.28:1 on the white — below the 4.5:1 an AA normal-size string needs, above
+   the 3.0:1 allowed for large text. So 19px/700 is not a styling choice here,
+   it is the entire reason this is legal on the scrolled header. It used to
+   arrive via .btn-primary; now that the pill is gone the rule states it
+   outright. Never reduce either value. */
 .btn-hotline {
-  border-radius: 999px;
-  padding-inline: var(--space-6);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: 1.1875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  /* 44px of hit area for a phone number, which is the one control on this
+     header a hurried traveller reaches for. */
+  min-height: 44px;
   flex: none;
   white-space: nowrap;
+  color: var(--sixt-orange);
   text-decoration: none;
+  transition: color var(--transition);
 }
-@media (max-width: 640px) {
-  .btn-hotline { padding-inline: var(--space-4); }
-}
+/* --sixt-orange-deep is 4.20:1 on white and 4.09:1 on the black header, so the
+   hover state is the safer of the two grounds either way. */
+.btn-hotline:hover { color: var(--sixt-orange-deep); }
 
 .nav-link {
   font-size: 0.9375rem;
@@ -499,25 +550,16 @@ body h3 { font-size: var(--text-h3); }
 .nav-link:hover { border-bottom-color: var(--sixt-orange); }
 
 /* Mobile drawer ------------------------------------------------------------------------- */
-.drawer-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  background: rgba(0, 0, 0, 0.5);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--transition);
-}
-.drawer-overlay.is-open { opacity: 1; pointer-events: auto; }
-
+/* Full screen rather than a panel with the page showing through beside it. The
+   menu is the whole task while it is open, and at this width a 320px sheet left
+   a strip of unreachable page that only invited mis-taps. */
 .drawer {
   position: fixed;
-  inset-block: 0;
-  inset-inline-start: 0;
+  inset: 0;
   z-index: 70;
-  width: min(320px, 86vw);
+  width: 100%;
   background: var(--white);
-  padding: var(--space-6) var(--space-4);
+  padding: var(--space-6);
   transform: translateX(-100%);
   transition: transform var(--transition);
   display: flex;
@@ -526,6 +568,34 @@ body h3 { font-size: var(--text-h3); }
   overflow-y: auto;
 }
 .drawer.is-open { transform: translateX(0); }
+
+/* Filled out to the window rather than a 320px list left floating in one
+   corner of it. The logo and the close control take the top corners, the links
+   take every bit of height between them, and the account button and the
+   language switch run the full width along the bottom. */
+.drawer-head img { height: 2.25rem; }
+.drawer-head button svg { width: 30px; height: 30px; }
+
+.drawer nav {
+  flex: 1;
+  justify-content: center;
+  gap: var(--space-1);
+}
+/* Scoped to the drawer: the same class in the header stays at reading size. */
+.drawer .nav-link {
+  font-size: clamp(1.75rem, 9vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.2;
+  padding-block: var(--space-3);
+}
+.drawer .btn-outline {
+  padding-block: var(--space-4);
+  font-size: var(--text-cta);
+}
+/* Stretched to match the button above it rather than sitting as a small pill
+   against the left edge. */
+.drawer .lang-switch { align-self: stretch; }
+.drawer .lang-btn { flex: 1; padding-block: var(--space-3); }
 body.is-locked { overflow: hidden; }
 
 /* Decorative quarter circle (moodboard accent). Used twice on the page only. */
@@ -613,6 +683,10 @@ body .booking-title {
   position: relative;
   width: 100%;
   aspect-ratio: 2 / 1;
+  /* Full-bleed at every width, by request. Deliberately no ceiling on either
+     axis: a max-height squeezes the frame below its own ratio and `cover` pays
+     for it in crop, and a max-width leaves page ground down the sides. The
+     height therefore follows the window — 952px at a 1920 monitor. */
   overflow: hidden;
   background: var(--grey-50);
 }
@@ -636,53 +710,39 @@ body .booking-title {
   display: block;
 }
 
-.hero-controls {
+/* Paired at the foot of the picture on the left. They sat at the two edges
+   until the booking form stood up on the right — an arrow at the right edge is
+   now buried under the panel on any window narrower than about 1300px, and an
+   arrow that is sometimes there and sometimes not is worse than one that is
+   always in the same place. The foot of the picture is free either way, since
+   nothing docks there any more.
+
+   48px square clears the 44px minimum for a touch target with room to spare,
+   and the disc is dark enough to hold a white chevron over both a bright sky
+   and a black car. */
+.hero-arrow {
   position: absolute;
   z-index: 3;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: clamp(1rem, 6vw, 5.5rem);
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(26, 26, 26, 0.55);
-  backdrop-filter: blur(6px);
-}
-/* Always 26px wide, squeezed with scaleX rather than animating width. Same
-   dot-to-pill effect, but nothing in the row has to be laid out again. */
-.hero-dot {
-  width: 26px;
-  height: 9px;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.45);
-  cursor: pointer;
-  transform: scaleX(0.35);
-  transition: background var(--transition), transform var(--transition);
-}
-.hero-dot[aria-current="true"] {
-  background: var(--sixt-orange);
-  transform: scaleX(1);
-}
-.hero-controls button:focus-visible { outline-color: var(--white); }
-
-.hero-toggle {
+  bottom: var(--space-6);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 48px;
+  height: 48px;
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: transparent;
+  background: rgba(26, 26, 26, 0.55);
+  backdrop-filter: blur(6px);
   color: var(--white);
   cursor: pointer;
+  transition: background var(--transition);
 }
-.hero-toggle:hover { background: rgba(255, 255, 255, 0.18); }
+.hero-arrow:hover { background: rgba(26, 26, 26, 0.82); }
+.hero-arrow:focus-visible { outline-color: var(--white); }
+.hero-arrow--prev { inset-inline-start: var(--space-6); }
+/* 48px across plus a 12px gap puts the second disc beside the first. */
+.hero-arrow--next { inset-inline-start: calc(var(--space-6) + 48px + var(--space-3)); }
 
 /* The banner is a clean full-bleed rectangle — no curved cap, no corner
    sweep. The quarter-circle motif still runs elsewhere on the page (the
@@ -696,11 +756,34 @@ body .booking-title {
   z-index: 2;
   width: 100%;
   margin-inline: auto;
-  background: var(--white);
+  background: var(--sixt-black);
+  color: var(--on-dark);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-widget);
   padding: var(--space-6);
 }
+
+/* ── Colours on the dark panel ───────────────────────────────────────────
+   Same rule the colour bands follow: a ground this dark restates every colour
+   it needs instead of inheriting, because the defaults assume white and two of
+   them fall below AA here.
+
+   The fields stay white. They are a surface of their own, and leaving them
+   light keeps the input-border rule (WCAG 1.4.11, --border-input at 3.45:1 on
+   white) and the error red working exactly as they do everywhere else on the
+   page — inverting them would mean re-proving both. */
+.booking-card .booking-sub,
+.booking-card .field-label {
+  /* --grey-500 is 3.3:1 on black and fails; the white wash is what this
+     ground is for, at 10.8:1. */
+  color: var(--on-dark-muted);
+}
+.booking-card .link-toggle { color: var(--on-dark); }
+/* 5.30:1 on black, so the hover clears AA at this 14px bold — which is not
+   large text, whatever its weight suggests. */
+.booking-card .link-toggle:hover { color: var(--sixt-orange); }
+/* The orange focus ring is 1.9:1 on black; the dark band makes the same swap. */
+.booking-card :focus-visible { outline-color: var(--white); }
 /* Below the large breakpoint the picture is too short to give away 76px, and
    the bar needs the full width for stacked fields. */
 @media (max-width: 1023px) {
@@ -714,62 +797,65 @@ body .booking-title {
    (below the large breakpoint) the card just sits in it. */
 .booking-card { margin-top: 0; }
 
-/* ── Docked booking bar ──────────────────────────────────────────────────
-   From the large breakpoint up, the bar leaves the flow and rides the bottom
-   of the viewport: over the hero on arrival, then flush to the edge and
-   shortened once the picture has scrolled by.
+/* ── Booking panel over the banner ───────────────────────────────────────
+   From the large breakpoint up the form leaves the flow and stands upright on
+   the right of the picture, fields in a single column. It is positioned inside
+   the hero rather than fixed to the window, so it travels with the banner and
+   is gone by the time the sections below arrive — which is why nothing here
+   collapses, docks or needs clearance at the foot of the page.
 
-   Deliberately not applied below 1024px. Four stacked fields pinned to a phone
-   screen would cover most of it, and the page behind becomes unreadable. */
+   Deliberately not applied below 1024px: a column this tall would swallow a
+   phone screen whole, so down there the form stays in the flow under the
+   picture. */
 @media (min-width: 1024px) {
+  #hero { position: relative; }
+
+  /* A 2:1 frame is only 512px tall at this breakpoint, and the upright form is
+     about 475px — too close to call. The floor keeps the panel inside the
+     picture at every desktop width; the ratio still governs everywhere it is
+     the larger of the two, which is from roughly 1120px up. */
+  .hero-slider { min-height: 560px; }
+
+  .booking-dock {
+    position: absolute;
+    z-index: 5;
+    top: 50%;
+    transform: translateY(-50%);
+    /* Aligned to the page grid's right edge, so the panel lines up with the
+       content below it rather than floating at an arbitrary offset. The gutter
+       is clamped at zero — below the container width there is none — and the
+       container's own 2.5rem of padding is added, since that is where the
+       sections underneath actually begin. */
+    inset-inline-end: calc(max(0px, (100% - var(--container)) / 2) + 2.5rem);
+    inset-inline-start: auto;
+    width: min(30rem, 34vw);
+    padding: 0;
+  }
+
   .booking-card {
-    position: fixed;
-    z-index: 45;
-    left: 50%;
-    /* Anchored at bottom: 0 and lifted with a transform rather than animating
-       `bottom`. Offsets and padding are layout properties; moving them every
-       frame during a scroll is what makes a docked bar stutter. Only the
-       transform and the corner radius animate, and neither triggers layout. */
-    bottom: 0;
-    transform: translateX(-50%) translateY(calc(var(--space-6) * -1));
-    /* Held to the same 1280 grid as the rest of the page rather than a width
-       of its own. */
-    width: min(calc(100vw - 3rem), var(--container));
+    position: static;
+    width: 100%;
     margin-top: 0;
-    padding: var(--space-5) var(--space-6);
-    background: var(--white);
+    padding: var(--space-6);
+    background: var(--sixt-black);
     border-radius: var(--radius-lg);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
-    transition: transform var(--transition), border-radius var(--transition);
   }
 
-  /* Collapsed: the whole form gives way to a single pill. The real h1 lives
-     outside the form precisely so this can happen without the page losing its
-     heading. */
-  .booking-dock.is-collapsed .booking-card { display: none; }
-  .booking-dock.is-collapsed .booking-trigger { display: inline-flex; }
-
-  .booking-trigger {
-    display: none;
-    position: fixed;
-    z-index: 45;
-    left: 50%;
-    bottom: 0;
-    transform: translateX(-50%);
-    border-end-start-radius: 0;
-    border-end-end-radius: 0;
-    padding-inline: var(--space-8);
-    box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.22);
+  /* One field per row. The row layout only ever made sense while the form was
+     a bar running the width of the window. */
+  .booking-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-4);
   }
-
-  /* The close control only earns its place once collapsing is possible. */
-  .booking-close { display: none; }
-  .booking-dock.can-collapse .booking-close { display: inline-flex; }
-
-  /* The bar floats over everything, so the last of the page needs clearance
-     or the footer's bottom row sits underneath it. */
-  body { padding-bottom: 150px; }
-
+  /* Scoped through .booking-card to outrank the row's own flex rules further
+     down the file. Their basis was written as a width; turned on its side it
+     becomes a height, which is what stretched the panel past the banner. */
+  .booking-card .booking-field,
+  .booking-card .booking-field--wide,
+  .booking-card .booking-submit { flex: none; width: 100%; }
+  .booking-card .btn-primary { width: 100%; }
 }
 
 /* A listbox opening downward from a bar at the bottom of the window falls off
@@ -784,29 +870,24 @@ body .booking-title {
   align-items: flex-end;
   gap: var(--space-3);
 }
+/* A column now. It was a row only to hold the collapse control out at the far
+   end, and that control went with the docking. */
 .booking-head {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
+  flex-direction: column;
+  gap: var(--space-2);
   margin-bottom: var(--space-4);
 }
-.booking-close {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  flex: none;
-  padding: 0;
-  border: 1px solid var(--grey-200);
-  border-radius: 50%;
-  background: transparent;
-  color: var(--sixt-black);
-  cursor: pointer;
-  transition: background var(--transition), color var(--transition);
+/* --grey-500 is 5.3:1 on white, so the sub-line clears AA at body size without
+   help from weight. Capped in characters rather than pixels: the panel is
+   narrow and Thai runs longer than the English it is translated from. */
+.booking-sub {
+  font-size: var(--text-small);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--grey-500);
+  max-width: 46ch;
 }
-.booking-close:hover { background: var(--sixt-black); color: var(--white); }
 .booking-foot { margin-top: var(--space-3); }
 
 /* The date cells need a wider basis than the location: a native date input and
@@ -846,6 +927,44 @@ body .booking-title {
 .band-dark :focus-visible { outline-color: var(--white); }
 .band-dark .btn-outline { border-color: var(--white); color: var(--white); }
 .band-dark .btn-outline:hover { background: var(--white); color: var(--sixt-black); }
+
+/* ── Split band ───────────────────────────────────────────────────────────
+   The ground is cut down the middle of the window: white under the copy,
+   orange under the photograph. The seam is at 50% of the viewport, and the
+   grid's own columns break at about 54%, so the two lines up closely enough
+   to read as one decision.
+
+   Every word in the band is black, and that is the whole reason the split is
+   safe. Black scores 5.31:1 on the orange and far more on the white, so a line
+   that runs past the seam stays legible on both sides of it — no other ink
+   here can say that. The orange stat figures had to go black for exactly this
+   reason: orange on orange is invisible. */
+.band-split {
+  background: linear-gradient(to right, var(--white) 0 50%, var(--sixt-orange) 50% 100%);
+  color: var(--sixt-black);
+}
+/* Stacked on a phone the columns sit one above the other, so the cut turns
+   with them: copy on white, photograph on orange. */
+@media (max-width: 1023px) {
+  .band-split {
+    background: linear-gradient(to bottom, var(--white) 0 50%, var(--sixt-orange) 50% 100%);
+  }
+}
+.band-split h1,
+.band-split h2,
+.band-split h3,
+.band-split .lead,
+.band-split .section-kicker,
+.band-split .lead { font-weight: 300; }
+/* The kicker's rule mark is orange by default, which vanishes on the orange
+   half. */
+.band-split .section-kicker::before { background: var(--sixt-black); }
+/* Hairlines were white at 18% for a black ground; on white they disappeared. */
+.band-split .why-divider { border-color: rgba(26, 26, 26, 0.18); }
+/* A white pill on a white ground is no pill at all. */
+.band-split .btn-pill { background: var(--sixt-black); color: var(--white); }
+.band-split .btn-pill:hover { background: var(--sixt-orange); color: var(--sixt-black); }
+.band-split :focus-visible { outline-color: var(--sixt-black); }
 
 .band-orange {
   background: var(--sixt-orange);
@@ -944,19 +1063,6 @@ body .booking-title {
 .btn-pill:hover { background: var(--sixt-orange); color: var(--sixt-black); }
 .btn-pill:hover .btn-pill__disc { background: var(--sixt-black); color: var(--white); transform: translateX(2px); }
 
-/* ══ Statistics row ══════════════════════════════════════════════════════ */
-.stat-value {
-  font-size: 2rem;
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  color: var(--sixt-orange); /* 5.31:1 on black */
-}
-.stat-label {
-  font-size: 0.8125rem;
-  font-weight: 400;
-  color: var(--on-dark-muted);
-}
 
 /* ══ Card refinements ════════════════════════════════════════════════════
    Cards carry weight through elevation rather than a hairline border, which

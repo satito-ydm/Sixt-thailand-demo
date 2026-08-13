@@ -272,8 +272,12 @@
         ? (ratio - frame) / ratio          /* wider than the frame: sides */
         : (1 / ratio - 1 / frame) * ratio; /* taller: top and bottom */
       var perEdge = lost / 2;
-      T.ok(perEdge <= 0.06, s.id + ' is ' + ratio.toFixed(2) + ':1 in a ' +
-        frame.toFixed(2) + ':1 frame — ' + (perEdge * 100).toFixed(1) + '% off each edge');
+      /* A slide may raise its own budget, but only by declaring it — see the
+         note on safeEdge in content.js. Without one, the strict default holds. */
+      var budget = s.safeEdge || 0.06;
+      T.ok(perEdge <= budget, s.id + ' is ' + ratio.toFixed(2) + ':1 in a ' +
+        frame.toFixed(2) + ':1 frame — ' + (perEdge * 100).toFixed(1) +
+        '% off each edge, budget ' + (budget * 100).toFixed(0) + '%');
     });
   });
 
