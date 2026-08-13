@@ -591,12 +591,13 @@ body.is-locked { overflow: hidden; }
    top of it would collide. */
 
 /* The page heading, which lives on the booking bar. */
+/* No transition on font-size: it reflows the text on every frame, and this
+   heading changes size during a scroll. The size just snaps. */
 body .booking-title {
   font-size: clamp(1.5rem, 2.4vw, 2rem);
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.1;
-  transition: font-size var(--transition);
 }
 
 /* Full-bleed carousel. The frame runs at 2.6:1 — the ratio of the widest
@@ -645,17 +646,23 @@ body .booking-title {
   background: rgba(26, 26, 26, 0.55);
   backdrop-filter: blur(6px);
 }
+/* Always 26px wide, squeezed with scaleX rather than animating width. Same
+   dot-to-pill effect, but nothing in the row has to be laid out again. */
 .hero-dot {
-  width: 9px;
+  width: 26px;
   height: 9px;
   padding: 0;
   border: 0;
-  border-radius: 50%;
+  border-radius: 999px;
   background: rgba(255, 255, 255, 0.45);
   cursor: pointer;
-  transition: background var(--transition), width var(--transition);
+  transform: scaleX(0.35);
+  transition: background var(--transition), transform var(--transition);
 }
-.hero-dot[aria-current="true"] { background: var(--sixt-orange); width: 26px; border-radius: 999px; }
+.hero-dot[aria-current="true"] {
+  background: var(--sixt-orange);
+  transform: scaleX(1);
+}
 .hero-controls button:focus-visible { outline-color: var(--white); }
 
 .hero-toggle {
@@ -715,8 +722,12 @@ body .booking-title {
     position: fixed;
     z-index: 45;
     left: 50%;
-    transform: translateX(-50%);
-    bottom: var(--space-6);
+    /* Anchored at bottom: 0 and lifted with a transform rather than animating
+       `bottom`. Offsets and padding are layout properties; moving them every
+       frame during a scroll is what makes a docked bar stutter. Only the
+       transform and the corner radius animate, and neither triggers layout. */
+    bottom: 0;
+    transform: translateX(-50%) translateY(calc(var(--space-6) * -1));
     /* Held to the same 1280 grid as the rest of the page rather than a width
        of its own. */
     width: min(calc(100vw - 3rem), var(--container));
@@ -725,12 +736,11 @@ body .booking-title {
     background: var(--white);
     border-radius: var(--radius-lg);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
-    transition: bottom var(--transition), padding var(--transition),
-                border-radius var(--transition);
+    transition: transform var(--transition), border-radius var(--transition);
   }
 
   .booking-card.is-compact {
-    bottom: 0;
+    transform: translateX(-50%) translateY(0);
     padding-block: var(--space-3);
     border-end-start-radius: 0;
     border-end-end-radius: 0;
@@ -740,8 +750,10 @@ body .booking-title {
      accessibility tree, leaving the page with no heading at all. */
   .booking-card.is-compact .booking-head { margin-bottom: var(--space-2); }
   body .booking-card.is-compact .booking-title { font-size: 1.125rem; }
-  /* The return-location toggle is optional; the shortened bar drops it. */
-  .booking-card.is-compact .booking-foot { display: none; }
+  /* The return-location toggle stays in the shortened bar. Dropping it meant
+     a one-way rental became impossible to set up anywhere except the very top
+     of the page — it only tightens up. */
+  .booking-card.is-compact .booking-foot { margin-top: var(--space-2); }
 
   /* The bar floats over everything, so the last of the page needs clearance
      or the footer's bottom row sits underneath it. */
