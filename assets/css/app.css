@@ -743,21 +743,28 @@ body .booking-title {
     transition: transform var(--transition), border-radius var(--transition);
   }
 
-  .booking-card.is-compact {
-    transform: translateX(-50%) translateY(0);
-    padding-block: var(--space-3);
+  /* Collapsed: the whole form gives way to a single pill. The real h1 lives
+     outside the form precisely so this can happen without the page losing its
+     heading. */
+  .booking-dock.is-collapsed .booking-card { display: none; }
+  .booking-dock.is-collapsed .booking-trigger { display: inline-flex; }
+
+  .booking-trigger {
+    display: none;
+    position: fixed;
+    z-index: 45;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
     border-end-start-radius: 0;
     border-end-end-radius: 0;
+    padding-inline: var(--space-8);
+    box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.22);
   }
-  /* When the bar shortens the heading shrinks with it rather than vanishing:
-     it is the document's only h1, and display:none would take it out of the
-     accessibility tree, leaving the page with no heading at all. */
-  .booking-card.is-compact .booking-head { margin-bottom: var(--space-2); }
-  body .booking-card.is-compact .booking-title { font-size: 1.125rem; }
-  /* The return-location toggle stays in the shortened bar. Dropping it meant
-     a one-way rental became impossible to set up anywhere except the very top
-     of the page — it only tightens up. */
-  .booking-card.is-compact .booking-foot { margin-top: var(--space-2); }
+
+  /* The close control only earns its place once collapsing is possible. */
+  .booking-close { display: none; }
+  .booking-dock.can-collapse .booking-close { display: inline-flex; }
 
   /* The bar floats over everything, so the last of the page needs clearance
      or the footer's bottom row sits underneath it. */
@@ -777,7 +784,29 @@ body .booking-title {
   align-items: flex-end;
   gap: var(--space-3);
 }
-.booking-head { margin-bottom: var(--space-4); }
+.booking-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.booking-close {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  padding: 0;
+  border: 1px solid var(--grey-200);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--sixt-black);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+.booking-close:hover { background: var(--sixt-black); color: var(--white); }
 .booking-foot { margin-top: var(--space-3); }
 
 /* The date cells need a wider basis than the location: a native date input and

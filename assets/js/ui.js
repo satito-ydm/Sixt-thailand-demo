@@ -109,6 +109,7 @@
   var heroIndex = 0;
   var heroPaused = false;
   var heroRelabel = null;
+  var bookingDock = null;
 
   function initHeroSlider() {
     var root_ = document.getElementById('hero-slider');
@@ -527,18 +528,69 @@
 
   /* ---------- chrome ---------------------------------------------------- */
 
-  /* The docked booking bar shortens once the hero picture is mostly past.
-     Only meaningful at the breakpoint where the bar is actually fixed. */
+  /* The docked bar has three states, and only at the breakpoint where it is
+     actually fixed:
+       at the top   — full form, no way to collapse
+       scrolled     — collapsed to a single pill
+       scrolled and reopened by the reader — full form with a close control
+     Reopening is sticky until the reader closes it or scrolls back up, so the
+     form does not snap shut under someone who is mid-way through filling it. */
   function initBookingDock() {
-    var card = document.querySelector('.booking-card');
+    var dock = document.getElementById('booking-dock');
     var slider = document.getElementById('hero-slider');
-    if (!card || !slider) { return; }
+    var trigger = document.getElementById('booking-trigger');
+    var closeBtn = document.getElementById('booking-close');
+    if (!dock || !slider || !trigger || !closeBtn) { return; }
+
     var wide = window.matchMedia('(min-width: 1024px)');
+    var reopened = false;
+
+    /* Handed to the search hand-off so it can open or shut the bar. */
+    bookingDock = {
+      open: function () { reopened = true; apply(); },
+      close: function () { reopened = false; apply(); },
+      isCollapsed: function () { return dock.classList.contains('is-collapsed'); }
+    };
+
+    function pastHero() {
+      return window.scrollY > slider.offsetHeight * 0.55;
+    }
+
+    function apply() {
+      var canCollapse = wide.matches && pastHero();
+      dock.classList.toggle('can-collapse', canCollapse);
+      dock.classList.toggle('is-collapsed', canCollapse && !reopened);
+      trigger.setAttribute('aria-expanded', String(!(canCollapse && !reopened)));
+    }
 
     function onScroll() {
-      if (!wide.matches) { card.classList.remove('is-compact'); return; }
-      card.classList.toggle('is-compact', window.scrollY > slider.offsetHeight * 0.55);
+      /* Back above the hero, the form is on show anyway — forget the reopen so
+         the next scroll down collapses it again. */
+      if (!pastHero()) { reopened = false; }
+      apply();
     }
+
+    trigger.addEventListener('click', function () {
+      reopened = true;
+      apply();
+      document.getElementById('pickup-location').focus();
+    });
+
+    closeBtn.addEventListener('click', function () {
+      reopened = false;
+      apply();
+      /* Focus follows the control that replaces this one. */
+      if (dock.classList.contains('is-collapsed')) { trigger.focus(); }
+    });
+
+    /* Escape collapses it, matching the drawer and the combobox. */
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape' || !reopened) { return; }
+      if (!dock.contains(document.activeElement)) { return; }
+      reopened = false;
+      apply();
+      if (dock.classList.contains('is-collapsed')) { trigger.focus(); }
+    });
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
@@ -675,13 +727,19 @@
       summary.classList.add('is-visible');
       activeDays = i18n.rentalDays(lastState.pickupDate, lastState.returnDate);
       renderFleetGrid(currentTab()); /* prices become trip totals */
+      /* The search is done; fold the bar away so it is not sitting on top of
+         the results the reader just asked for. */
+      if (bookingDock) { bookingDock.close(); }
       scrollToSection(document.getElementById('fleet'));
     });
 
     editBtn.addEventListener('click', function () {
+      var docked = window.matchMedia('(min-width: 1024px)').matches;
+      /* Collapsed, the fields are display:none and cannot take focus, so the
+         bar has to be opened before reaching into it. */
+      if (docked && bookingDock) { bookingDock.open(); }
       /* When the bar is docked it is already on screen, so scrolling the page
          back to the top would just throw away the reader's position. */
-      var docked = window.matchMedia('(min-width: 1024px)').matches;
       if (!docked) { scrollToSection(document.getElementById('hero')); }
       document.getElementById('pickup-location').focus();
     });

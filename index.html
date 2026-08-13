@@ -133,16 +133,39 @@
   <div class="hero-slider" id="hero-slider"
        aria-roledescription="carousel" data-i18n-attr="aria-label:hero.carousel"></div>
 
-  <div class="container-x">
+  <!-- The document heading lives out here, not inside the form. The form gets
+       hidden entirely when the bar collapses, and a heading that disappears on
+       scroll would leave the page with none at all. -->
+  <h1 class="sr-only">Drive Your Way — SIXT Thailand</h1>
+
+  <div class="container-x booking-dock" id="booking-dock">
+
+  <!-- Shown only while collapsed. Inherits .btn-primary, which carries the
+       19px/700 that keeps white on orange above the AA large-text line. -->
+  <button type="button" class="btn-primary booking-trigger" id="booking-trigger"
+          aria-expanded="false" aria-controls="booking-form"
+          data-i18n-attr="aria-label:booking.openForm">
+    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>
+    </svg>
+    <span>Drive Your Way</span>
+  </button>
+
   <form id="booking-form" novalidate class="booking-card">
     <!-- The heading sits alone on its row. Pairing it with the return-location
          toggle left a wide dead gap between two small items; the toggle now
          has its own line under the fields, which is also where it belongs
          since it modifies them. -->
     <div class="booking-head">
-      <!-- The page's only h1. It shrinks with the bar rather than hiding, so
-           the document never ends up with no heading at all. -->
-      <h1 class="booking-title">Drive Your Way</h1>
+      <p class="booking-title">Drive Your Way</p>
+      <button type="button" class="booking-close" id="booking-close"
+              data-i18n-attr="aria-label:booking.closeForm">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
     </div>
 
     <div class="booking-bar">
