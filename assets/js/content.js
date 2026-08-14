@@ -9,24 +9,33 @@
   'use strict';
   root.SIXT = root.SIXT || {};
 
+  /* One line each, which is a copy constraint before it is a layout one: the
+     column is ~437px at the widest viewport and a line of this size holds
+     about 45 characters of English there. The bodies below were cut from
+     roughly twice that. What went is the qualifying half of each sentence —
+     "with a booking flow built to stay out of your way", "that fits your
+     schedule" — and the claim itself is intact in all three.
+
+     tests.js asserts the ceiling. Nothing here can be lengthened without
+     turning the band back into two lines. */
   var VALUE_PROPS = [
     {
       id: 'booking',
       icon: 'cursor',
-      th: { title: 'จองออนไลน์ง่าย', body: 'จองรถที่ต้องการได้ในไม่กี่คลิกผ่านระบบที่ออกแบบมาให้เรียบง่าย' },
-      en: { title: 'Easy Online Booking', body: 'Reserve the car you want in just a few clicks with a booking flow built to stay out of your way.' }
+      th: { title: 'จองออนไลน์ง่าย', body: 'จองรถที่ต้องการได้ในไม่กี่คลิก' },
+      en: { title: 'Easy Online Booking', body: 'Reserve the car you want in a few clicks.' }
     },
     {
       id: 'flexible',
       icon: 'calendar',
-      th: { title: 'เลือกได้ตามการใช้งาน', body: 'เช่ารายวัน รายสัปดาห์ รายเดือน หรือแบบสมัครสมาชิกระยะยาว' },
-      en: { title: 'Flexible Rental Options', body: 'Choose daily, weekly, monthly or a long-term subscription that fits your schedule.' }
+      th: { title: 'เลือกได้ตามการใช้งาน', body: 'รายวัน รายสัปดาห์ รายเดือน หรือระยะยาว' },
+      en: { title: 'Flexible Rental Options', body: 'Daily, weekly, monthly or long-term.' }
     },
     {
       id: 'trusted',
       icon: 'shield',
-      th: { title: 'บริการมาตรฐาน SIXT', body: 'มาตรฐานระดับโลกพร้อมทีมดูแลลูกค้าตลอด 24 ชั่วโมง' },
-      en: { title: 'Trusted SIXT Service', body: 'Global standards backed by a customer care team available around the clock.' }
+      th: { title: 'บริการมาตรฐาน SIXT', body: 'มาตรฐานระดับโลก ดูแลตลอด 24 ชั่วโมง' },
+      en: { title: 'Trusted SIXT Service', body: 'Global standards, care around the clock.' }
     }
   ];
 
@@ -90,27 +99,42 @@
   ];
   FLEET_INCLUDES.isPlaceholder = true;
 
+  /* The three banners supplied in promotion/. Every one is 1672x941, which is
+     16:9 to three decimals — the card frame's own ratio — so these fill it
+     edge to edge with no letterboxing at all. The banners they replaced ran
+     2.54:1 and 2:1 and could not.
+
+     Titles and figures below are transcribed from the artwork, not written:
+     each banner already states its own offer, and the card must not contradict
+     the picture above it.
+
+     `ends` is the last day the artwork itself prints. Nothing reads it yet —
+     it is here because one of these three is already past it, and a date that
+     lives only inside a JPEG cannot be checked by anything. */
   var PROMOS = [
     {
-      id: 'xpeng-g6',
-      image: 'assets/img/promo-xpeng-g6.webp',
-      imageSlot: 'promo-xpeng-g6',
-      th: { title: 'Xpeng G6 — สัมผัสอนาคตแห่งการขับขี่', body: 'รถยนต์ไฟฟ้ารุ่นใหม่ล่าสุดพร้อมให้เช่าแล้ววันนี้ ขับสนุก เงียบ และประหยัดกว่าที่เคย', alt: 'Xpeng G6 สีส้มวิ่งบนถนน พร้อมข้อความ Experience the Future' },
-      en: { title: 'Xpeng G6 — Experience the Future', body: 'Our newest electric SUV is available to rent today. Quiet, quick and cheaper to run.', alt: 'Orange Xpeng G6 on the road with the headline Experience the Future' }
+      id: 'ais-chauffeur',
+      image: 'assets/img/promo-ais-chauffeur.jpg',
+      imageSlot: 'promo-ais-chauffeur',
+      ends: '2026-12-18',
+      th: { title: 'เช่ารถพร้อมคนขับ รับ-ส่งสนามบิน', body: 'Toyota Camry เริ่มต้น 1,099 บาท/เที่ยว ใช้เอไอเอส พอยท์ 1 คะแนนแลกรับส่วนลด', alt: 'แบนเนอร์ SIXT ride Chauffeur ร่วมกับ AIS บริการรับส่งสนามบินพร้อมคนขับ' },
+      en: { title: 'Airport Transfers with a Chauffeur', body: 'Toyota Camry from ฿1,099 a trip. Redeem a single AIS Point for the discount.', alt: 'SIXT ride Chauffeur and AIS airport transfer promotion banner' }
     },
     {
-      id: 'kbank-domestic',
-      image: 'assets/img/promo-kbank-domestic.webp',
-      imageSlot: 'promo-kbank-domestic',
-      th: { title: 'เที่ยวในประเทศกับ KBank เริ่ม 799 บาท/วัน', body: 'เช่ารถขับเอง 799 บาท/วัน · ลีมูซีน 1,090 บาท/เที่ยว · ส่วนลดตั๋วเครื่องบิน 300 บาท', alt: 'แบนเนอร์โปรโมชัน SIXT ร่วมกับ KBank สำหรับการเดินทางภายในประเทศ' },
-      en: { title: 'Domestic Travel with KBank from ฿799/day', body: 'Self-drive from ฿799 a day, limousine transfers from ฿1,090 a trip, plus ฿300 off flights.', alt: 'SIXT and KBank domestic travel promotion banner' }
+      id: 'kbank-international',
+      image: 'assets/img/promo-kbank-international.jpg',
+      imageSlot: 'promo-kbank-international',
+      ends: '2026-03-31',
+      th: { title: 'เดินทางต่างประเทศกับ KBank ลด 20%', body: 'ส่วนลด 20% เช่ารถขับเองและลีมูซีนกว่า 110 ประเทศ พร้อมคูปองมูลค่า 1,000 บาท', alt: 'แบนเนอร์ SIXT ร่วมกับ KBank สำหรับการเดินทางต่างประเทศ' },
+      en: { title: '20% Off International Travel with KBank', body: '20% off self-drive and limousine hire in over 110 countries, plus a ฿1,000 coupon.', alt: 'SIXT and KBank international travel promotion banner' }
     },
     {
-      id: 'promo-slot-3',
-      image: null,
-      imageSlot: 'promo-slot-3',
-      th: { title: 'โปรโมชันถัดไป', body: 'พื้นที่สำหรับแคมเปญใบที่สาม รอไฟล์ภาพและรายละเอียดจากทีมการตลาด', alt: '' },
-      en: { title: 'Next Campaign', body: 'Reserved for a third campaign. Awaiting artwork and copy from the marketing team.', alt: '' }
+      id: 'mobilife-platform',
+      image: 'assets/img/promo-mobilife-platform.jpg',
+      imageSlot: 'promo-mobilife-platform',
+      ends: null,
+      th: { title: 'MOBILIFE แพลตฟอร์มใหม่', body: 'สมัครง่าย สะสมเร็ว แลกคะแนนสะดวกกว่าเดิม เชื่อมต่อสมาชิกผ่าน LINE ได้ทันที', alt: 'แบนเนอร์แพลตฟอร์มสมาชิก MOBILIFE โฉมใหม่' },
+      en: { title: 'MOBILIFE, Rebuilt', body: 'Quicker to join, faster to earn and simpler to redeem. Link your membership over LINE.', alt: 'MOBILIFE membership platform relaunch banner' }
     }
   ];
 

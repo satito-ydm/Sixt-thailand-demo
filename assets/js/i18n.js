@@ -56,18 +56,13 @@
       'group.bangkok': 'กรุงเทพฯ',
       'group.upcountry': 'ต่างจังหวัด',
 
-      'kicker.why': 'ทำไมต้อง SIXT',
-      'kicker.promo': 'ข้อเสนอพิเศษ',
-      'kicker.fleet': 'ฟลีตรถยนต์',
-      'kicker.services': 'บริการ',
-      'kicker.member': 'สิทธิประโยชน์สมาชิก',
-      'kicker.news': 'อัปเดตล่าสุด',
-      'kicker.faq': 'ช่วยเหลือ',
-
       'promo.title': 'โปรโมชันล่าสุด',
-      'promo.badge': 'PROMO',
-      'promo.view': 'ดูโปรโมชัน',
       'promo.viewAll': 'ดูโปรโมชันทั้งหมด',
+      'promo.viewDetail': 'ดูรายละเอียดโปรโมชัน',
+      'promo.carousel': 'แบนเนอร์โปรโมชัน',
+      'promo.slideOf': 'โปรโมชัน {n} จาก {total}',
+      'promo.prev': 'โปรโมชันก่อนหน้า',
+      'promo.next': 'โปรโมชันถัดไป',
 
       'fleet.title': 'ค้นหารถที่ใช่',
       'fleet.tab.compact': 'Compact',
@@ -93,11 +88,6 @@
       'fuel.diesel': 'ดีเซล',
       'fuel.hybrid': 'ไฮบริด',
       'fuel.ev': 'ไฟฟ้า',
-
-      'why.title': 'ทำไมต้องเลือก SIXT',
-      'why.lead': 'เลือกรถที่ใช่จากฟลีตของเรา แล้วจองได้ทันทีด้วยวันเวลาและวิธีชำระเงินที่ยืดหยุ่น',
-      'why.cta': 'ดูบริการทั้งหมด',
-      'why.imageAlt': 'ลูกค้าในชุดสูทดำยืนพิงรถ Mercedes-Benz สีดำ บนดาดฟ้าอาคารยามพระอาทิตย์ตก มองเห็นสกายไลน์กรุงเทพฯ ด้านหลัง',
 
       'services.title': 'บริการของเรา',
 
@@ -167,18 +157,13 @@
       'group.bangkok': 'Bangkok',
       'group.upcountry': 'Upcountry',
 
-      'kicker.why': 'Why SIXT',
-      'kicker.promo': 'Special offers',
-      'kicker.fleet': 'Our fleet',
-      'kicker.services': 'Services',
-      'kicker.member': 'Member benefits',
-      'kicker.news': 'Latest updates',
-      'kicker.faq': 'Support',
-
       'promo.title': 'Latest Promotions',
-      'promo.badge': 'PROMO',
-      'promo.view': 'View promotion',
       'promo.viewAll': 'View All Promotions',
+      'promo.viewDetail': 'See promotion details',
+      'promo.carousel': 'Promotion banners',
+      'promo.slideOf': 'Promotion {n} of {total}',
+      'promo.prev': 'Previous promotion',
+      'promo.next': 'Next promotion',
 
       'fleet.title': 'Find the Right Car',
       'fleet.tab.compact': 'Compact',
@@ -204,11 +189,6 @@
       'fuel.diesel': 'Diesel',
       'fuel.hybrid': 'Hybrid',
       'fuel.ev': 'Electric',
-
-      'why.title': 'Why choose SIXT',
-      'why.lead': 'Browse our fleet and pick the right vehicle, then reserve instantly with flexible dates and payment options.',
-      'why.cta': 'See all services',
-      'why.imageAlt': 'A customer in a black suit leaning against a black Mercedes-Benz on a rooftop at sunset, with the Bangkok skyline behind',
 
       'services.title': 'Our Services',
 

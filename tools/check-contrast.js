@@ -97,6 +97,10 @@ var PAIRS = [
   ['.lang-btn idle on grey-50',              C.grey500,    C.grey50,  4.5, ''],
   ['.btn-secondary label',                  C.white,      C.black,    4.5, ''],
   ['.btn-outline label',                    C.black,      C.white,    4.5, ''],
+  ['.btn-outline label on the orange hover', C.white,     C.orange,   3.0,
+    'white on orange, legal only as large text — .btn-outline is held at ' +
+    '19px/700 for this and nothing else. Drop it to 16px and this pair needs ' +
+    '4.5 and fails'],
   ['.badge label on black',                 C.white,      C.black,    4.5,
     '11px, so it must clear the normal-text bar — this is why the badge is not orange'],
   ['footer link on black',                  C.white,      C.black,    4.5, ''],
@@ -119,14 +123,37 @@ var PAIRS = [
     'the field edge is its own boundary here — 1.4.11 met by the card itself'],
   ['input border on grey-50',               C.borderInput, C.grey50,  3.0, ''],
 
-  // .band-dark — value props, service cards, footer
+  // the value-prop band — a plain white ground, no heading, no boxes. Title
+  // and copy are on the page's own ground, so the on-white pairs at the top
+  // already carry them; the ringed icon is all this band adds.
+  ['value-prop icon tile against white (non-text)', C.orange, C.white, 3.0,
+    'the tile edge — decoration beside a title that says the same thing in ' +
+    'words, which is what makes 3.0 the right bar for it'],
+  ['value-prop glyph on the orange tile (non-text)', C.white, C.orange, 3.0,
+    'the tightest pair in the band — it clears 3.0 as decoration and would ' +
+    'fail 4.5 as a word, and it depends on the tile keeping its fill'],
+
+  /* .band-dark is not applied anywhere in the markup right now — the
+     promotions panel borrowed it for one revision and gave it back. The pairs
+     stay because the footer and the service cards are still black-on-white
+     inversions measured against the same two colours. */
+  // .band-dark — service cards, footer
   ['heading on the black band',             C.white,      C.black,    4.5, ''],
   ['muted copy on the black band',          C.onDarkMuted, C.black,   4.5,
     'white at 78% — --grey-500 reaches only 3.3:1 here and cannot be used'],
-  ['value-prop icon on black (non-text)',   C.orange,     C.black,    3.0, ''],
   ['focus ring on the black band',          C.white,      C.black,    3.0,
     'the orange ring is 1.9:1 on black — .band-dark swaps it to white'],
   ['white button on a service card',        C.black,      C.white,    4.5, ''],
+
+  ['promo CTA label on its white fill',     C.black,      C.white,    4.5,
+    'the one element on the orange strip that brings its own ground — the ' +
+    'fill is what stops its contrast depending on the photograph behind it'],
+
+  /* Otherwise the promotions section carries no pair of its own. The orange panel is a
+     photograph set behind the banners and nothing is written on it — the
+     heading and the detail sit on the page's own white, which the on-white
+     pairs at the top of this list already cover. That is exactly why they
+     were moved off the artwork; see the note on .promo-detail in app.css. */
 
   // .band-orange — membership
   ['heading on the orange band',            C.black,      C.orange,   4.5,
@@ -135,7 +162,9 @@ var PAIRS = [
     'solid black at weight 300 — a lighter tone cannot pass here'],
   ['inverted CTA on the orange band',       C.white,      C.black,    4.5, ''],
   ['focus ring on the orange band',         C.black,      C.orange,   3.0, ''],
-  ['kicker rule on the orange band',        C.black,      C.orange,   3.0, '']
+  ['heading rule on the orange band',       C.black,      C.orange,   3.0,
+    'the kickers are gone site-wide; this stays because the membership band ' +
+    'still inverts black onto orange for everything it draws']
 ];
 
 /* --grey-200 is intentionally absent above. It edges cards and dividers, which
@@ -146,8 +175,31 @@ var PAIRS = [
 var FORBIDDEN = [
   ['white on orange at normal text size',   C.white,      C.orange,   4.5,
     'never allowed below 19px bold — use black text or a black ground instead'],
+  ['.btn-outline hover if the button were dropped back to 16px', C.white, C.orange, 4.5,
+    'the same colours the button now uses, measured against the bar they ' +
+    'would face at normal text size — this is what the 19px is buying'],
   ['black at 78% on orange',                C.orangeMutedRejected, C.orange, 4.5,
-    'why the orange band has no muted text tone; hierarchy uses weight instead']
+    'why the orange band has no muted text tone; hierarchy uses weight instead'],
+  ['promo copy written in white on the orange panel', C.white, C.orange, 4.5,
+    'the reason the detail sits on the page rather than on the artwork: the ' +
+    'panel is a photograph running bright orange to dark red, and no single ' +
+    'ink clears AA across that range at body size'],
+  ['black ink on an orange ground one shade darker', C.black, C.orangeDeep, 4.5,
+    'why nothing black-inked may sit on --sixt-orange-deep: 4.14 is under AA, ' +
+    'and it is the trap any darkening of an orange ground walks into'],
+  ['the value-prop glyph left white on an unfilled tile', C.white, C.white, 3.0,
+    'the standing trap of this band: it has changed ground four times and ' +
+    'the glyph has had to change with it every time. White needs the orange ' +
+    'fill behind it — take the fill away and the glyph goes with it'],
+  ['the value-prop glyph left orange on the filled tile', C.orange, C.orange, 3.0,
+    'the same trap from the other side, and the one that actually happened ' +
+    'when the tile stopped being a hollow ring'],
+  ['the value-prop glyph as a white word on the tile', C.white, C.orange, 4.5,
+    'it passes at 3.28:1 as decoration and fails as text — nothing in this ' +
+    'tile may ever become a letter or a number'],
+  ['the value-prop icon tile as text-weight orange', C.orange, C.white,  4.5,
+    'the tile clears 1.4.11 at 3.28:1 and nothing more — it may never be ' +
+    'asked to carry a word, a number or a meaning the title does not repeat']
 ];
 
 var failures = 0;

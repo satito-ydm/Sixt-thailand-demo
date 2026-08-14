@@ -116,20 +116,45 @@ body h3 { font-size: var(--text-h3); }
   justify-content: center;
   gap: var(--space-2);
   font-family: var(--font-sans);
-  font-size: var(--text-body);
+  /* 19px/700, and the size is the compliance — see the hover rule below.
+     --text-cta is named for this exact threshold. Never shrink it at a call
+     site without changing the hover colours in the same edit. */
+  font-size: var(--text-cta);
   font-weight: 700;
   line-height: 1.2;
   padding: var(--space-3) var(--space-6);
-  min-height: 44px;
+  min-height: 48px;
   border: 1px solid var(--sixt-black);
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--sixt-black);
   cursor: pointer;
   text-decoration: none;
-  transition: background var(--transition), color var(--transition);
+  transition: background var(--transition), color var(--transition),
+              border-color var(--transition);
 }
-.btn-outline:hover { background: var(--sixt-black); color: var(--white); }
+/* Orange fill with a WHITE label on hover, on every ground this button appears
+   on — see the header and stuck-header rules further down.
+
+   White on orange is 3.28:1. That is under the 4.5:1 normal text needs and
+   over the 3.0:1 allowed for large text, so this button is legal only while it
+   stays at 19px/700. At the 16px it used to carry, this exact hover failed.
+   The size was raised to meet the colour rather than the colour changed to
+   meet the size, which is the same trade .btn-primary and .btn-hotline already
+   make and the reason --text-cta exists.
+
+   The alternative, kept here because it will come up again: hold 16px and
+   darken the fill instead. White needs roughly --sixt-orange minus 20% of its
+   value, which measures 4.88:1 and is legal at any size — but it is no longer
+   the brand orange. That was the trade refused.
+
+   The border turns orange with the fill; left black it drew a hairline around
+   a colour that has no edge to justify it. */
+.btn-outline:hover {
+  background: var(--sixt-orange);
+  border-color: var(--sixt-orange);
+  color: var(--white);
+}
 
 /* Link with an orange arrow. The word stays black because orange text at body
    size is only 3.28:1; the arrow is non-text and may be orange at 3.0:1. */
@@ -443,7 +468,14 @@ body h3 { font-size: var(--text-h3); }
 .site-header.is-stuck .header-logo--on-dark { display: none; }
 .site-header.is-stuck .header-logo--on-light { display: block; }
 .site-header .btn-outline { border-color: var(--white); color: var(--white); }
-.site-header .btn-outline:hover { background: var(--white); color: var(--sixt-black); }
+/* The rest state differs per header state — white ink on the black bar, black
+   ink once it turns white — but the hover is the same orange in both, so the
+   button answers the pointer identically wherever the page has scrolled to. */
+.site-header .btn-outline:hover {
+  background: var(--sixt-orange);
+  border-color: var(--sixt-orange);
+  color: var(--white);
+}
 .site-header .lang-switch { background: rgba(255, 255, 255, 0.14); }
 .site-header .lang-btn { color: rgba(255, 255, 255, 0.72); }
 .site-header .lang-btn:hover { color: var(--white); }
@@ -458,7 +490,11 @@ body h3 { font-size: var(--text-h3); }
 }
 .site-header.is-stuck .nav-link { color: var(--sixt-black); }
 .site-header.is-stuck .btn-outline { border-color: var(--sixt-black); color: var(--sixt-black); }
-.site-header.is-stuck .btn-outline:hover { background: var(--sixt-black); color: var(--white); }
+.site-header.is-stuck .btn-outline:hover {
+  background: var(--sixt-orange);
+  border-color: var(--sixt-orange);
+  color: var(--white);
+}
 .site-header.is-stuck .lang-switch { background: var(--grey-50); }
 .site-header.is-stuck .lang-btn { color: var(--grey-500); }
 .site-header.is-stuck .lang-btn:hover { color: var(--sixt-black); }
@@ -928,44 +964,6 @@ body .booking-title {
 .band-dark .btn-outline { border-color: var(--white); color: var(--white); }
 .band-dark .btn-outline:hover { background: var(--white); color: var(--sixt-black); }
 
-/* ── Split band ───────────────────────────────────────────────────────────
-   The ground is cut down the middle of the window: white under the copy,
-   orange under the photograph. The seam is at 50% of the viewport, and the
-   grid's own columns break at about 54%, so the two lines up closely enough
-   to read as one decision.
-
-   Every word in the band is black, and that is the whole reason the split is
-   safe. Black scores 5.31:1 on the orange and far more on the white, so a line
-   that runs past the seam stays legible on both sides of it — no other ink
-   here can say that. The orange stat figures had to go black for exactly this
-   reason: orange on orange is invisible. */
-.band-split {
-  background: linear-gradient(to right, var(--white) 0 50%, var(--sixt-orange) 50% 100%);
-  color: var(--sixt-black);
-}
-/* Stacked on a phone the columns sit one above the other, so the cut turns
-   with them: copy on white, photograph on orange. */
-@media (max-width: 1023px) {
-  .band-split {
-    background: linear-gradient(to bottom, var(--white) 0 50%, var(--sixt-orange) 50% 100%);
-  }
-}
-.band-split h1,
-.band-split h2,
-.band-split h3,
-.band-split .lead,
-.band-split .section-kicker,
-.band-split .lead { font-weight: 300; }
-/* The kicker's rule mark is orange by default, which vanishes on the orange
-   half. */
-.band-split .section-kicker::before { background: var(--sixt-black); }
-/* Hairlines were white at 18% for a black ground; on white they disappeared. */
-.band-split .why-divider { border-color: rgba(26, 26, 26, 0.18); }
-/* A white pill on a white ground is no pill at all. */
-.band-split .btn-pill { background: var(--sixt-black); color: var(--white); }
-.band-split .btn-pill:hover { background: var(--sixt-orange); color: var(--sixt-black); }
-.band-split :focus-visible { outline-color: var(--sixt-black); }
-
 .band-orange {
   background: var(--sixt-orange);
   color: var(--on-orange);
@@ -974,95 +972,20 @@ body .booking-title {
 /* Solid black, not a tint — see the note in tokens.css. Light weight is what
    separates this from the heading. */
 .band-orange .lead { color: var(--on-orange); font-weight: 300; }
-/* Orange-on-orange is invisible; black scores 5.31:1. */
+/* Orange-on-orange is invisible; black scores 5.30:1. */
 .band-orange :focus-visible { outline-color: var(--sixt-black); }
 /* The brand colour is the ground here, so a filled orange button would vanish.
    Black inverts cleanly at 17.4:1. */
 .band-orange .btn-primary { background: var(--sixt-black); color: var(--white); }
 .band-orange .btn-primary:hover { background: var(--white); color: var(--sixt-black); }
 .band-orange .btn-outline { border-color: var(--sixt-black); color: var(--sixt-black); }
+/* The one ground where the orange hover cannot follow. Every other outline
+   button on the page fills orange on hover; here the ground is already that
+   orange, so the fill would be 1.00:1 and the button would appear to vanish
+   under the pointer. Black inverts instead. This is an exception on purpose,
+   not one that was missed. */
 .band-orange .btn-outline:hover { background: var(--sixt-black); color: var(--white); }
 .band-orange a { color: var(--on-orange); }
-
-/* ══ Why SIXT split ══════════════════════════════════════════════════════
-   Copy on one side, a tall picture on the other. The items sit under a rule
-   so the eye reads heading → promise → detail rather than one long column. */
-.why-grid {
-  display: grid;
-  gap: var(--space-12);
-  align-items: center;
-}
-@media (min-width: 1024px) {
-  .why-grid { grid-template-columns: 1fr 0.85fr; gap: 4.5rem; }
-}
-
-.why-divider {
-  border: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.18);
-  margin: var(--space-8) 0;
-}
-
-.why-items {
-  display: grid;
-  gap: var(--space-8);
-}
-@media (min-width: 640px) {
-  .why-items { grid-template-columns: 1fr 1fr; }
-}
-
-/* Outlined rather than filled: three solid orange discs would shout over the
-   heading, and the icons are decoration, not the message. */
-.why-icon {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--white);
-  margin-bottom: var(--space-4);
-}
-
-.why-media {
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-}
-
-/* Pill with a trailing disc, inverted for the dark band. */
-.btn-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-3);
-  font-family: var(--font-sans);
-  font-size: 0.9375rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 8px 8px 8px var(--space-6);
-  border: 0;
-  border-radius: 999px;
-  background: var(--white);
-  color: var(--sixt-black);
-  text-decoration: none;
-  cursor: pointer;
-  transition: background var(--transition), color var(--transition);
-}
-.btn-pill__disc {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--sixt-orange);
-  color: var(--sixt-black);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  transition: transform var(--transition);
-}
-.btn-pill:hover { background: var(--sixt-orange); color: var(--sixt-black); }
-.btn-pill:hover .btn-pill__disc { background: var(--sixt-black); color: var(--white); transform: translateX(2px); }
-
 
 /* ══ Card refinements ════════════════════════════════════════════════════
    Cards carry weight through elevation rather than a hairline border, which
@@ -1255,27 +1178,401 @@ body .booking-title {
 .service-card .btn-secondary:hover { opacity: 0.88; }
 .service-card :focus-visible { outline-color: var(--white); }
 
-/* ══ Section headings ════════════════════════════════════════════════════ */
-.section-kicker {
+/* ══ Value props ═════════════════════════════════════════════════════════
+   Three equal columns on the page's own white, each a ringed icon over a
+   title over two lines of copy. The wireframe carries no heading here, so the
+   titles are the only headings in the band and they do the whole job of
+   dividing it.
+
+   Nothing in this block restates a text colour. That is the point of landing
+   on white: the title and the copy are back on the ground their defaults were
+   written for, so --grey-500 and plain black ink both hold without an
+   override, which is not true of any other ground the band has worn. */
+.props-grid {
+  display: grid;
+  gap: var(--space-4);
+}
+@media (min-width: 640px) {
+  .props-grid { grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
+}
+
+/* Each item is its own surface, so the hover can lift the whole column —
+   icon and words together — as one card rather than moving a piece of it.
+
+   The white and the padding are held at rest, not added on hover. White on a
+   white page draws nothing until the shadow arrives, which is the whole
+   effect; and padding that appeared on hover would reflow the text under the
+   pointer. Only the shadow and the transform change, and neither takes the
+   element out of flow, so the two neighbours never move.
+
+   Left-aligned: the tile, the title and the copy all start on the same edge,
+   so the three columns read as a list rather than as three centred posters.
+   Nothing sets text-align here at all — left is the page's own direction, and
+   .prop-icon being inline-level means it simply starts where the text does. */
+/* The tile sits beside the words, not above them, and the words centre
+   themselves against it — align-items: center is what "level with the icon"
+   means once the two are in a row. */
+.props-grid > * {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: var(--space-8) var(--space-6);
+  transition: transform var(--transition), box-shadow var(--transition),
+              border-radius var(--transition);
+}
+/* --shadow-lift-brand, not --shadow-lift: the same 34px of blur, carrying the
+   brand orange at 5% instead of black at 12%. It reads at about a third the
+   weight — a warm tint under the card rather than a shadow — which is what
+   was asked for. --shadow-lift is left alone because three other components
+   still use it.
+
+   The corner opens from --radius-md to 16px on the way up. Worth knowing what
+   that is and is not: the card is white on a white page, so at rest it draws
+   no corner at all and the 12px is invisible. The only thing that renders a
+   corner here is the shadow, which is orange at 5% — so this is a 4px change
+   to the curve of a very faint tint, not a change to a visible edge. 16px is
+   the client's number and belongs to no step of the scale, so like the tile's
+   10px it stays a literal rather than being added to tokens.css as if it were
+   a system value.
+
+   No :focus-within twin, on purpose. Nothing in this band is a link or a
+   button, so there is nothing to focus and no keyboard user is being left
+   out — the lift says nothing the words do not already say. The day one of
+   these items gains a link, it needs the focus state too.
+
+   Motion runs through var(--transition), which tokens.css zeroes under
+   prefers-reduced-motion; the shadow still arrives, the travel just stops
+   being animated. */
+.props-grid > *:hover {
+  transform: translateY(-6px);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lift-brand);
+}
+/* One line per body, which content.js pays for by keeping them short. The cap
+   here only has to stay out of the way of copy that already fits: the longest
+   line renders around 340px and 26rem is 416px, so it never forces a wrap,
+   while still holding the block narrower than the column.
+
+   The cap is not what guarantees one line — the character ceiling in
+   tests.js is. A cap alone would simply wrap longer copy silently.
+
+   And one line is a desktop promise, not a universal one. It holds from about
+   1250px up. Below that the three columns are each too narrow for a 340px
+   line and it wraps to two; on a phone the single column is narrower still.
+
+   text-wrap: balance is what makes the wrapped case tidy where it happens. */
+/* No auto margins: the block starts at the same left edge as the tile and the
+   title above it, so all three lines up. The cap still stops a long line from
+   running the full width of the column. */
+.props-grid .lead {
+  max-width: 26rem;
+  text-wrap: balance;
+}
+
+/* The frame the boxes used to draw, moved onto the icon and then filled. It
+   is the only mark in the band, and now the only orange on a white ground.
+
+   The glyph is white. That is 3.28:1 on the orange — over 1.4.11's 3.0 by
+   0.28 and the tightest ratio in the band, where black would have given
+   5.30:1. It holds only because the glyph is decoration; the same white at
+   the same size is forbidden for a word here, and check-contrast.js lists
+   that pair so nobody reads this rule as permission for text.
+
+   Two things now depend on each other and neither can move alone: the white
+   needs the orange fill behind it, and the fill needs to stay this dark. Drop
+   the fill back to a hollow ring and the glyph is white on white — 1.00:1,
+   invisible. Both failure directions are in FORBIDDEN.
+
+   10px is the client's number. It sits between --radius-sm and --radius-md
+   and belongs to no step of the scale, which is why it is written literally
+   here rather than added to tokens.css as if it were a system value. */
+.prop-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 10px;
+  background: var(--sixt-orange);
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  font-size: 0.6875rem;
+  justify-content: center;
+  color: var(--white);
+  /* Never squeezed: the column is narrow enough at three across that a
+     shrinkable tile would flatten into an oval the moment the copy grew. */
+  flex: none;
+}
+
+/* ══ Promotions ══════════════════════════════════════════════════════════
+   An orange panel set behind the banners and pushed down, so it is hidden
+   under them at the top and emerges as a band along the bottom. The banners
+   themselves are at full strength — none of them is dimmed, including the two
+   cropped at the edges. */
+
+.promo-title { text-align: center; margin-bottom: var(--space-8); }
+
+/* No fixed overhang. The strip below the banners is exactly as deep as the
+   detail row needs, because that row is in the flow and the panel below is
+   pinned to the bottom of this box.
+
+   It used to be a percentage of the width — 14%, which worked out at about
+   180px while the row itself came to roughly 70. The detail was pinned to the
+   foot of that, so the picture sat 88px above the words and the words sat 20px
+   above the edge: the same strip read as a gap at the top and a crop at the
+   bottom. Letting the content set the height makes the two spaces the same
+   token, and keeps them the same when the copy wraps to a second line. */
+/* The slide geometry lives here, not on the stage, because the detail row is
+   a sibling of the stage and has to measure itself against the same width. */
+.promo-showcase {
+  position: relative;
+  --promo-slide-w: 86%;
+  --promo-slide-gap: var(--space-3);
+}
+@media (min-width: 768px) {
+  .promo-showcase { --promo-slide-w: 56%; --promo-slide-gap: var(--space-6); }
+}
+
+/* Inset from the stage so the banners cropped at the edges run past it on
+   both sides. top: 42% is where it disappears behind the centre banner;
+   bottom: 0 is the foot of the detail row below.
+
+   Anchored to the BOTTOM of the artwork, not its centre, and that is a
+   contrast decision. White copy sits on the strip this panel leaves showing
+   below the banners, so that strip has to be the darkest part of the picture.
+   Measured off the file itself, the lightest pixel in each band and what white
+   scores against it:
+
+     whole image      rgb(255,228,102)   1.27:1
+     bottom 40%       rgb(254,102,  3)   2.95:1
+     bottom 30%       rgb(240, 70,  9)   3.76:1
+     bottom 20%       rgb(214, 44, 11)   4.97:1
+
+   Only the last of those clears AA, which is why the crop is pinned to the
+   foot of the image. Centre it again and the copy lands on 2.95:1. */
+.promo-ground {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  /* The panel runs from here to the foot of the showcase, so its height is
+     whatever is left below this line: 42% left 58%, and 36% leaves 64% —
+     about 10% more panel. The part above the banner's bottom edge is hidden
+     behind it in the middle and shows as the two wings either side, which is
+     where the extra reads. */
+  top: 36%;
+  bottom: 0;
+  border-radius: 24px;
+  background: url('../img/promo-ground.jpg') center bottom / cover no-repeat;
+}
+
+/* ── Carousel ──────────────────────────────────────────────────────────────
+   The two custom properties are read by ui.js to build the transform, so the
+   slide width lives in one place and the breakpoints move layout and maths
+   together. */
+/* touch-action: pan-y hands the browser the vertical axis and keeps the
+   horizontal one. Without it a downward swipe that starts on a banner is
+   claimed by the carousel and the page will not scroll — the commonest way a
+   draggable strip breaks a phone.
+
+   The grab cursor is the only thing that says the banners can be dragged at
+   all; the chevrons are the visible control and this is the shortcut. */
+.promo-stage {
+  position: relative;
+  overflow: hidden;
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.promo-stage:active { cursor: grabbing; }
+/* No margin on the track, and that is load-bearing rather than tidy.
+
+   The centring inset used to be a margin here. A margin on a block-level box
+   takes width away from it, so the track measured 78% of the stage — and
+   flex-basis percentages resolve against the track, not the stage. The slide
+   came out 56% of 78%, or 43.68% of the stage, while the margin was still
+   half of the leftover 44%: 22% where 28.16% was needed. Every banner sat
+   6.16% of the window to the left of centre, which is 118px at 1920.
+
+   With no margin the track is exactly the stage, so the slide width, the
+   centring term and the step between slides are all percentages of one box
+   and cannot disagree. The centring term moved into the transform ui.js
+   writes for the same reason. */
+.promo-track {
+  display: flex;
+  gap: var(--promo-slide-gap);
+  transition: transform 420ms cubic-bezier(0.4, 0.14, 0.3, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .promo-track { transition: none; }
+}
+
+/* No opacity on the neighbours. They were dimmed to read as "next"; shown at
+   full strength they read as three banners the reader can see all of, which is
+   what the reference does and what the artwork deserves — every one of these
+   carries its own headline and prices, and dimming them dims the offer. */
+.promo-slide {
+  position: relative;
+  flex: 0 0 var(--promo-slide-w);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.promo-slide img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+/* The banner rises under the pointer.
+
+   Hover only, and no :focus-within twin — the slide holds nothing focusable
+   now that the chevrons sit on the stage and the button sits in the row below.
+   A :focus-within here could never fire, and a rule that cannot fire reads as
+   a keyboard path that exists when it does not. */
+.promo-slide:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lift);
+}
+
+/* Hovering a picture lifts the words with it, so the pair reads as one card
+   rather than as a banner detaching from its own caption. The trigger is the
+   stage rather than the showcase so that the row does not jump when the
+   pointer merely crosses it on the way somewhere else.
+
+   The tilde is doing real work: .promo-detail is a sibling of .promo-stage,
+   not a child of it, so a hover on the stage can only reach the words through
+   the general sibling combinator. It only works while the detail comes after
+   the stage in the markup — moving it above would silently kill both. */
+.promo-stage:hover ~ .promo-detail { transform: translateY(-8px); }
+
+/* The call to action, at the tail of the row and on the page at all times.
+
+   White fill with black ink, and the fill is the point: this sits on the
+   orange strip, which is a photograph. A transparent or outlined control would
+   take whatever pixels happen to be behind it, and an orange one would
+   disappear into the panel. A white block is its own ground — black on it is
+   17.4:1 — and it is the only element in this band whose contrast does not
+   depend on the artwork at all.
+
+   Its space is held at rest, not made on hover. Appearing from nothing would
+   grow the detail row, which would move the orange panel's bottom edge and
+   make the whole band jump under the pointer. Only opacity and 8px of travel
+   change. */
+.promo-cta {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: var(--space-2) var(--space-6);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  color: var(--sixt-black);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
   font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--grey-500);
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--transition);
+}
+.promo-cta:hover { background: var(--grey-50); }
+.promo-cta:focus-visible { outline-color: var(--white); }
+/* The button is on the page at all times now, so there is no reveal to write
+   and no keyboard path to rescue — it was hidden by opacity before, which is
+   what made a :focus-visible twin necessary. */
+
+/* On the centred banner's own edges. The offset is the same expression that
+   centres the slide — half the width the slide leaves over — plus a step
+   inward, so the chevrons follow the picture when the breakpoint changes its
+   width instead of drifting off it.
+
+   The disc is a translucent black rather than an outline: it sits on three
+   different photographs, and the darkest fill available is the only one that
+   reads on all of them. 44px is the touch-target floor, met by the drawn box
+   rather than by an overlay. */
+.promo-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  cursor: pointer;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(26, 26, 26, 0.62);
+  color: var(--white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.promo-arrow:hover { background: rgba(26, 26, 26, 0.82); }
+.promo-arrow:focus-visible { outline-color: var(--white); }
+.promo-arrow--prev {
+  inset-inline-start: calc((100% - var(--promo-slide-w)) / 2 + var(--space-4));
+}
+.promo-arrow--next {
+  inset-inline-end: calc((100% - var(--promo-slide-w)) / 2 + var(--space-4));
+}
+
+/* On the orange strip, in white, held inside the panel's own inset so the
+   words never run past the colour they depend on.
+
+   Under the picture rather than over it: every banner already prints its own
+   headline and price, and a second set of words laid on top of that would be
+   two voices saying the same thing at once. */
+.promo-detail {
+  /* Positioned for paint order, not for placement — it lays out in the normal
+     flow and this rule moves it nowhere. .promo-ground is absolute, and an
+     absolutely positioned box paints above in-flow content that is not
+     positioned at all, whatever the source order says. Without this the orange
+     panel covered these words completely. .promo-stage never had the problem
+     because it was already relative. */
+  position: relative;
+  transition: transform var(--transition);
+  /* Exactly as wide as the banner above it, and centred the same way, so the
+     first letter of the title lands on the picture's left edge and the button
+     lands on its right. Reading --promo-slide-w rather than repeating the
+     number is what keeps that true when the breakpoint changes it. */
+  width: var(--promo-slide-w);
+  margin-inline: auto;
+  /* One step up from --space-8, both sides equally. The strip was 32px of air
+     above the words and 32 below, which the 44px button filled to the edges —
+     48 is what gives the row room inside the colour rather than against it.
+     Equal top and bottom is what keeps the words on the strip's centre line. */
+  margin-top: var(--space-12);
+  padding-bottom: var(--space-12);
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  text-align: start;
+  color: var(--white);
+}
+/* Takes the middle and lets the two chevrons sit hard against it rather than
+   drifting to the panel's edges — the row reads as one control with its label
+   inside, which is what puts the arrows on the same line as the words. */
+/* Takes the width the chevrons and the button leave, so the copy runs from
+   the picture's left edge and stops short of them rather than being centred
+   between them. */
+.promo-detail__text { flex: 1 1 auto; min-width: 0; }
+.promo-detail__title {
+  color: var(--white);
   margin-bottom: var(--space-2);
 }
-.section-kicker::before {
-  content: '';
-  width: 22px;
-  height: 2px;
-  background: var(--sixt-orange);
+/* Solid white. There is no muted tone available on this ground — the pixels
+   under it only just clear AA for full white, and anything softer falls
+   under. */
+.promo-detail__body {
+  color: var(--white);
+  font-weight: 300;
+  font-size: var(--text-body);
+  max-width: 46rem;
 }
-.band-dark .section-kicker { color: var(--on-dark-muted); }
-.band-orange .section-kicker { color: var(--on-orange-muted); }
-.band-orange .section-kicker::before { background: var(--sixt-black); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

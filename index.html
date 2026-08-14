@@ -135,10 +135,11 @@
 </aside>
 
 <!-- ══════════ SECTION: HERO + BOOKING ══════════ -->
-<!-- No bottom padding once the bar docks: the form leaves the flow at that
-     breakpoint, so the padding would just be a white strip between the banner
-     and the section below. Below it the form is in the flow and needs it. -->
-<section id="hero" class="pb-14 lg:pb-0">
+<!-- pb-12 is 48px, which is half of --space-18 written in Tailwind's scale
+     because this section does not use .section-y — the banner runs to the top
+     of the page with no padding above it. Paying the same half below keeps the
+     hero on the page's single 96px rhythm. -->
+<section id="hero" class="pb-12">
 
   <!-- Full-bleed carousel. Nothing is laid over it: these banners carry their
        own Thai headlines and a second SIXT wordmark. The page heading lives on
@@ -237,47 +238,62 @@
               data-i18n="booking.differentReturn">+ คืนรถคนละที่</button>
     </div>
   </form>
-    </div>
   </div>
 </section>
 
 <main id="main">
 
-<!-- ══════════ SECTION: WHY SIXT + PROOF ══════════ -->
-<section class="section-y band-split">
+<!-- ══════════ SECTION: VALUE PROPS ══════════ -->
+<!-- The wireframe gives this band three icon-and-text columns and nothing
+     else — no kicker, no heading, no lead, no rule, no button, no photograph.
+     Everything that used to surround them was ours rather than the
+     wireframe's, so it is gone along with the split ground it needed.
+
+     The band went grey, then orange with white boxes, then black with orange
+     boxes, and has landed on the page's own white with no boxes at all. The
+     frame those boxes carried now belongs to the icon — see .prop-icon. No
+     background is set here on purpose: white is the page ground already, and
+     an explicit one would only be a second place to change it. -->
+<section class="section-y">
   <div class="container-x">
-    <div class="why-grid">
-      <div>
-        <p class="section-kicker" data-i18n="kicker.why">ทำไมต้อง SIXT</p>
-        <h2 class="mt-1" data-i18n="why.title">ทำไมต้องเลือก SIXT</h2>
-        <p class="lead mt-4" data-i18n="why.lead"></p>
-
-        <hr class="why-divider">
-
-        <div class="why-items" id="value-props"></div>
-
-        <a href="#services" class="btn-pill mt-10" id="why-cta">
-          <span data-i18n="why.cta">ดูบริการทั้งหมด</span>
-          <span class="btn-pill__disc" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M7 17L17 7M9 7h8v8"/>
-            </svg>
-          </span>
-        </a>
-      </div>
-
-      <div class="why-media" id="why-media"></div>
-    </div>
+    <div class="props-grid" id="value-props"></div>
   </div>
 </section>
 
 <!-- ══════════ SECTION: PROMOTIONS ══════════ -->
+<!-- The section carries no ground of its own — it is the page's white, like the
+     sections either side of it. The only colour here is the orange panel set
+     behind the banners, and it is a piece of the composition rather than the
+     ground under the words: nothing is written on it. -->
 <section class="section-y">
   <div class="container-x">
-    <p class="section-kicker" data-i18n="kicker.promo">ข้อเสนอพิเศษ</p>
-    <h2 class="mb-8" data-i18n="promo.title">โปรโมชันล่าสุด</h2>
-    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" id="promo-grid"></div>
+    <h2 class="promo-title" data-i18n="promo.title">โปรโมชันล่าสุด</h2>
+  </div>
+
+  <!-- Outside .container-x on purpose. The stage clips its own overflow, so
+       inside the container the neighbouring banners were cut at the container
+       edge rather than at the window's — with the page's gutter left showing
+       beyond them. A <section> is already the full width of the viewport, so
+       simply not wrapping this in the container is all full-bleed takes: no
+       100vw, which would overshoot by the width of the scrollbar and put a
+       horizontal scrollbar on the page.
+
+       The orange panel is a sibling of the stage, not a layer inside it. The
+       panel has to hang below the banners, and anything inside the stage would
+       be cut by the same box that crops them. -->
+  <div class="promo-showcase">
+    <div class="promo-ground" aria-hidden="true"></div>
+    <div class="promo-stage" id="promo-stage"
+         aria-roledescription="carousel" data-i18n-attr="aria-label:promo.carousel"></div>
+
+    <!-- The detail for whichever banner is centred, sitting on the strip of
+         orange the banners leave uncovered. A live region: the picture
+         changing is a visual event, and these words are the only version of
+         that event a screen reader gets. -->
+    <div class="promo-detail" id="promo-detail" aria-live="polite"></div>
+  </div>
+
+  <div class="container-x">
     <div class="flex justify-center mt-10">
       <a href="#" class="btn-outline" data-i18n="promo.viewAll">ดูโปรโมชันทั้งหมด</a>
     </div>
@@ -289,7 +305,6 @@
   <div class="container-x">
     <div class="flex flex-col gap-4 mb-6 lg:flex-row lg:items-end lg:justify-between">
       <div>
-        <p class="section-kicker" data-i18n="kicker.fleet">ฟลีตรถยนต์</p>
         <h2 data-i18n="fleet.title">ค้นหารถที่ใช่</h2>
       </div>
       <div class="flex gap-6 overflow-x-auto -mx-4 px-4 lg:mx-0 lg:px-0"
@@ -316,7 +331,6 @@
      deliberate mark. -->
 <section class="section-y relative overflow-hidden" id="services" style="background: var(--grey-50)">
   <div class="container-x relative">
-    <p class="section-kicker" data-i18n="kicker.services">บริการ</p>
     <h2 class="mb-8" data-i18n="services.title">บริการของเรา</h2>
     <div class="grid gap-6 md:grid-cols-3" id="service-grid"></div>
   </div>
@@ -325,9 +339,8 @@
 <!-- ══════════ SECTION: MEMBERSHIP ══════════ -->
 <!-- The page's single orange band. Orange is the loudest thing in the palette,
      so it is spent once, on the moment that asks for the biggest commitment. -->
-<section class="band-orange text-center" style="padding-block: var(--space-22)">
+<section class="section-y band-orange text-center">
   <div class="container-x">
-    <p class="section-kicker justify-center" data-i18n="kicker.member">สิทธิประโยชน์สมาชิก</p>
     <h2 data-i18n="member.title">SIXT Thailand Membership</h2>
     <p class="lead mx-auto mt-4 mb-8 max-w-[620px]" data-i18n="member.body"></p>
     <div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -345,7 +358,6 @@
   <div class="container-x">
     <div class="flex flex-col gap-3 mb-8 lg:flex-row lg:items-end lg:justify-between">
       <div>
-        <p class="section-kicker" data-i18n="kicker.news">อัปเดตล่าสุด</p>
         <h2 data-i18n="news.title">ข่าวสารและกิจกรรม</h2>
         <p class="lead mt-2" data-i18n="news.lead"></p>
       </div>
@@ -360,7 +372,6 @@
   <div class="container-x">
     <div class="flex flex-col gap-3 mb-8 lg:flex-row lg:items-end lg:justify-between">
       <div>
-        <p class="section-kicker" data-i18n="kicker.faq">ช่วยเหลือ</p>
         <h2 data-i18n="faq.title">คำถามที่พบบ่อย</h2>
         <p class="lead mt-2" data-i18n="faq.lead"></p>
       </div>

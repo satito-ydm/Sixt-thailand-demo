@@ -3,6 +3,14 @@
 
 Run once from the sixt-home directory:  python3 tools/prepare-images.py
 Source files live in the repository root, one level up.
+
+NOTE: four assets in assets/img are .jpg rather than .webp and were not
+produced by this script — the three promotion banners and promo-ground. Pillow
+is not installed on the machine they were prepared on, so they were resized
+with System.Drawing through PowerShell, which has no WebP encoder. Their
+sources are listed in JPEG_JOBS below purely so the provenance is recorded.
+Re-run them through this script once Pillow is available: the WebP will be
+smaller again, and the tree will stop mixing two formats.
 """
 import pathlib
 from PIL import Image
@@ -16,15 +24,27 @@ JOBS = [
     ("hero-lionair-airport.png",                     "hero-lionair-skyline"),
     ("Banner 16-9.png",                              "hero-lionair-camry"),
     ("Banner.png",                                   "hero-banner"),
-    ("Car/70YDMMJR.jpg",                             "promo-xpeng-g6"),
     ("54QYBUJF.jpg",                                 "promo-kbank-domestic"),
     ("Car/bmw.png",                                  "car-premium-bmw-3-series"),
     ("Car/a9a4d41a-13f6-473b-818a-1925b5ebf277.png", "car-premium-mercedes-c-class"),
     ("Car/e10659e4-2939-482b-9a27-b5d4176af74c.png", "car-suv-honda-cr-v"),
     ("Car/2d906091-ff27-42d4-a2d6-a5d1e874a954.png", "car-mpv-toyota-veloz"),
-    ("why-sixt.png",                                 "why-sixt"),
     ("logo.png",                                     "logo"),
 ]
+
+# Prepared outside this script — see the module docstring. Width is the long
+# edge they were resized to; the three banners are 1672x941 at source, which is
+# 16:9 and the exact ratio of the promo card frame.
+JPEG_JOBS = [
+    ("promotion/2cc959c9-a585-4179-be56-6aac7eadf048.png", "promo-ais-chauffeur",       1200),
+    ("promotion/97031bc1-0166-4909-bcbe-84bac05904ee.png", "promo-kbank-international", 1200),
+    ("promotion/0987b3ad-ac13-4aac-ad55-06177c115c19.png", "promo-mobilife-platform",   1200),
+    ("v960-ning-19.jpg",                                   "promo-ground",              1600),
+]
+
+# Car/70YDMMJR.jpg (the Xpeng G6 banner) is deliberately absent from both lists.
+# Its card was replaced by the promotion/ artwork and nothing references the
+# output any more. The source is still in the tree if the campaign returns.
 
 for rel, stem in JOBS:
     src = ROOT / rel

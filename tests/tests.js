@@ -8,6 +8,25 @@
     return fs.readFileSync(here + '/../' + rel, 'utf8');
   }
 
+  /* Width and height out of a JPEG's frame header, so the promo banners can be
+     checked against the ratio their card frame expects without a dependency.
+     Walks the marker chain to the SOF segment; C4, C8 and CC are the Huffman,
+     JPG-extension and arithmetic-coding markers and are not frame headers. */
+  function jpegSize(buf) {
+    if (buf.readUInt16BE(0) !== 0xFFD8) { return null; }
+    var i = 2;
+    while (i < buf.length - 9) {
+      if (buf[i] !== 0xFF) { i++; continue; }
+      var marker = buf[i + 1];
+      if (marker >= 0xC0 && marker <= 0xCF &&
+          marker !== 0xC4 && marker !== 0xC8 && marker !== 0xCC) {
+        return { h: buf.readUInt16BE(i + 5), w: buf.readUInt16BE(i + 7) };
+      }
+      i += 2 + buf.readUInt16BE(i + 2);
+    }
+    return null;
+  }
+
   /* ═══ Tokens and the accessibility contract ═══════════════════════════ */
 
   T.test('brand tokens hold the values measured from logo.png, not the brief estimates', function () {
@@ -18,6 +37,18 @@
     T.ok(/--sixt-orange-deep:\s*#E04400/i.test(css), 'deep orange must be #E04400');
     T.ok(!/#FF5F00/i.test(css), 'the brief estimate #FF5F00 must not appear');
     T.ok(!/#111111/i.test(css), 'the brief estimate #111111 must not appear');
+  });
+
+  /* Same contract as .btn-primary below, and newer: the outline button's hover
+     is white on orange at 3.28:1, which is legal only as large text. The size
+     is the compliance, so it is asserted rather than trusted to a comment. */
+  T.test('.btn-outline holds the 19px/700 its white-on-orange hover depends on', function () {
+    if (!fs) { return; }
+    var css = readProjectFile('assets/css/app.css');
+    var rule = css.match(/\.btn-outline\s*\{[^}]*\}/);
+    T.ok(rule, '.btn-outline rule must exist');
+    T.ok(/font-size:\s*var\(--text-cta\)/.test(rule[0]), '.btn-outline must be --text-cta (19px)');
+    T.ok(/font-weight:\s*700/.test(rule[0]), '.btn-outline must be bold');
   });
 
   T.test('.btn-primary meets the WCAG large-text threshold that makes white-on-orange pass', function () {
@@ -36,6 +67,43 @@
     T.ok(rule, '.badge rule must exist');
     T.ok(/background:\s*var\(--sixt-black\)/.test(rule[0]),
       '11px white on orange cannot reach the large-text exemption');
+  });
+
+  /* Browsers silently drop a stray end tag, so bad nesting ships looking fine
+     and only shows up later as a layout that will not respond to CSS. One had
+     been sitting in the hero since the booking form was rebuilt: an extra
+     </div> that closed nothing. Nothing here noticed, because nothing here
+     looked. Comments are blanked first so prose about tags is not parsed as
+     tags, and <svg> subtrees are skipped — they carry their own vocabulary. */
+  T.test('index.html nests cleanly — every element closes what it opened', function () {
+    if (!fs) { return; }
+    var html = readProjectFile('index.html')
+      .replace(/<!--[\s\S]*?-->/g, '');
+    var VOID = { area: 1, base: 1, br: 1, col: 1, embed: 1, hr: 1, img: 1,
+                 input: 1, link: 1, meta: 1, source: 1, track: 1, wbr: 1 };
+    var re = /<(\/?)([a-zA-Z][a-zA-Z0-9]*)([^>]*)>/g;
+    var stack = [];
+    var problems = [];
+    var m;
+    while ((m = re.exec(html))) {
+      var tag = m[2].toLowerCase();
+      if (VOID[tag] || /\/\s*$/.test(m[3])) { continue; }
+      if (tag === 'svg') {
+        var close = html.indexOf('</svg>', m.index);
+        if (close === -1) { problems.push('<svg> never closed'); break; }
+        re.lastIndex = close + 6;
+        continue;
+      }
+      if (m[1]) {
+        var open = stack.pop();
+        if (!open) { problems.push('</' + tag + '> closes nothing'); }
+        else if (open !== tag) { problems.push('</' + tag + '> closes <' + open + '>'); }
+      } else {
+        stack.push(tag);
+      }
+    }
+    stack.forEach(function (tag) { problems.push('<' + tag + '> never closed'); });
+    T.eq(problems, []);
   });
 
   T.test('colour lives only in tokens.css — no hex literals leak into markup or logic', function () {
@@ -179,8 +247,11 @@
       .concat(root.SIXT.content.PROMOS
         .filter(function (p) { return p.image; })
         .map(function (p) { return p.image; }))
+      /* promo-ground.jpg is referenced from the stylesheet rather than from
+         any data file, so nothing else in this suite would notice it going
+         missing — the band would simply lose its lower half. */
       .concat(['assets/img/hero-banner.webp', 'assets/img/logo.webp',
-               'assets/img/why-sixt.webp']);
+               'assets/img/promo-ground.jpg']);
     refs.forEach(function (rel) {
       T.ok(fs.existsSync(here + '/../' + rel), 'missing asset: ' + rel);
     });
@@ -209,6 +280,24 @@
     });
   });
 
+  /* Each body sets one line at desktop width, and that is a property of the
+     copy, not of the CSS — no stylesheet can fit a long sentence on one line
+     in a 437px column. The longest string here runs 41 characters; 45 is the
+     point where it starts wrapping.
+
+     This is asserted because copy is edited far more often than the layout is
+     re-measured, and the failure is silent: one column quietly becomes two
+     lines and the three stop matching. */
+  T.test('value-prop bodies stay inside the one-line measure', function () {
+    root.SIXT.content.VALUE_PROPS.forEach(function (p) {
+      ['th', 'en'].forEach(function (lang) {
+        T.ok(p[lang].body.length <= 45,
+          'VALUE_PROPS/' + p.id + '.' + lang + '.body runs ' +
+          p[lang].body.length + ' characters and will wrap to a second line');
+      });
+    });
+  });
+
   T.test('the wireframe counts hold: 3 value props, 3 promos, 3 services, 3 news, 4 FAQs', function () {
     var C = root.SIXT.content;
     T.eq(C.VALUE_PROPS.length, 3);
@@ -218,10 +307,31 @@
     T.eq(C.FAQ.length, 4);
   });
 
-  T.test('two promos use real artwork and the third is an honest placeholder', function () {
-    var real = root.SIXT.content.PROMOS.filter(function (p) { return p.image; });
-    T.eq(real.map(function (p) { return p.id; }), ['xpeng-g6', 'kbank-domestic']);
-    T.eq(root.SIXT.content.PROMOS[2].image, null);
+  /* Was 'two promos use real artwork and the third is an honest placeholder'.
+     The third slot held copy that said it was waiting on the marketing team,
+     which would have shipped to a client demo as visible text. All three now
+     carry supplied artwork, so the test that guarded the placeholder becomes
+     the test that stops one coming back. */
+  T.test('every promo card carries real artwork — no slot is left waiting', function () {
+    root.SIXT.content.PROMOS.forEach(function (p) {
+      T.ok(p.image, 'PROMOS/' + p.id + ' has no artwork');
+    });
+  });
+
+  /* The banners are 16:9 and the card frame is 16:9, which is the whole
+     reason these three fill it without bars. A JPEG that is not 16:9 would
+     letterbox silently, so the ratio is asserted from the file itself. */
+  T.test('every promo banner is 16:9, the ratio its frame expects', function () {
+    if (!fs) { return; }
+    root.SIXT.content.PROMOS.forEach(function (p) {
+      var buf = fs.readFileSync(here + '/../' + p.image);
+      var size = jpegSize(buf);
+      T.ok(size, 'PROMOS/' + p.id + ' is not a readable JPEG');
+      var ratio = size.w / size.h;
+      T.ok(Math.abs(ratio - 16 / 9) < 0.01,
+        'PROMOS/' + p.id + ' is ' + size.w + 'x' + size.h + ' (' +
+        ratio.toFixed(3) + ':1), not 16:9 — it will letterbox in the card');
+    });
   });
 
   T.test('the Thai Lion Air promo card is not repeated — it is already the hero', function () {

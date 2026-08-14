@@ -93,11 +93,19 @@
     content.VALUE_PROPS.forEach(function (item) {
       var c = copy(item);
       var box = el('div');
-      var mark = el('span', 'why-icon');
-      mark.appendChild(icon(ICONS[item.icon], 20));
+      var mark = el('span', 'prop-icon');
+      mark.appendChild(icon(ICONS[item.icon], 36));
       box.appendChild(mark);
-      box.appendChild(el('h3', 'text-[1.0625rem] mb-2', c.title));
-      box.appendChild(el('p', 'lead text-[0.9375rem]', c.body));
+      /* The words are wrapped so the tile has a single sibling to sit beside.
+         Left as three children of a flex row, the title and the copy would be
+         two columns of their own rather than one block against the icon. */
+      var text = el('div', 'prop-text');
+      /* No size class: this drops the title onto --text-h3, the scale's own
+         heading step, instead of a one-off 17px. It also gains the mobile
+         step the arbitrary value never had — 24px falling to 20px. */
+      text.appendChild(el('h3', 'mb-2', c.title));
+      text.appendChild(el('p', 'lead text-[0.9375rem]', c.body));
+      box.appendChild(text);
       host.appendChild(box);
     });
   }
@@ -195,37 +203,184 @@
     };
   }
 
-  function renderWhyMedia() {
-    var host = document.getElementById('why-media');
-    clear(host);
-    /* 2:3 is the photograph's own ratio (1024×1536). Forcing it into 3:4 would
-       crop the sunset sky, which is most of what makes the frame work. */
-    host.appendChild(mediaOrPlaceholder(
-      'assets/img/why-sixt.webp', 'why-sixt', '2:3', i18n.t('why.imageAlt')));
-  }
-
   /* Four figures drawn from facts already stated elsewhere on the page — the
      branch list, the ISO badge and the SIXT history line in the footer. */
+  /* One banner large in the middle, its neighbours cropped at the edges, and
+     chevrons to bring one of them in. The detail sits below rather than on the
+     picture: every banner already prints its own headline and price, and a
+     second set of words laid over that would be two voices at once.
+
+     Index lives here rather than on the element so a language switch, which
+     rebuilds the whole strip, can put the reader back where they were.
+
+     It starts at 1, not 0: the second banner is the one the client wants
+     landed on, and the first then sits cropped at the left edge where it reads
+     as something to go back to rather than as something skipped. */
+  var promoIndex = 1;
+
   function renderPromos() {
-    var host = document.getElementById('promo-grid');
-    clear(host);
-    content.PROMOS.forEach(function (item) {
+    var stage = document.getElementById('promo-stage');
+    var detail = document.getElementById('promo-detail');
+    if (!stage || !detail) { return; }
+
+    var items = content.PROMOS;
+    var total = items.length;
+    clear(stage);
+    clear(detail);
+    promoIndex = Math.min(promoIndex, total - 1);
+
+    var track = el('div', 'promo-track');
+    stage.appendChild(track);
+
+    /* Two terms: centre slide 0 in the stage, then step by whole slides. Both
+       are percentages of the track, which is exactly the stage width — see the
+       note on .promo-track for why it must not carry a margin.
+
+       The drag offset is appended as pixels. calc() will not take a bare
+       negative after a plus, so the sign is folded into the operator. */
+    function trackTransform(index, dragPx) {
+      var drag = '';
+      if (dragPx > 0) { drag = ' + ' + dragPx + 'px'; }
+      else if (dragPx < 0) { drag = ' - ' + (-dragPx) + 'px'; }
+      return 'translateX(calc((100% - var(--promo-slide-w)) / 2 - ' + index +
+             ' * (var(--promo-slide-w) + var(--promo-slide-gap))' + drag + '))';
+    }
+
+    items.forEach(function (item, index) {
       var c = copy(item);
-      var card = el('article', 'card');
-      /* 2:1 with contain — the banners are 2.54:1 and 2:1 with headlines baked
-         into the artwork, so cropping to 16:9 cuts the words in half. */
-      card.appendChild(mediaOrPlaceholder(item.image, item.imageSlot, '2:1', c.alt || c.title, true));
-      var body = el('div', 'card-body');
-      var badge = el('span', 'badge self-start', i18n.t('promo.badge'));
-      body.appendChild(badge);
-      body.appendChild(el('h3', 'text-[1.125rem]', c.title));
-      body.appendChild(el('p', 'lead text-[0.9375rem] flex-1', c.body));
-      var btn = el('a', 'btn-outline w-full mt-3', i18n.t('promo.view'));
-      btn.href = '#';
-      body.appendChild(btn);
-      card.appendChild(body);
-      host.appendChild(card);
+      var slide = el('div', 'promo-slide');
+      slide.setAttribute('role', 'group');
+      slide.setAttribute('aria-roledescription', 'slide');
+      slide.setAttribute('aria-label', i18n.t('promo.slideOf', { n: index + 1, total: total }));
+      var img = el('img');
+      img.src = item.image;
+      img.alt = c.alt || c.title;
+      img.width = 1200;
+      img.height = 675;
+      img.loading = index === 0 ? 'eager' : 'lazy';
+      img.decoding = 'async';
+      /* Otherwise the browser's own image drag starts the moment the pointer
+         moves, and the carousel never sees the gesture. */
+      img.draggable = false;
+      slide.appendChild(img);
+      track.appendChild(slide);
     });
+
+    /* Chevrons live on this row, flanking the words, not floating over the
+       banners. Built before the text so the reading order matches the visual
+       one: previous, what you are looking at, next. */
+    var textBlock = el('div', 'promo-detail__text');
+    var title = el('h3', 'promo-detail__title');
+    /* Solid white, not .lead. --on-dark-muted is white at 78%, which holds on
+       solid black but composites to 3.59:1 against the lightest ground the
+       scrim can leave behind — under AA. On this panel the body copy has to
+       be the full white. */
+    var body = el('p', 'promo-detail__body');
+    /* One call to action under the words, not one per banner: it points at
+       whichever promotion the words are describing, so there is only ever one
+       of it and its label changes with them.
+
+       Always in the DOM, only ever hidden by opacity. Built with
+       display: none it would be unreachable by keyboard, and a control that
+       exists for a mouse and not for a tab key is not a control — which is why
+       the stylesheet reveals it on :focus-within as well as on :hover. */
+    var cta = el('a', 'promo-cta', i18n.t('promo.viewDetail'));
+    cta.href = '#';
+    textBlock.appendChild(title);
+    textBlock.appendChild(body);
+
+    /* The modulo is the loop: last to first and first to last, with no end
+       stop in either direction. The track jumps rather than travels when it
+       wraps — an unbroken slide would need the strip duplicated at both ends,
+       which buys smoothness at the cost of three more images in the DOM. */
+    function show(index) {
+      promoIndex = (index + total) % total;
+      track.style.transform = trackTransform(promoIndex, 0);
+      var c = copy(items[promoIndex]);
+      title.textContent = c.title;
+      body.textContent = c.body;
+      /* Names the promotion rather than saying "details", so a screen reader
+         listing the page's links gets a destination rather than a word that
+         means nothing on its own. */
+      cta.setAttribute('aria-label', i18n.t('promo.viewDetail') + ' — ' + c.title);
+    }
+
+    function arrow(variant, path, step, key) {
+      var button = el('button', 'promo-arrow promo-arrow--' + variant);
+      button.type = 'button';
+      /* Labelled here rather than through a relabel hook like the hero's:
+         renderAll rebuilds this strip on every language change, so the labels
+         are written fresh each time anyway. */
+      button.setAttribute('aria-label', i18n.t(key));
+      button.appendChild(icon(path, 20));
+      button.addEventListener('click', function () { show(promoIndex + step); });
+      return button;
+    }
+
+    detail.appendChild(textBlock);
+    detail.appendChild(cta);
+    /* The chevrons sit on the picture's own edges, so they belong to the stage
+       rather than to the row of words below it. */
+    if (total > 1) {
+      stage.appendChild(arrow('prev', ['M15 5l-7 7 7 7'], -1, 'promo.prev'));
+      stage.appendChild(arrow('next', ['M9 5l7 7-7 7'], 1, 'promo.next'));
+    }
+
+    show(promoIndex);
+    if (total > 1) { initDrag(); }
+
+    /* Drag the banners, by mouse or by finger. Pointer events cover both, so
+       there is one code path rather than a mouse one and a touch one.
+
+       The pointer is captured on the way down: without it, a drag that leaves
+       the stage — which is easy, the banners run to the window edge — stops
+       receiving moves and the strip freezes mid-gesture with no pointerup to
+       release it.
+
+       The threshold is a share of the slide rather than a fixed distance, so
+       the same flick means the same thing on a phone and on a wide monitor.
+       Under it the strip returns to where it was; over it, one slide moves.
+       Never more than one, however far the drag went — a carousel that skips
+       two banners because a gesture was enthusiastic is not answering the
+       reader. */
+    function initDrag() {
+      var startX = 0;
+      var delta = 0;
+      var dragging = false;
+
+      stage.addEventListener('pointerdown', function (e) {
+        if (e.button) { return; }          /* primary button or touch only */
+        /* The chevrons live on the stage now. Without this a press on one of
+           them starts a drag, and the click that should have changed the slide
+           is spent on a gesture that goes nowhere. */
+        if (e.target.closest && e.target.closest('.promo-arrow')) { return; }
+        dragging = true;
+        delta = 0;
+        startX = e.clientX;
+        track.style.transition = 'none';
+        stage.setPointerCapture(e.pointerId);
+      });
+
+      stage.addEventListener('pointermove', function (e) {
+        if (!dragging) { return; }
+        delta = e.clientX - startX;
+        track.style.transform = trackTransform(promoIndex, delta);
+      });
+
+      function end() {
+        if (!dragging) { return; }
+        dragging = false;
+        track.style.transition = '';
+        var first = track.firstChild;
+        var threshold = (first ? first.offsetWidth : 320) * 0.18;
+        if (delta <= -threshold) { show(promoIndex + 1); }
+        else if (delta >= threshold) { show(promoIndex - 1); }
+        else { show(promoIndex); }
+        delta = 0;
+      }
+      stage.addEventListener('pointerup', end);
+      stage.addEventListener('pointercancel', end);
+    }
   }
 
   function specRow(vehicle) {
@@ -630,7 +785,6 @@
   function renderAll() {
     var tab = currentTab();
     renderValueProps();
-    renderWhyMedia();
     renderPromos();
     renderFleetTabs();
     selectTab(tab, false);
