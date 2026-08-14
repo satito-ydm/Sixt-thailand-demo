@@ -118,10 +118,60 @@
   var heroIndex = 0;
   var heroRelabel = null;
 
+  /* Puts the curtain over the banner, then takes it away once the banner is
+     worth looking at. Two classes on #hero rather than one:
+
+       .hero-armed    the curtain is up and the booking form is held at zero
+                      opacity behind nothing — it sits outside the slider and
+                      the curtain cannot cover it
+       .hero-running  both animations are running
+
+     They are swapped in the same statement, so there is no frame in which the
+     form is neither held back nor arriving.
+
+     The trigger is the first banner's own load event, not DOMContentLoaded.
+     The wipe exists to uncover a photograph; fire it before that file has
+     decoded and it uncovers the slider's grey placeholder, which is the one
+     outcome worse than not doing it. The timeout behind that is not a
+     nicety — a 404 on the artwork, or a browser that declines to fire `load`
+     for something it served from cache, would otherwise leave an opaque panel
+     over the banner for the life of the page. */
+  function buildReveal(slider, hero, firstFigure) {
+    var curtain = el('div', 'hero-curtain');
+    curtain.setAttribute('aria-hidden', 'true');
+    slider.appendChild(curtain);
+    hero.classList.add('hero-armed');
+
+    var done = false;
+    function reveal() {
+      if (done) { return; }
+      done = true;
+      hero.classList.remove('hero-armed');
+      hero.classList.add('hero-running');
+    }
+
+    /* Out of the DOM the moment it is off the frame. The curtain carries
+       will-change: transform, which is a promoted compositor layer the size
+       of the viewport — worth paying for 700ms and not worth paying for the
+       rest of the session. */
+    curtain.addEventListener('animationend', function () {
+      if (curtain.parentNode) { curtain.parentNode.removeChild(curtain); }
+    });
+
+    var img = firstFigure.querySelector('img');
+    if (img.complete) { reveal(); }
+    else {
+      img.addEventListener('load', reveal);
+      img.addEventListener('error', reveal);
+    }
+    window.setTimeout(reveal, 1800);
+  }
+
   function initHeroSlider() {
     var root_ = document.getElementById('hero-slider');
     if (!root_) { return; }
 
+    var hero = document.getElementById('hero');
     var slides = content.HERO_SLIDES;
     var total = slides.length;
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -149,10 +199,36 @@
       return fig;
     });
 
+    /* ── The reveal ───────────────────────────────────────────────────────
+       An orange panel over the banner, which leaves to the right and takes
+       the page's one authored moment with it. app.css carries the design
+       argument; what belongs here is why the element is built in JavaScript.
+
+       It covers the banner completely and only a script removes it. Written
+       into index.html, a browser that blocked or failed to run this file
+       would show an orange rectangle where the banner should be, permanently
+       — so the only safe owner of the curtain is the same code that can be
+       relied on to take it away. Nothing in the markup depends on it.
+
+       Nothing is built at all under prefers-reduced-motion. A panel the size
+       of the viewport crossing the screen has no gentler version of itself;
+       the stylesheet gives the booking form a plain fade in its place. */
+    if (!reduce && hero) {
+      buildReveal(root_, hero, figures[0]);
+    }
+
     if (total < 2) { return; } /* one slide needs no controls */
 
-    function show(index) {
+    /* `dir` is the step that was taken, not the index that resulted, and the
+       difference matters at the ends of the strip: wrapping from the last
+       banner to the first is a forward press whose indices run backwards.
+       It is written to the slider, where app.css reads it to pick between two
+       arrival keyframes — the incoming banner enters from the side of the
+       chevron that was pressed. Absent on the first call, which is why slide
+       zero arrives with the curtain instead. */
+    function show(index, dir) {
       heroIndex = (index + total) % total;
+      if (dir) { root_.setAttribute('data-dir', dir > 0 ? 'next' : 'prev'); }
       figures.forEach(function (fig, i) {
         var on = i === heroIndex;
         fig.classList.toggle('is-active', on);
@@ -170,7 +246,7 @@
       var button = el('button', 'hero-arrow hero-arrow--' + variant);
       button.type = 'button';
       button.appendChild(icon(path, 20));
-      button.addEventListener('click', function () { show(heroIndex + step); });
+      button.addEventListener('click', function () { show(heroIndex + step, step); });
       root_.appendChild(button);
       return { el: button, key: key };
     }
@@ -184,11 +260,12 @@
       arrows.forEach(function (a) { a.el.setAttribute('aria-label', i18n.t(a.key)); });
     }
 
-    /* Reduced motion: the slide still changes, it just does not fade. */
-    if (reduce) {
-      figures.forEach(function (fig) { fig.style.transition = 'none'; });
-    }
-
+    /* Nothing to do for reduced motion here any more, and the block that used
+       to strip the fade is gone on purpose. A crossfade is opacity, which is
+       not the kind of motion the preference is asking about — and it is the
+       only thing left saying one banner replaced another once the directional
+       travel has been zeroed by tokens.css. Taking it away made the carousel
+       cut between pictures with no signal at all. */
     show(0);
     label();
 
@@ -388,8 +465,7 @@
     [
       { key: 'seats', value: String(vehicle.seats) },
       { key: 'bags',  value: String(vehicle.bags) },
-      { key: 'gear',  value: 'A' },
-      { key: 'snow',  value: i18n.t('fleet.ac') }
+      { key: 'gear',  value: i18n.t('fleet.auto') }
     ].forEach(function (spec) {
       var item = el('span', 'spec');
       item.appendChild(icon(ICONS[spec.key], 18));
@@ -399,20 +475,6 @@
     return row;
   }
 
-  function includeList() {
-    var ul = el('ul', 'include-list');
-    content.FLEET_INCLUDES.forEach(function (item) {
-      var li = el('li');
-      li.appendChild(icon(ICONS.check, 14));
-      li.appendChild(el('span', null, item[i18n.getLang()]));
-      ul.appendChild(li);
-    });
-    return ul;
-  }
-
-  /* Once a search has run we know the rental length, so the card can lead with
-     the trip total the way a results listing does. Before that there is no
-     duration to multiply by and it stays a daily rate. */
   function priceBlock(vehicle) {
     var box = el('div');
     if (activeDays) {
@@ -422,7 +484,9 @@
         i18n.t('fleet.forDays', { n: activeDays }) + '  ·  ' +
         i18n.formatPrice(vehicle.pricePerDay) + i18n.t('fleet.perDay')));
     } else {
-      box.appendChild(el('div', 'overline', i18n.t('fleet.from')));
+      /* No "from" label above it. The figure carries /day already, and the
+         card is down to four lines — a caption on one of them reads as a
+         fifth. */
       box.appendChild(el('div', 'price-total',
         i18n.formatPrice(vehicle.pricePerDay) + i18n.t('fleet.perDay')));
     }
@@ -433,60 +497,124 @@
   function renderFleetGrid(tab) {
     var host = document.getElementById('fleet-grid');
     clear(host);
-    var cheapest = data.cheapestIn(tab);
 
-    data.fleetByTab(tab).forEach(function (vehicle) {
+    data.fleetByTab(tab).forEach(function (vehicle, index) {
       var card = el('article', 'card card--vehicle');
+      /* The card's place in the row, which app.css multiplies by --stagger to
+         restage the set left to right. Set here rather than derived in CSS
+         with :nth-child so that the delay survives the row being rebuilt with
+         a different number of cards in it — and so the picture inside the
+         card can inherit the same number instead of counting again. */
+      card.style.setProperty('--i', String(index));
 
-      /* Borrowed photographs get an explicit label and honest alt text — the
-         picture is otherwise a claim about which car the customer receives. */
+      /* The visible "stand-in" chip has been taken off the picture, but the
+         alt text has not: thirteen of these sixteen cards show a different
+         model, and the picture is a claim about which car the customer
+         receives. A sighted visitor now has nothing telling them so — the
+         honesty survives only for anyone reading the alt. */
       var alt = vehicle.imageIsStandIn
         ? i18n.t('fleet.standInFull')
         : vehicle.name + ' — ' + copy({ th: vehicle.classTh, en: vehicle.classEn });
-      var shot = mediaOrPlaceholder(vehicle.image, vehicle.imageSlot, '16:9', alt, true);
-      if (vehicle.imageIsStandIn) {
-        shot.style.position = 'relative';
-        var flag = el('span', 'standin-flag', i18n.t('fleet.standIn'));
-        flag.title = i18n.t('fleet.standInFull');
-        shot.appendChild(flag);
-      }
+      /* The frame is the size the three shots are written out at, 1200:838,
+         so they fill it exactly and nothing letterboxes. It is that number
+         rather than a round one because the sources arrived at three
+         different sizes — 1492x1054, 1496x1051, 1502x1047 — and were cropped
+         to one canonical frame on the way in. Left as they came, each card
+         would have shown a hairline of ground that its neighbours did not.
+
+         The one car still on an older photograph is the CR-V at 1.67:1, which
+         shows about 14% as bands top and bottom until a framed shot arrives
+         for it. */
+      var shot = mediaOrPlaceholder(vehicle.image, vehicle.imageSlot, '1200:838', alt, true);
       card.appendChild(shot);
 
       var body = el('div', 'card-body');
 
-      /* "or similar" gets its own line rather than trailing the name. In a
-         four-up grid it otherwise wraps on the longer names only, which drops
-         that one card's specs and checklist out of line with its neighbours. */
-      var nameRow = el('h3', 'vehicle-name');
-      nameRow.appendChild(el('span', 'block', vehicle.name));
-      nameRow.appendChild(el('span', 'vehicle-similar block', i18n.t('fleet.orSimilar')));
-      body.appendChild(nameRow);
-
-      var badges = el('div', 'flex flex-wrap items-center gap-2');
-      if (cheapest && vehicle.id === cheapest.id) {
-        badges.appendChild(el('span', 'badge-deal', i18n.t('fleet.bestDeal')));
-      }
-      var fuelBadge = el('span', 'badge-spec');
-      fuelBadge.appendChild(icon(ICONS.fuel, 13));
-      fuelBadge.appendChild(el('span', null, i18n.t('fuel.' + vehicle.fuel)));
-      badges.appendChild(fuelBadge);
-      body.appendChild(badges);
+      /* Name, then the class beneath it, then the three specs, then a rule and
+         a price beside a link. That is the whole card in the wireframe, and
+         everything that used to sit between those lines — the "or similar"
+         second line, the best-deal and fuel badges, the checklist of what the
+         rate includes — was ours rather than the wireframe's. */
+      body.appendChild(el('h3', 'vehicle-name', vehicle.name));
+      body.appendChild(el('p', 'vehicle-class',
+        copy({ th: vehicle.classTh, en: vehicle.classEn })));
 
       body.appendChild(specRow(vehicle));
-      body.appendChild(includeList());
 
-      var foot = el('div', 'mt-auto pt-4');
-      foot.style.borderTop = '1px solid var(--grey-200)';
+      var foot = el('div', 'vehicle-foot mt-auto');
       foot.appendChild(priceBlock(vehicle));
-      var btn = el('a', 'btn-outline w-full mt-4', i18n.t('fleet.viewCar'));
-      btn.href = '#';
-      foot.appendChild(btn);
+      var link = el('a', 'vehicle-cta', i18n.t('fleet.viewCar'));
+      link.href = '#';
+      link.setAttribute('aria-label', i18n.t('fleet.viewCar') + ' — ' + vehicle.name);
+      foot.appendChild(link);
       body.appendChild(foot);
 
       card.appendChild(body);
       host.appendChild(card);
     });
+    if (fleetScrollSync) { fleetScrollSync(); }
   }
+
+  /* The two arrows under the fleet row. Built once, not per render: the row's
+     contents change when a tab is chosen but the controls do not, and
+     rebuilding them would throw away the scroll listener with them.
+
+     They are disabled whenever there is nowhere to go: on arrival that is the
+     left one, and at the end of the row the right one. A control that looks
+     live and does nothing is worse than one that admits it cannot act. */
+  function initFleetScroll() {
+    var track = document.getElementById('fleet-grid');
+    var nav = document.getElementById('fleet-nav');
+    if (!track || !nav) { return; }
+
+    function arrow(variant, path, dir, key) {
+      var button = el('button', 'fleet-arrow fleet-arrow--' + variant);
+      button.type = 'button';
+      button.setAttribute('aria-label', i18n.t(key));
+      button.appendChild(icon(path, 20));
+      button.addEventListener('click', function () {
+        var card = track.firstChild;
+        /* One card plus its gap, so a press lands the next card where the
+           last one started rather than part-way across two. */
+        var step = card ? card.getBoundingClientRect().width + 24 : 320;
+        /* The row still moves under reduced motion — it has to, or the arrow
+           does nothing — it just does not travel there. This was the one
+           smooth scroll on the page without the check that scrollToSection
+           has been making all along. */
+        track.scrollBy({
+          left: dir * step,
+          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+            ? 'auto' : 'smooth'
+        });
+      });
+      nav.appendChild(button);
+      return button;
+    }
+
+    clear(nav);
+    var prev = arrow('prev', ['M15 5l-7 7 7 7'], -1, 'fleet.prev');
+    var next = arrow('next', ['M9 5l7 7-7 7'], 1, 'fleet.next');
+
+    function sync() {
+      var max = track.scrollWidth - track.clientWidth;
+      /* A pixel of slack: sub-pixel layout leaves scrollLeft a hair short of
+         max at the end of a scroll, which would keep "next" live forever. */
+      prev.setAttribute('aria-disabled', String(track.scrollLeft <= 1));
+      next.setAttribute('aria-disabled', String(track.scrollLeft >= max - 1));
+    }
+    sync();
+    track.addEventListener('scroll', sync);
+    if (typeof ResizeObserver === 'function') {
+      new ResizeObserver(sync).observe(track);
+    } else {
+      root.addEventListener('resize', sync);
+    }
+    /* The row is rebuilt on every tab change and language switch, so the
+       disabled state has to be recomputed after those too. */
+    fleetScrollSync = sync;
+  }
+
+  var fleetScrollSync = null;
 
   function renderFleetTabs() {
     var host = document.getElementById('fleet-tabs');
@@ -542,11 +670,24 @@
   function renderServices() {
     var host = document.getElementById('service-grid');
     clear(host);
-    content.SERVICES.forEach(function (item) {
+    /* Bento: the first card stands tall down the left, the other two lie wide
+       beside it. Orientation is positional rather than a property of the
+       service — nothing about self-drive makes it the tall one — so it is
+       decided here by index and not carried in content.js. */
+    content.SERVICES.forEach(function (item, index) {
       var c = copy(item);
-      var card = el('article', 'service-card');
-      card.appendChild(mediaOrPlaceholder(item.image, item.imageSlot, '3:4', c.title));
-      var body = el('div', 'service-body');
+      var tall = index === 0;
+      var card = el('article', 'service-card service-card--' + (tall ? 'tall' : 'wide'));
+      /* The tall card's picture stands up; the wide ones lie down beside their
+         words, so each takes the frame its own shape asks for. */
+      /* The ratio is only a fallback shape for the placeholder — once a real
+         picture is in, the stylesheet stretches it to fill the whole card and
+         the aspect-ratio stops applying. */
+      card.appendChild(mediaOrPlaceholder(item.image, item.imageSlot,
+        tall ? '3:4' : '1:1', c.alt || c.title));
+      /* The words sit on the picture, in a scrim that guarantees they are
+         readable whatever the picture turns out to be. See .service-overlay. */
+      var body = el('div', 'service-body service-overlay');
       body.appendChild(el('h3', null, c.title));
       body.appendChild(el('p', 'service-text', c.body));
       var btn = el('a', item.variant === 'primary' ? 'btn-primary mt-2' : 'btn-secondary mt-2', c.cta);
@@ -557,21 +698,59 @@
     });
   }
 
+  /* An editorial list, not a card grid.
+
+     Each of the three items carried a 16:9 placeholder — a grey box with an
+     oval in it and the filename printed underneath — because none of them has
+     a photograph and none is planned. Three of those in a row was the largest
+     thing in the section and it was showing the absence of art at full size.
+     The rule above each item does the dividing that the card edge used to,
+     which is the whole trade: a card is a box drawn around content that had
+     no box, and here there was nothing inside it that needed one.
+
+     Nothing here is a link. The three items have no destinations in the
+     content file, so they are articles rather than anchors — a hover state
+     over something that cannot be opened is a promise the page cannot keep.
+     The section's one real link is "view all", in the head.
+
+     A photograph goes in above the rule when one exists, and the item is
+     complete without one — which is the difference from every other picture on
+     this page. mediaOrPlaceholder is not used here on purpose: its placeholder
+     is a grey box naming the file the client still owes, and that is the right
+     answer for a vehicle card, where a missing photograph is a gap in the
+     catalogue. It is the wrong answer here. These three items have no
+     photographs commissioned, so the absence is not a debt to display; the
+     list is a finished design either way and simply gains an image when one
+     arrives. Set `image` in content.js and it appears. */
   function renderNews() {
     var host = document.getElementById('news-grid');
     clear(host);
     content.NEWS.forEach(function (item) {
       var c = copy(item);
-      var card = el('article', 'card');
-      card.appendChild(mediaOrPlaceholder(null, item.imageSlot, '16:9', c.title));
-      var body = el('div', 'card-body');
+      var article = el('article', 'news-item');
+
+      if (item.image) {
+        var media = el('div', 'news-media');
+        var img = el('img');
+        img.src = item.image;
+        /* Falls back to the headline rather than to empty. An empty alt says
+           "decorative", and a news photograph beside a headline is not. */
+        img.alt = c.alt || c.title;
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.width = 1000;
+        img.height = 667;
+        media.appendChild(img);
+        article.appendChild(media);
+        article.classList.add('news-item--illustrated');
+      }
+
       var date = el('time', 'overline', i18n.formatDate(item.date));
       date.setAttribute('datetime', item.date);
-      body.appendChild(date);
-      body.appendChild(el('h3', 'text-[1.125rem] leading-snug clamp-2', c.title));
-      body.appendChild(el('p', 'lead text-[0.9375rem] clamp-2', c.body));
-      card.appendChild(body);
-      host.appendChild(card);
+      article.appendChild(date);
+      article.appendChild(el('h3', 'news-title', c.title));
+      article.appendChild(el('p', 'news-body', c.body));
+      host.appendChild(article);
     });
   }
 
@@ -590,18 +769,31 @@
       trigger.appendChild(el('span', null, c.q));
       trigger.appendChild(el('span', 'acc-icon'));
 
+      /* The answer opens by animating a grid row from 0fr to 1fr rather than
+         by flipping `hidden`, which snapped. That needs the inner wrapper: the
+         row is what animates and the wrapper is what carries the overflow.
+
+         It stays in the DOM open or shut, so `hidden` cannot be what keeps it
+         out of the accessibility tree any more — .acc-panel__inner takes
+         visibility: hidden while collapsed, which removes it from the tree the
+         same way and, unlike opacity or a zero height, is honoured by screen
+         readers. It also transitions on the right side of the animation in
+         both directions: on the way in it flips at the start so the text is
+         present as the row grows, on the way out at the end so it does not
+         vanish before the row has finished closing. */
       var panel = el('div', 'acc-panel');
       panel.id = 'faq-p-' + item.id;
       panel.setAttribute('role', 'region');
       panel.setAttribute('aria-labelledby', trigger.id);
-      panel.hidden = true;
-      panel.appendChild(el('p', null, c.a));
+      var inner = el('div', 'acc-panel__inner');
+      inner.appendChild(el('p', null, c.a));
+      panel.appendChild(inner);
 
       /* Multiple panels may stay open at once — people compare answers. */
       trigger.addEventListener('click', function () {
         var open = trigger.getAttribute('aria-expanded') === 'true';
         trigger.setAttribute('aria-expanded', String(!open));
-        panel.hidden = open;
+        wrap.classList.toggle('is-open', !open);
       });
 
       wrap.appendChild(trigger);
@@ -614,9 +806,9 @@
     var host = document.getElementById('footer-columns');
     clear(host);
     content.FOOTER.forEach(function (column) {
-      var col = el('div');
+      var col = el('div', 'footer-col');
       col.appendChild(el('h3', 'footer-heading', column[i18n.getLang()]));
-      var ul = el('ul', 'flex flex-col gap-2');
+      var ul = el('ul', 'footer-links');
       column.links.forEach(function (link) {
         var li = el('li');
         var a = el('a', null, link[i18n.getLang()]);
@@ -723,6 +915,95 @@
     paint();
   }
 
+  /* Every block below the banner arrives as the reader reaches it. app.css
+     carries the five entrance kinds and the argument for there being five;
+     what lives here is the trigger and, more importantly, the arming.
+
+     NOTHING IS HIDDEN BY THE STYLESHEET. The hidden states in app.css all sit
+     behind .is-armed, and .is-armed is added on the line that starts observing
+     the element — so a browser that never runs this file, or runs it and
+     throws before this point, shows a finished page rather than a column of
+     empty sections. That failure is the usual way this pattern ships broken,
+     and it is silent: the page looks fine to whoever built it.
+
+     Two paths skip the observer and mark everything revealed at once:
+
+       — prefers-reduced-motion. There is no gentler form of "content appears
+         as you scroll" worth offering; its honest reduced version is content
+         that is already there. Nothing is armed, so nothing has to be undone.
+       — no IntersectionObserver. Marking revealed rather than returning
+         matters: the fleet row's restage is gated on #fleet being revealed,
+         and a bare return would leave the tabs rebuilding the row with no
+         animation for the rest of the session.
+
+     Once each. The observer stops watching an element the moment it fires, so
+     scrolling back up and down again does not replay the page — a section
+     that re-animates every time it passes is a section arguing with whoever
+     is reading it. */
+  function initSectionReveals() {
+    var nodes = Array.prototype.slice.call(document.querySelectorAll('[data-reveal]'));
+    if (!nodes.length) { return; }
+
+    function reveal(node) {
+      node.classList.remove('is-armed');
+      node.classList.add('is-revealed');
+    }
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || typeof IntersectionObserver !== 'function') {
+      nodes.forEach(reveal);
+      return;
+    }
+
+    /* -12% at the bottom, so a block starts arriving once it is properly into
+       the window rather than the instant its first pixel clears the edge —
+       otherwise the reader watches the animation from underneath it. The 0.01
+       threshold is what makes that work for a section taller than the screen,
+       which can never reach a percentage-based one. */
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) { return; }
+        reveal(entry.target);
+        io.unobserve(entry.target);
+      });
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.01 });
+
+    nodes.forEach(function (node) {
+      node.classList.add('is-armed');
+      io.observe(node);
+    });
+
+    /* The foot of the page is a dead zone for that bottom inset, and this is
+       what covers it.
+
+       Shrinking the root by 12% means an element only counts once its top is
+       12% of a screen above the window's bottom edge. For anything in the
+       middle of the document that is exactly the delay we want. For anything
+       whose top sits inside the last 12% of the DOCUMENT it is unreachable:
+       scrolling runs out before the shrunken root ever gets there, the
+       observer never fires, and the block stays at the opacity the arming put
+       it at — permanently. On this page that was the footer's legal line, and
+       it is the kind of bug that only shows up if someone scrolls all the way
+       down and looks, which is the last thing anyone does.
+
+       So: at the bottom of the document, whatever is still armed has arrived
+       by definition. Reveal it and take the listener off — there is nowhere
+       further to scroll and nothing left to wait for. Called once immediately
+       as well, for a window tall enough to show the whole page at once. */
+    function revealTail() {
+      var bottom = window.scrollY + window.innerHeight;
+      if (bottom < document.documentElement.scrollHeight - 2) { return; }
+      nodes.forEach(function (node) {
+        if (!node.classList.contains('is-armed')) { return; }
+        reveal(node);
+        io.unobserve(node);
+      });
+      window.removeEventListener('scroll', revealTail);
+    }
+    window.addEventListener('scroll', revealTail, { passive: true });
+    revealTail();
+  }
+
   var HEADER_OFFSET = 88; /* sticky utility bar + header */
 
   /* scrollTo({behavior:'smooth'}) is silently ignored in some environments —
@@ -753,6 +1034,16 @@
     document.addEventListener('sixt:search', function (e) {
       lastState = e.detail.state;
       text.textContent = e.detail.summary;
+      /* Removed, flushed, re-added — which restarts the chip's arrival on
+         every search rather than only the first. A class that is already
+         present does not re-trigger its animation, and the second search is
+         exactly the case that needs it: the chip is on the page already and
+         the only thing that changed is the words inside it. Reading
+         offsetWidth is what forces the removal to be committed; without it the
+         browser coalesces both changes into one frame and sees no change at
+         all. */
+      summary.classList.remove('is-visible');
+      void summary.offsetWidth;
       summary.classList.add('is-visible');
       activeDays = i18n.rentalDays(lastState.pickupDate, lastState.returnDate);
       renderFleetGrid(currentTab()); /* prices become trip totals */
@@ -803,12 +1094,18 @@
     initHeroSlider(); /* once only — renderAll must not restart the carousel */
     renderAll();      /* builds the tab strip before it is wired up */
     initFleetTabs();
+    initFleetScroll();
 
     root.SIXT.booking.init();
     initStickyHeader();
     initDrawer();
     initLangSwitcher();
     initSearchHandoff();
+    /* Last, and after renderAll: the staggered containers take their child
+       index from :nth-child, so their children have to exist before anything
+       is armed — and the observer has to measure blocks at their real height,
+       which an empty container does not have. */
+    initSectionReveals();
 
     document.addEventListener('sixt:langchange', function () {
       renderAll();

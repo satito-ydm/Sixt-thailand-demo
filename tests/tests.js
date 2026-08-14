@@ -39,25 +39,71 @@
     T.ok(!/#111111/i.test(css), 'the brief estimate #111111 must not appear');
   });
 
-  /* Same contract as .btn-primary below, and newer: the outline button's hover
-     is white on orange at 3.28:1, which is legal only as large text. The size
-     is the compliance, so it is asserted rather than trusted to a comment. */
-  T.test('.btn-outline holds the 19px/700 its white-on-orange hover depends on', function () {
+  /* Every button on the page is one box, and this is the test that keeps it
+     one. It replaced three near-identical tests — one per class — which is
+     what the CSS looked like too, and is why the five buttons had drifted to
+     three type sizes and four heights before anyone noticed.
+
+     What the size is actually for: white on orange is 3.28:1, legal as large
+     text and not as normal text. Three of the five depend on it — .btn-primary
+     and .promo-cta's inverse in their rest state, .btn-outline and
+     .vehicle-cta only on hover, which is the more fragile case because the
+     state carrying the requirement is not the one on screen while you edit.
+
+     The second half is the part that matters most: no class may restate any of
+     the shared metrics. A single `font-size: var(--text-body)` on one of them
+     is exactly how the old drift started, and it is invisible in a diff. */
+  var BUTTONS = ['btn-primary', 'btn-secondary', 'btn-outline', 'promo-cta', 'vehicle-cta'];
+
+  T.test('every button shares one box, at the 19px/700 white-on-orange needs', function () {
     if (!fs) { return; }
     var css = readProjectFile('assets/css/app.css');
-    var rule = css.match(/\.btn-outline\s*\{[^}]*\}/);
-    T.ok(rule, '.btn-outline rule must exist');
-    T.ok(/font-size:\s*var\(--text-cta\)/.test(rule[0]), '.btn-outline must be --text-cta (19px)');
-    T.ok(/font-weight:\s*700/.test(rule[0]), '.btn-outline must be bold');
+    var shared = css.match(/\.btn-primary,[^{]*\{[^}]*\}/);
+    T.ok(shared, 'the shared button rule must exist and lead with .btn-primary');
+    if (!shared) { return; }
+
+    BUTTONS.forEach(function (c) {
+      T.ok(shared[0].indexOf('.' + c) !== -1, '.' + c + ' must be in the shared rule');
+    });
+    T.ok(/font-size:\s*var\(--text-cta\)/.test(shared[0]), 'buttons must be --text-cta (19px)');
+    T.ok(/font-weight:\s*700/.test(shared[0]), 'buttons must be bold');
+    T.ok(/min-height:\s*48px/.test(shared[0]), 'buttons must be 48px tall');
+    T.ok(/padding:\s*var\(--space-3\) var\(--space-6\)/.test(shared[0]),
+      'buttons must share one padding');
   });
 
-  T.test('.btn-primary meets the WCAG large-text threshold that makes white-on-orange pass', function () {
+  T.test('no button class restates the metrics the shared rule sets', function () {
     if (!fs) { return; }
     var css = readProjectFile('assets/css/app.css');
-    var rule = css.match(/\.btn-primary\s*\{[^}]*\}/);
-    T.ok(rule, '.btn-primary rule must exist');
-    T.ok(/font-size:\s*1\.1875rem/.test(rule[0]), '.btn-primary must be 19px');
-    T.ok(/font-weight:\s*700/.test(rule[0]), '.btn-primary must be bold');
+    /* Cut the shared rule out before scanning. Its selector list runs one
+       class per line, so its LAST selector sits directly against the brace and
+       looks exactly like a rule of its own to the pattern below. */
+    var shared = css.match(/\.btn-primary,[^{]*\{[^}]*\}/);
+    var rest = shared ? css.replace(shared[0], '') : css;
+    BUTTONS.forEach(function (c) {
+      /* Any rule ending in the bare class: both `.btn-outline {` and
+         `.drawer .btn-outline {`. The scoped ones are deliberately included —
+         a descendant override is how the drawer's login button grew to 57px
+         and sat there, being the one button on the site with nothing beside
+         it to compare against. The shared rule has commas before its brace
+         and the state rules have a colon, so neither is caught here. */
+      var own = rest.match(new RegExp('\\.' + c + '\\s*\\{[^}]*\\}', 'g')) || [];
+      own.forEach(function (rule) {
+        ['font-size', 'font-weight', 'min-height', 'height', 'padding'].forEach(function (prop) {
+          T.ok(!new RegExp('(^|[;{\\s])' + prop + '\\s*:').test(rule),
+            '.' + c + ' sets ' + prop + ' itself; it belongs in the shared rule');
+        });
+      });
+    });
+  });
+
+  T.test('.price-total holds the size its orange depends on', function () {
+    if (!fs) { return; }
+    var css = readProjectFile('assets/css/app.css');
+    var rule = css.match(/\.price-total\s*\{[^}]*\}/);
+    T.ok(rule, '.price-total rule must exist');
+    T.ok(/font-size:\s*1\.5rem/.test(rule[0]), '.price-total must be 24px');
+    T.ok(/font-weight:\s*700/.test(rule[0]), '.price-total must be bold');
   });
 
   T.test('the PROMO badge sits on black, never on orange', function () {
@@ -142,12 +188,15 @@
     T.eq(root.SIXT.data.findLocation('nope'), undefined);
   });
 
-  T.test('the fleet has 16 vehicles, four in each of the four wireframe tabs', function () {
+  /* Six a tab, not four. Four fitted the row exactly at desktop, which left
+     the scroll arrows under it with nowhere to go — the count is what gives
+     them something to do. */
+  T.test('the fleet has 24 vehicles, six in each of the four tabs', function () {
     var D = root.SIXT.data;
-    T.eq(D.FLEET.length, 16);
+    T.eq(D.FLEET.length, 24);
     T.eq(D.TABS, ['compact', 'suv', 'mpv', 'premium']);
     D.TABS.forEach(function (tab) {
-      T.eq(D.fleetByTab(tab).length, 4, tab + ' must hold exactly four vehicles');
+      T.eq(D.fleetByTab(tab).length, 6, tab + ' must hold exactly six vehicles');
     });
   });
 
@@ -202,18 +251,24 @@
     });
   });
 
-  T.test('exactly four vehicles own their photograph; the rest are flagged stand-ins', function () {
+  /* Three, not four: the CR-V gave up its photograph when the resupplied
+     shots arrived on the brand frame and its own did not. Every SUV card now
+     borrows the Veloz. */
+  T.test('exactly three vehicles own their photograph; the rest are flagged stand-ins', function () {
     var D = root.SIXT.data;
     var real = D.FLEET.filter(function (v) { return v.image && !v.imageIsStandIn; });
     T.eq(real.map(function (v) { return v.id; }).sort(),
-      ['bmw-3-series', 'honda-cr-v', 'mercedes-c-class', 'toyota-veloz']);
+      ['bmw-3-series', 'mercedes-c-class', 'toyota-veloz']);
     /* Every card shows something, so the grid reads as complete for review. */
     D.FLEET.forEach(function (v) {
       T.ok(v.image, v.id + ' has no image at all');
-      T.ok(/^assets\/img\/car-[a-z0-9-]+\.webp$/.test(v.image), v.id + ' bad path: ' + v.image);
+      /* Two formats on purpose: the resupplied shots came as .jpg because
+         nothing here can write WebP. See the note in prepare-images.py. */
+      T.ok(/^assets\/img\/car-[a-z0-9-]+\.(webp|jpg)$/.test(v.image),
+        v.id + ' bad path: ' + v.image);
       T.eq(typeof v.imageIsStandIn, 'boolean', v.id + ' must declare imageIsStandIn');
     });
-    T.eq(D.FLEET.filter(function (v) { return v.imageIsStandIn; }).length, 12);
+    T.eq(D.FLEET.filter(function (v) { return v.imageIsStandIn; }).length, 21);
   });
 
   T.test('a stand-in only borrows a photograph of the same body shape', function () {
@@ -250,6 +305,14 @@
       /* promo-ground.jpg is referenced from the stylesheet rather than from
          any data file, so nothing else in this suite would notice it going
          missing — the band would simply lose its lower half. */
+      .concat(root.SIXT.content.SERVICES
+        .filter(function (s) { return s.image; })
+        .map(function (s) { return s.image; }))
+      /* promo-ground.jpg is referenced from tokens.css rather than from any
+         data file, so nothing else here would notice it going missing.
+         services-ground.jpg was in this list too — the services band is a
+         flat colour again and the file is no longer referenced from anywhere,
+         so a test asserting it exists would only be pinning an orphan. */
       .concat(['assets/img/hero-banner.webp', 'assets/img/logo.webp',
                'assets/img/promo-ground.jpg']);
     refs.forEach(function (rel) {
@@ -263,7 +326,7 @@
     var C = root.SIXT.content;
     [['VALUE_PROPS', ['title', 'body']],
      ['PROMOS', ['title', 'body']],
-     ['SERVICES', ['title', 'body', 'cta']],
+     ['SERVICES', ['title', 'body', 'cta', 'alt']],
      ['NEWS', ['title', 'body']],
      ['FAQ', ['q', 'a']]].forEach(function (pair) {
       var listName = pair[0];
@@ -288,6 +351,70 @@
      This is asserted because copy is edited far more often than the layout is
      re-measured, and the failure is silent: one column quietly becomes two
      lines and the three stop matching. */
+  /* The three tiles are meant to read as a set, which means two lines each —
+     not two, one and one. The measure is fixed at 24rem, so the line count is
+     decided by the copy, and both ends of the window matter: too long and a
+     third line appears, too short and the string collapses onto one while its
+     neighbours stay at two. Currently 52 to 79 characters across both
+     languages. */
+  T.test('service bodies stay in the band that sets two lines', function () {
+    root.SIXT.content.SERVICES.forEach(function (s) {
+      ['th', 'en'].forEach(function (lang) {
+        var n = s[lang].body.length;
+        var where = 'SERVICES/' + s.id + '.' + lang + '.body runs ' + n + ' characters';
+        T.ok(n <= 100, where + ' and will spill to a third line');
+        T.ok(n >= 50, where + ' and will collapse onto one');
+      });
+    });
+  });
+
+  /* The news list is designed to work with no pictures and to gain them one at
+     a time, which is exactly the arrangement where a half-wired item ships
+     unnoticed: an `image` path with no alt beside it renders a photograph
+     announcing its own headline twice, and nothing else on the page complains.
+     Both directions are checked, so the alt written ahead of the file cannot
+     be deleted either. */
+  T.test('a news photograph and its alt text arrive together or not at all', function () {
+    root.SIXT.content.NEWS.forEach(function (item) {
+      ['th', 'en'].forEach(function (lang) {
+        var alt = item[lang].alt;
+        T.ok(typeof alt === 'string' && alt.length > 0,
+          'NEWS/' + item.id + '.' + lang + ' has no alt text — it is the brief ' +
+          'for the photograph as much as the description of it');
+        T.ok(alt !== item[lang].title,
+          'NEWS/' + item.id + '.' + lang + '.alt repeats the headline, which ' +
+          'tells a screen reader nothing the headline has not already said');
+      });
+      if (item.image) {
+        T.ok(/^assets\/img\//.test(item.image),
+          'NEWS/' + item.id + '.image must point into assets/img');
+      }
+    });
+  });
+
+  /* The membership band sets its paragraph centred at 64ch, and centred copy
+     is where an extra line is most visible: it widens the block's silhouette
+     rather than lengthening a column, so a third line changes the shape of the
+     whole band. Both strings were cut to two lines at 640px and above, and
+     what came off the end of each was a sentence telling the reader to choose
+     a tier or log in — which the button and the link beside it already are.
+
+     125 characters is the English at 117 with a few words of margin. Thai is
+     held to the same number and runs shorter in characters while setting
+     wider, so the tighter of the two is whichever language is being read. */
+  T.test('the membership paragraph stays inside two lines', function () {
+    ['th', 'en'].forEach(function (lang) {
+      var s = root.SIXT.i18n.dict[lang]['member.body'];
+      T.ok(!!s, 'member.body is missing from the ' + lang + ' dictionary');
+      T.ok(s.length <= 125,
+        'member.body in ' + lang + ' runs ' + s.length + ' characters and will ' +
+        'spill to a third line on the band');
+      T.ok(s.indexOf('\n') === -1,
+        'member.body in ' + lang + ' carries a hard break; this paragraph is ' +
+        'centred and wraps to its own measure');
+    });
+  });
+
   T.test('value-prop bodies stay inside the one-line measure', function () {
     root.SIXT.content.VALUE_PROPS.forEach(function (p) {
       ['th', 'en'].forEach(function (lang) {

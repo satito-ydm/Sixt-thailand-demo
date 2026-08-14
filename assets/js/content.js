@@ -138,57 +138,94 @@
     }
   ];
 
+  /* Two lines each, and the break is written here rather than left to the
+     measure. Where a line turns is an editorial decision — Thai runs without
+     spaces, so a browser filling greedily splits a phrase mid-word and no
+     width setting reliably stops it. The escape is honoured by
+     white-space: pre-line on .service-text, and a line still wraps further if
+     a narrow screen leaves it no room.
+
+     tests.js holds the total length at both ends: too long and a third line
+     appears, too short and the string collapses onto one while its neighbours
+     stay at two.
+
+     Three supplied photographs, one per tile, each cropped to the shape its
+     tile takes and cropped from the top — all three put their subject in the
+     upper half and their clear ground in the lower. */
   var SERVICES = [
     {
       id: 'self-drive',
-      image: null,
+      image: 'assets/img/service-self-drive.jpg',
       imageSlot: 'service-self-drive',
       variant: 'primary',
-      th: { title: 'ขับเอง', body: 'ควบคุมการเดินทางได้เต็มที่ด้วยรถเช่าระยะสั้นที่ยืดหยุ่นตามแผนของคุณ', cta: 'เช่ารถ' },
-      en: { title: 'Self-Drive', body: 'Take full control of your journey with flexible short-term personal rentals.', cta: 'Rent a Car' }
+      th: { title: 'ขับเอง', body: 'เช่าสั้น ยืดหยุ่นตามแผนของคุณ\nควบคุมการเดินทางได้เอง', cta: 'เช่ารถ',
+            alt: 'มองผ่านหน้าต่างรถออกไปเห็นผู้หญิงยืนอยู่ริมจุดชมวิวชายทะเล มีอ่าว เรือใบ และต้นมะพร้าวยามพระอาทิตย์ตก' },
+      en: { title: 'Self-Drive', body: 'Short rentals that flex around your plans,\nwith the wheel in your hands.', cta: 'Rent a Car',
+            alt: 'Seen through the open car window: a woman standing at a coastal viewpoint, with a bay, moored boats and palm trees at sunset' }
     },
     {
       id: 'limousine',
-      image: null,
+      image: 'assets/img/service-limousine.jpg',
       imageSlot: 'service-limousine',
       variant: 'secondary',
-      th: { title: 'ลีมูซีนพร้อมคนขับ', body: 'เดินทางอย่างมืออาชีพกับบริการรถพร้อมคนขับที่ผ่านการอบรมมาตรฐาน SIXT', cta: 'ดูบริการลีมูซีน' },
-      en: { title: 'Limousine', body: 'Travel in professional style with our trained, dedicated chauffeur service.', cta: 'Explore Limousine' }
+      th: { title: 'ลีมูซีนพร้อมคนขับ', body: 'คนขับผ่านการอบรมมาตรฐาน SIXT\nพาคุณถึงที่หมายอย่างมืออาชีพ', cta: 'ดูบริการลีมูซีน',
+            alt: 'คนขับสวมสูทและถุงมือขาวเปิดประตูรถซีดานสีดำให้ผู้โดยสารชุดสูท หน้าอาคารผู้โดยสารท่าอากาศยานสุวรรณภูมิยามพระอาทิตย์ตก' },
+      en: { title: 'Limousine', body: 'A chauffeur trained to SIXT standards drives;\nyou arrive ready.', cta: 'Explore Limousine',
+            alt: 'A chauffeur in a suit and white gloves holding the door of a black sedan for a suited passenger outside the Suvarnabhumi airport terminal at sunset' }
     },
     {
       id: 'subscription',
-      image: null,
+      image: 'assets/img/service-subscription.jpg',
       imageSlot: 'service-subscription',
       variant: 'secondary',
-      th: { title: 'เช่ารถรายเดือน', body: 'ทางเลือกแทนการเช่าซื้อ จ่ายรายเดือนครบจบในราคาเดียว เปลี่ยนรุ่นรถได้', cta: 'ดูแพ็กเกจรายเดือน' },
-      en: { title: 'Car Subscription', body: 'An all-inclusive monthly alternative to traditional leasing, with the freedom to switch models.', cta: 'Explore Subscription' }
+      th: { title: 'เช่ารถรายเดือน', body: 'ทางเลือกแทนการเช่าซื้อ จ่ายรายเดือน\nราคาเดียวครบจบ เปลี่ยนรุ่นได้', cta: 'ดูแพ็กเกจรายเดือน',
+            alt: 'พนักงานชุดสูทส่งกุญแจรถให้ลูกค้าหน้ารถซีดานสีดำ ที่ลานหน้าอาคารสำนักงาน' },
+      en: { title: 'Car Subscription', body: 'A monthly alternative to leasing —\nall in one price, and you can switch models.', cta: 'Explore Subscription',
+            alt: 'A member of staff handing car keys to a customer beside a black sedan outside an office building' }
     }
   ];
 
+  /* `image: null` on all three, and the list is designed to be complete that
+     way — renderNews draws no placeholder and no gap. Point one of these at a
+     file and that item gains a 3:2 photograph above its rule; the other two
+     keep working unchanged, so they can arrive one at a time.
+
+     The alt strings are written now rather than with the files, because alt
+     text describes the subject the picture was commissioned for, and that is
+     decided here in the copy. Writing it after the photograph arrives is how
+     alt text ends up restating the headline. Each is a sentence about what is
+     in the frame, in both languages, and each is what the brief for that
+     photograph is: shoot this. */
   var NEWS = [
     {
       id: 'ev-fleet',
       date: '2026-10-12',
       image: null,
       imageSlot: 'news-ev-fleet',
-      th: { title: 'SIXT ขยายฟลีตรถยนต์ไฟฟ้าในกรุงเทพฯ', body: 'เพิ่มรถ SUV ไฟฟ้าระยะทางไกลเข้าสู่คลาสรถพรีเมียม เปิดให้จองโดยตรงผ่านเว็บไซต์แล้ววันนี้' },
-      en: { title: 'SIXT Expands Its Electric Fleet in Bangkok', body: 'Long-range electric SUVs join the premium class and are now bookable directly on the website.' }
+      th: { title: 'SIXT ขยายฟลีตรถยนต์ไฟฟ้าในกรุงเทพฯ', body: 'เพิ่มรถ SUV ไฟฟ้าระยะทางไกลเข้าสู่คลาสรถพรีเมียม เปิดให้จองโดยตรงผ่านเว็บไซต์แล้ววันนี้',
+            alt: 'รถ SUV ไฟฟ้าจอดชาร์จอยู่ที่สถานีชาร์จ โดยมีอาคารสูงในกรุงเทพฯ เป็นฉากหลัง' },
+      en: { title: 'SIXT Expands Its Electric Fleet in Bangkok', body: 'Long-range electric SUVs join the premium class and are now bookable directly on the website.',
+            alt: 'An electric SUV parked at a charging point with Bangkok high-rises behind it' }
     },
     {
       id: 'chiang-mai-counter',
       date: '2026-09-28',
       image: null,
       imageSlot: 'news-chiang-mai',
-      th: { title: 'เปิดเคาน์เตอร์ใหม่ที่สนามบินเชียงใหม่', body: 'รับรถได้เร็วขึ้นด้วยขั้นตอนเอกสารแบบดิจิทัลเต็มรูปแบบที่เคาน์เตอร์แห่งใหม่ของเรา' },
-      en: { title: 'New Airport Counter Opens in Chiang Mai', body: 'Faster pickups with fully paperless digital onboarding at our newest northern counter.' }
+      th: { title: 'เปิดเคาน์เตอร์ใหม่ที่สนามบินเชียงใหม่', body: 'รับรถได้เร็วขึ้นด้วยขั้นตอนเอกสารแบบดิจิทัลเต็มรูปแบบที่เคาน์เตอร์แห่งใหม่ของเรา',
+            alt: 'เคาน์เตอร์รับรถของ SIXT ในอาคารผู้โดยสารสนามบินเชียงใหม่ มีพนักงานยืนรับลูกค้า' },
+      en: { title: 'New Airport Counter Opens in Chiang Mai', body: 'Faster pickups with fully paperless digital onboarding at our newest northern counter.',
+            alt: 'The SIXT pickup counter inside the Chiang Mai airport terminal, with staff receiving a customer' }
     },
     {
       id: 'southern-routes',
       date: '2026-08-15',
       image: null,
       imageSlot: 'news-southern-routes',
-      th: { title: 'เส้นทางขับรถเที่ยวชายฝั่งภาคใต้', body: 'แนะนำจุดแวะพัก ที่เที่ยวที่คนยังไม่ค่อยรู้จัก และรุ่นรถที่เหมาะกับเส้นทางเลียบทะเล' },
-      en: { title: 'Road Trip Guide: Southern Coastal Routes', body: 'Recommended stopovers, lesser-known spots and the vehicle classes best suited to seaside driving.' }
+      th: { title: 'เส้นทางขับรถเที่ยวชายฝั่งภาคใต้', body: 'แนะนำจุดแวะพัก ที่เที่ยวที่คนยังไม่ค่อยรู้จัก และรุ่นรถที่เหมาะกับเส้นทางเลียบทะเล',
+            alt: 'รถเก๋งวิ่งบนถนนเลียบชายฝั่งทะเลภาคใต้ มองเห็นอ่าวและเกาะหินอยู่ด้านข้าง' },
+      en: { title: 'Road Trip Guide: Southern Coastal Routes', body: 'Recommended stopovers, lesser-known spots and the vehicle classes best suited to seaside driving.',
+            alt: 'A car on a coastal road in southern Thailand, with a bay and limestone islands alongside' }
     }
   ];
 

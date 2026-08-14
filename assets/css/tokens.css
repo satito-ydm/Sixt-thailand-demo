@@ -12,10 +12,63 @@
   --sixt-orange-rgb:  255, 80, 0;
   --sixt-orange-deep: #E04400; /* derived from --sixt-orange for hover / pressed */
   --sixt-black:       #1A1A1A; /* logo.png, 871,688 px */
+  /* Not a brand colour and not sampled from anything — the only value in this
+     file that was chosen rather than measured. It exists for one job: a
+     section-sized ground that has to read as fully black rather than as very
+     dark grey, which #1A1A1A does not at that size. Ink, chips, buttons and
+     every small black shape stay on --sixt-black, because those are the ones
+     that have to sit beside the logo without looking like a second black. */
+  --black-true:       #000000;
+  /* The services ground: a studio backdrop under a flat black wash.
+
+     This is the third thing to sit behind that band and the first that suits
+     it. The two before were photographs with a subject in them, and the bento
+     covers the middle of the section edge to edge at every width — so a
+     subject can only ever be hidden, and what showed in the padding was an
+     arbitrary slice of somebody's crop. This one has no subject. It is a
+     lit sweep, brightest in the upper middle and falling to near-black at the
+     corners, and a band of it is the same picture as the whole of it.
+
+     The wash is flat at 0.78 and that number is measured, not chosen for
+     looks. The section heading is orange, the brightest pixel in the source
+     is rgb(163), and it reaches the left half where the heading sits — orange
+     on rgb(163) is 1.30:1. At 0.78 the brightest ground the picture can
+     present becomes rgb(36) and orange reads 4.73:1 there, which clears the
+     normal-text bar rather than the 3.0 a 40px bold heading is entitled to.
+
+     Flat rather than a gradient anchored to one side, which is what the last
+     one was. A wash that varies across the band makes the heading's contrast
+     depend on how far the string runs, so it has to be re-measured whenever
+     the copy or the language changes — and it was, at eight widths. One
+     number over the whole band is the same guarantee with nothing to re-check.
+
+     ASSIGN THIS TO THE `background` SHORTHAND. It carries a position, a size,
+     a repeat and a colour, none of which the `background-image` longhand
+     accepts: fed to that longhand the whole declaration is invalid at
+     computed-value time and is silently dropped. That is not hypothetical —
+     it is exactly what happened to this token's predecessor, which never once
+     rendered while three worklogs described it. Only the computed style shows
+     it, as `none`. See #services in app.css.
+
+     The trailing black is the shorthand's colour layer: what shows before the
+     file arrives and if it never does. It has to be stated because the
+     shorthand resets background-color, and without it .band-dark's ground is
+     cleared to transparent and the white page shows through a section whose
+     every word is white. */
+  --surface-services: linear-gradient(rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.78)),
+                      url('../img/service-ground.jpg') center / cover no-repeat
+                      #000000;
   --white:            #FFFFFF;
 
   /* Structural greys — not brand colours ------------------------------- */
   --grey-50:  #F7F7F7; /* alternating section background */
+  /* Sampled from FRAME CAR.jpg, the template the vehicle photographs are
+     composited onto — the same value at every point of it. Using the
+     artwork's own ground as the section's means the cars sit on the page
+     rather than on a panel laid over it. It is a warm near-white, not a
+     brand tint: black reads 16.25:1 on it and --grey-500 4.98:1, so nothing
+     in the section had to change colour to sit here. */
+  --tint-warm: #FFF5F3;
   --grey-100: #EFEFEF; /* placeholder fill */
   --grey-200: #E2E2E2; /* decorative dividers and card edges only — 1.3:1 */
   --grey-500: #6B6B6B; /* secondary text — 5.3:1 on white, passes AA */
@@ -83,6 +136,29 @@
   --shadow-card:   0 2px 16px rgba(0, 0, 0, 0.10);
   --shadow-widget: 0 4px 24px rgba(0, 0, 0, 0.08);
   --shadow-header: 0 1px 8px rgba(0, 0, 0, 0.06);
+  /* The ground behind a vehicle photograph. Flat --tint-warm, because that is
+     what the photographs themselves are composited on: the three framed shots
+     fill their frame exactly and cover this entirely, and the one unframed
+     shot left bands top and bottom which now match the others' baked ground
+     instead of showing a grey panel behind them.
+
+     It was a white-to-grey gradient while the frame was square and 40% of it
+     was empty. The frame is the artwork's own ratio now, so there is no
+     emptiness left for a gradient to dress. */
+  --surface-vehicle: var(--tint-warm);
+
+  /* The fleet section's ground. White at its top edge so there is no seam
+     where the promotions section — the page's own white — ends, then down
+     into the tint over the first fifth. Short on purpose: run over the whole
+     section it would leave the top and bottom of one row of cards standing on
+     visibly different grounds.
+
+     Every pair for this section is measured against --tint-warm, the darkest
+     point it reaches. Lighter is only ever safer. */
+  --surface-fleet: linear-gradient(to bottom,
+                     var(--white) 0%, var(--tint-warm) 20%,
+                     var(--tint-warm) 100%);
+
   /* Brand-tinted lift. Orange is a light colour, so it darkens white far less
      than black does at the same alpha: at 5% it lands on rgb(255,246,242),
      which is 9 and 13 steps off white in green and blue and none at all in
@@ -91,7 +167,57 @@
      That is the intent. Below about 3% it stops being visible at all. */
   --shadow-lift-brand: 0 14px 34px rgba(var(--sixt-orange-rgb), 0.05);
 
+  /* Motion ------------------------------------------------------------- */
+  /* Two transition tokens, and the split is the whole point of there being
+     two. --transition governs colour, opacity and shadow: a fill darkening
+     under a pointer is feedback, not movement, and WCAG's reduced-motion
+     preference is not asking for it to stop. --transition-move governs
+     anything that travels.
+
+     There was one token, zeroed wholesale under the query at the foot of this
+     file, and it took the page's entire hover vocabulary down with the travel:
+     a visitor who has asked for less motion got controls that answered
+     nothing, which is the opposite of what they asked for. Only the second
+     token is zeroed now. */
   --transition: 200ms ease;
+  --transition-move: 200ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* The page's arrival curve. Exponential deceleration — fast off the mark,
+     a long settle — which is what makes a thing read as having been placed
+     rather than as having been slid. Used for everything that enters; nothing
+     on this page bounces or overshoots. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  /* The curtain's curve, and the only one here that accelerates at all. A wipe
+     has to leave like a shutter: a short gather, then off and decelerating.
+     The ease-in half is deliberately shallow — a symmetric curve holds the
+     orange still for the first fifth of the animation, and a panel the size of
+     the window sitting motionless is not anticipation, it is a page that has
+     not loaded. */
+  --ease-wipe: cubic-bezier(0.62, 0, 0.2, 1);
+
+  /* Four durations, by consequence rather than by component. Every keyframe
+     animation on the page reads one of these, which is what lets the query
+     below stop all of them at once without an !important sweep over the
+     stylesheet. */
+  --dur-press:  110ms; /* the frame a control answers a press in */
+  --dur-move:   220ms; /* a routine state change */
+  --dur-layout: 340ms; /* something the layout has to make room for */
+  --dur-enter:  560ms; /* an authored entrance — spent on the hero, once */
+  /* The curtain itself. Longer than anything else on the page and allowed to
+     be: it is the one moment the visitor is being shown rather than answered. */
+  --dur-reveal: 700ms;
+  /* The step between siblings when a set arrives as a set. Only two places
+     earn it — the fleet row and the drawer's four links — and both cap out
+     under a quarter of a second, which is the whole discipline: a stagger is
+     a way of saying "these are one list", not a way of making six items take
+     six times as long. */
+  --stagger: 35ms;
+  /* The step between siblings arriving on scroll, which is twice the row's.
+     A restage is a set being replaced under the reader's own press and has to
+     be quick about it; a section arriving is being read for the first time,
+     and the eye needs long enough between two columns to register that they
+     came separately. Six items still cap at 350ms. */
+  --stagger-reveal: 70ms;
 }
 
 @media (max-width: 767px) {
@@ -102,6 +228,31 @@
   }
 }
 
+/* Less motion, not no motion.
+
+   What stops is travel: every transform transition, and every keyframe
+   animation on the page, since all of them read one of the four duration
+   tokens. What survives is --transition itself — the colour, opacity and
+   shadow changes that tell a visitor a control heard them. A page whose
+   buttons stop responding is not an accessible page, it is a broken one, and
+   the query is explicit that it asks for reduced motion rather than for none.
+
+   1ms rather than 0: an animation set to zero never fires an animationend
+   event, and the hero curtain removes itself on that event. One millisecond
+   runs, ends, and is invisible. */
 @media (prefers-reduced-motion: reduce) {
-  :root { --transition: 0ms; }
+  :root {
+    --transition-move: 0ms;
+    --dur-press:  1ms;
+    --dur-move:   1ms;
+    --dur-layout: 1ms;
+    --dur-enter:  1ms;
+    --dur-reveal: 1ms;
+    /* Zero, and not for tidiness. Every staggered item holds its own
+       from-state through its delay, so a stagger left running against
+       one-millisecond animations is not a gentler entrance — it is six
+       invisible cards waiting their turn. */
+    --stagger: 0ms;
+    --stagger-reveal: 0ms;
+  }
 }

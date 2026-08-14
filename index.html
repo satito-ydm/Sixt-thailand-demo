@@ -67,7 +67,7 @@
          the orange accent; a filter strong enough to whiten the letters takes
          the orange with it. Only one is ever shown, and the second carries no
          alt so the link is announced once. -->
-    <a href="#" class="flex-none">
+    <a href="#" class="header-lockup flex-none">
       <img src="assets/img/logo-on-dark.webp" alt="SIXT Rent a Car"
            width="112" height="64" class="header-logo header-logo--on-dark">
       <img src="assets/img/logo.webp" alt="" aria-hidden="true"
@@ -256,7 +256,7 @@
      an explicit one would only be a second place to change it. -->
 <section class="section-y">
   <div class="container-x">
-    <div class="props-grid" id="value-props"></div>
+    <div class="props-grid" id="value-props" data-reveal="stagger"></div>
   </div>
 </section>
 
@@ -267,7 +267,7 @@
      ground under the words: nothing is written on it. -->
 <section class="section-y">
   <div class="container-x">
-    <h2 class="promo-title" data-i18n="promo.title">โปรโมชันล่าสุด</h2>
+    <h2 class="section-title" data-i18n="promo.title" data-reveal="rise">โปรโมชันล่าสุด</h2>
   </div>
 
   <!-- Outside .container-x on purpose. The stage clips its own overflow, so
@@ -281,7 +281,7 @@
        The orange panel is a sibling of the stage, not a layer inside it. The
        panel has to hang below the banners, and anything inside the stage would
        be cut by the same box that crops them. -->
-  <div class="promo-showcase">
+  <div class="promo-showcase" data-reveal="panel">
     <div class="promo-ground" aria-hidden="true"></div>
     <div class="promo-stage" id="promo-stage"
          aria-roledescription="carousel" data-i18n-attr="aria-label:promo.carousel"></div>
@@ -294,21 +294,20 @@
   </div>
 
   <div class="container-x">
-    <div class="flex justify-center mt-10">
+    <div class="flex justify-center mt-10" data-reveal="rise">
       <a href="#" class="btn-outline" data-i18n="promo.viewAll">ดูโปรโมชันทั้งหมด</a>
     </div>
   </div>
 </section>
 
 <!-- ══════════ SECTION: FIND THE RIGHT CAR ══════════ -->
-<section class="section-y" id="fleet" style="scroll-margin-top: 96px">
+<section class="section-y" id="fleet" data-reveal="fleet"
+         style="scroll-margin-top: 96px; background: var(--surface-fleet)">
   <div class="container-x">
-    <div class="flex flex-col gap-4 mb-6 lg:flex-row lg:items-end lg:justify-between">
-      <div>
-        <h2 data-i18n="fleet.title">ค้นหารถที่ใช่</h2>
-      </div>
-      <div class="flex gap-6 overflow-x-auto -mx-4 px-4 lg:mx-0 lg:px-0"
-           id="fleet-tabs" role="tablist" aria-label="Vehicle categories"></div>
+    <div class="fleet-head" data-reveal="rise">
+      <h2 data-i18n="fleet.title">ค้นหารถที่ใช่</h2>
+      <div class="fleet-tabs" id="fleet-tabs" role="tablist"
+           aria-label="Vehicle categories"></div>
     </div>
 
     <div class="search-summary mb-6" id="search-summary">
@@ -317,9 +316,20 @@
               data-i18n="booking.edit">แก้ไข</button>
     </div>
 
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4" id="fleet-grid"></div>
+    <!-- The rail is what the arrows are positioned against. They used to sit
+         under the row in a foot bar beside the catalogue link, which put the
+         control for scrolling the cards below the cards and a long way from
+         either end of them. On the row's own edges they point at the thing
+         they move. The arrows themselves are built by ui.js, which is what
+         knows whether there is anywhere left to scroll. -->
+    <div class="fleet-rail">
+      <div class="fleet-track" id="fleet-grid"></div>
+      <div class="fleet-nav" id="fleet-nav"></div>
+    </div>
 
-    <div class="flex justify-center mt-10">
+    <!-- The catalogue link, on its own and centred. It is the section's one
+         way out and the row above no longer has anything competing with it. -->
+    <div class="fleet-foot" data-reveal="rise">
       <a href="#" class="btn-outline" data-i18n="fleet.viewAll">ดูรถทั้งหมด</a>
     </div>
   </div>
@@ -329,81 +339,147 @@
 <!-- No quarter-circle accent here: the orange Membership band starts directly
      below, and an orange shape bleeding into it reads as a smear rather than a
      deliberate mark. -->
-<section class="section-y relative overflow-hidden" id="services" style="background: var(--grey-50)">
+<!-- Full-bleed again. It was an inset box for one revision, matched to
+     .promo-ground's 6%, and it went back: the band above and below it is what
+     carries the membership panel's black half, and an inset box leaves that
+     half-band starting from nothing. -->
+<section class="section-y band-dark relative overflow-hidden" id="services">
   <div class="container-x relative">
-    <h2 class="mb-8" data-i18n="services.title">บริการของเรา</h2>
-    <div class="grid gap-6 md:grid-cols-3" id="service-grid"></div>
+    <!-- One step wider than the mb-8 every other section heading takes. The
+         band's padding grew around it, so 32px left the heading reading as
+         part of the bento rather than as a title over it. -->
+    <h2 class="mb-8 lg:mb-12" data-i18n="services.title" data-reveal="rise">บริการของเรา</h2>
+    <div class="service-bento" id="service-grid" data-reveal="stagger"></div>
   </div>
 </section>
 
 <!-- ══════════ SECTION: MEMBERSHIP ══════════ -->
-<!-- The page's single orange band. Orange is the loudest thing in the palette,
-     so it is spent once, on the moment that asks for the biggest commitment. -->
-<section class="section-y band-orange text-center">
+<!-- The page's one full-bleed orange band, everything on it centred, and a car
+     standing on its floor.
+
+     Orange is the loudest thing in the palette and it is spent once, here, on
+     the moment that asks for the biggest commitment. That was the argument the
+     first version of this section made and could not carry: a heading, a rule
+     and a button on a section-sized flat orange slab reads as discount, and
+     the two arrangements in between — a black inset panel, then an orange one
+     straddling a half-band of black — were both attempts to make the colour
+     work by giving it an edge to stop at. What the band was actually missing
+     is a subject. It has one now, and full-bleed is the right shape for it. -->
+
+<section class="section-y" id="membership">
   <div class="container-x">
-    <h2 data-i18n="member.title">SIXT Thailand Membership</h2>
-    <p class="lead mx-auto mt-4 mb-8 max-w-[620px]" data-i18n="member.body"></p>
-    <div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
-      <a href="#" class="btn-primary" data-i18n="member.cta">สมัครสมาชิกเลย</a>
-      <p class="text-[0.9375rem]">
-        <span data-i18n="member.have">เป็นสมาชิกอยู่แล้ว?</span>
-        <a href="#" class="font-bold underline ml-1" data-i18n="member.login">เข้าสู่ระบบที่นี่</a>
-      </p>
+    <div class="member-panel band-orange" data-reveal="settle">
+
+
+      <!-- Everything on the left, over the part of the wash that is solid.
+           See app.css: the orange is fully opaque across this column and only
+           starts fading after it, which is not a stylistic choice — the
+           picture holds pure white behind here. -->
+      <div class="member-copy">
+        <h2 class="member-title" data-i18n="member.title">SIXT Thailand Membership</h2>
+        <div class="member-body">
+          <p class="lead" data-i18n="member.body"></p>
+          <div class="member-actions">
+            <a href="#" class="btn-primary" data-i18n="member.cta">สมัครสมาชิกเลย</a>
+            <p class="member-have">
+              <span data-i18n="member.have">เป็นสมาชิกอยู่แล้ว?</span>
+              <a href="#" data-i18n="member.login">เข้าสู่ระบบที่นี่</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- A real img element, not a CSS background, and the reason is the artwork's
+           own lettering. It carries a membership card reading MEMBER,
+           EXPERIENCE MORE EXPERIENCE SIXT and four named benefits — exclusive
+           offers, earn points, priority booking, VIP treatment — none of which
+           appears anywhere else on the page. As a background those four claims
+           would exist only for people who can see them. As an image they are
+           in the alt, transcribed rather than described.
+
+           It is wrapped, and the wrapper is the point. On a wide panel the
+           picture is absolutely positioned in the right-hand 56%; on a narrow
+           one it drops into normal flow underneath the copy. A bare img
+           could do the first but not the second, because the wash has to be a
+           pseudo-element on the picture's own box and a bare img has no box for
+           a pseudo-element to attach to.
+
+           object-fit: cover, so the frame decides the crop. The picture is 3:2
+           and the desktop frame is wider than that, which takes the crop off
+           the top and bottom — where this artwork has the least in it. -->
+      <div class="member-art">
+        <img src="assets/img/member-ground.jpg"
+             width="1600" height="1067" loading="lazy" decoding="async"
+             data-i18n-attr="alt:member.artAlt" alt="">
+      </div>
     </div>
   </div>
 </section>
 
 <!-- ══════════ SECTION: NEWS ══════════ -->
-<section class="section-y">
+<section class="section-y" id="news">
   <div class="container-x">
-    <div class="flex flex-col gap-3 mb-8 lg:flex-row lg:items-end lg:justify-between">
+    <div class="section-head" data-reveal="rise">
       <div>
         <h2 data-i18n="news.title">ข่าวสารและกิจกรรม</h2>
         <p class="lead mt-2" data-i18n="news.lead"></p>
       </div>
       <a href="#" class="link-arrow flex-none" data-i18n="news.viewAll">ดูข่าวทั้งหมด</a>
     </div>
-    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" id="news-grid"></div>
+    <div class="news-list" id="news-grid" data-reveal="stagger"></div>
   </div>
 </section>
 
 <!-- ══════════ SECTION: FAQ ══════════ -->
-<section class="section-y" style="background: var(--grey-50)">
-  <div class="container-x">
-    <div class="flex flex-col gap-3 mb-8 lg:flex-row lg:items-end lg:justify-between">
-      <div>
-        <h2 data-i18n="faq.title">คำถามที่พบบ่อย</h2>
-        <p class="lead mt-2" data-i18n="faq.lead"></p>
-      </div>
-      <a href="#" class="link-arrow flex-none" data-i18n="faq.viewAll">ดู FAQ ทั้งหมด</a>
+<!-- Two columns from 1024 up. The accordion was full-width, which on a 1536
+     container put a 19px question at one end of a 1456px rule and a plus sign
+     at the other — the eye has to travel the whole measure to pair them. The
+     heading takes the left third and the questions sit in a column narrow
+     enough to read as a list. -->
+<section class="section-y" id="faq" style="background: var(--grey-50)">
+  <div class="container-x faq-layout">
+    <div class="faq-head" data-reveal="rise">
+      <h2 data-i18n="faq.title">คำถามที่พบบ่อย</h2>
+      <p class="lead mt-2" data-i18n="faq.lead"></p>
+      <a href="#" class="link-arrow mt-6 self-start" data-i18n="faq.viewAll">ดู FAQ ทั้งหมด</a>
     </div>
-    <div class="bg-white rounded-[8px]" style="border: 1px solid var(--grey-200)" id="faq-list"></div>
+    <div class="faq-list" id="faq-list" data-reveal="stagger"></div>
   </div>
 </section>
 
 </main>
 
 <!-- ══════════ SECTION: FOOTER ══════════ -->
+<!-- Three tiers separated by hairlines: the wordmark, then the link columns,
+     then the legal line. The wordmark used to sit underneath the links in the
+     bottom bar, at the same 12px as the copyright, which made the brand the
+     smallest thing in its own footer. -->
 <footer class="site-footer">
-  <div class="container-x pt-14 pb-8">
-    <div class="grid gap-8 grid-cols-2 md:grid-cols-3 lg:grid-cols-5" id="footer-columns"></div>
+  <div class="container-x footer-inner">
 
-    <div class="mt-12 pt-6 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between"
-         style="border-top: 1px solid rgba(255,255,255,.16)">
-      <div class="flex flex-col gap-2">
-        <!-- self-start: without it the flex column stretches the image to the
-             container width and the wordmark distorts. -->
-        <img src="assets/img/logo.webp" alt="SIXT Rent a Car" width="112" height="64" class="h-7 w-auto self-start footer-logo">
-        <p class="text-[0.75rem] opacity-70 max-w-[52ch]" data-i18n="footer.operated"></p>
-      </div>
-
-      <div class="flex flex-col gap-3 lg:items-end">
-        <p class="text-[0.75rem] opacity-70" data-i18n="footer.iso">ได้รับการรับรอง ISO 9001 (SGS/UKAS)</p>
-        <!-- The switcher lives in the header now, where it is reachable
-             without scrolling the whole page. -->
-        <p class="text-[0.75rem] opacity-70" data-i18n="footer.copyright"></p>
-      </div>
+    <div class="footer-masthead" data-reveal="rise">
+      <!-- self-start: without it the flex column stretches the image to the
+           container width and the wordmark distorts. -->
+      <img src="assets/img/logo.webp" alt="SIXT Rent a Car" width="112" height="64"
+           class="footer-logo self-start">
+      <a href="tel:1798" class="footer-hotline">
+        <span class="overline overline--accent" data-i18n="footer.hotlineLabel">บริการลูกค้า</span>
+        <span class="footer-hotline__number">1798</span>
+      </a>
     </div>
+
+    <div class="footer-cols" id="footer-columns" data-reveal="stagger"></div>
+
+    <div class="footer-bottom" data-reveal="rise">
+      <div class="footer-legal">
+        <p data-i18n="footer.operated"></p>
+        <p data-i18n="footer.iso">ได้รับการรับรอง ISO 9001 (SGS/UKAS)</p>
+      </div>
+      <!-- The language switcher lives in the header now, where it is reachable
+           without scrolling the whole page. -->
+      <p class="footer-copyright" data-i18n="footer.copyright"></p>
+    </div>
+
   </div>
 </footer>
 

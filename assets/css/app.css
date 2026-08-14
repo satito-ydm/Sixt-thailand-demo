@@ -64,74 +64,142 @@ body h3 { font-size: var(--text-h3); }
 /* Buttons ----------------------------------------------------------------- */
 /* ACCESSIBILITY CONTRACT — do not weaken.
    White on --sixt-orange is 3.28:1. WCAG AA needs 4.5:1 for normal text but
-   only 3.0:1 for large text (>=18.66px bold). Holding every primary button at
-   19px/700 is what makes the brand's white-on-orange pass. Never override
-   font-size or font-weight on .btn-primary at the call site. */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  font-family: var(--font-sans);
-  font-size: 1.1875rem;
-  font-weight: 700;
-  line-height: 1.2;
-  padding: var(--space-3) var(--space-8);
-  min-height: 52px;
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: var(--sixt-orange);
-  color: var(--white);
-  cursor: pointer;
-  text-decoration: none;
-  transition: background var(--transition);
-}
-.btn-primary:hover,
-.btn-primary:active { background: var(--sixt-orange-deep); }
+   only 3.0:1 for large text (>=18.66px bold). Holding every button at 19px/700
+   is what makes the brand's white-on-orange pass, whether it is the rest state
+   (.btn-primary, .promo-cta's inverse) or only the hover (.btn-outline,
+   .vehicle-cta). Never override font-size or font-weight at a call site.
 
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  font-family: var(--font-sans);
-  font-size: var(--text-body);
-  font-weight: 700;
-  line-height: 1.2;
-  padding: var(--space-3) var(--space-8);
-  min-height: 48px;
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: var(--sixt-black);
-  color: var(--white);
-  cursor: pointer;
-  text-decoration: none;
-  transition: opacity var(--transition);
-}
-.btn-secondary:hover { opacity: 0.85; }
+   ── One box for every button on the page ────────────────────────────────
+   The five of them each carried their own metrics, written separately, and
+   had drifted to five different buttons:
 
-.btn-outline {
+     .btn-primary   19px  52px min-height  12/32 padding
+     .btn-secondary 16px  48px             12/32
+     .btn-outline   19px  48px             12/24
+     .promo-cta     16px  44px fixed       8/24
+     .vehicle-cta   19px  48px             8/20
+
+   Three type sizes, four heights, four paddings — and .btn-primary's 19px was
+   written as a literal 1.1875rem, so it did not move with the token that the
+   comment above says governs it. None of that was a decision anyone took; it
+   is what five hand-rolled copies of the same object turn into.
+
+   They share one box now and state only their colours below. 48px is the
+   height, being the tap target the majority already used and the one WCAG
+   2.5.5 asks for. .btn-primary gives up four pixels for it: it was the only
+   52, it is not the only important button on the page, and a hero button that
+   is a different size from every other button reads as an inconsistency
+   rather than as emphasis — its orange fill is what marks it.
+
+   16px is gone from button labels entirely. Nothing needed it: both classes
+   that carried it (.btn-secondary white-on-black, .promo-cta black-on-white)
+   are legal at any size, so they were small for no stated reason while the
+   three that had to be 19px were. */
+.btn-primary,
+.btn-secondary,
+.btn-outline,
+.promo-cta,
+.vehicle-cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
   font-family: var(--font-sans);
-  /* 19px/700, and the size is the compliance — see the hover rule below.
-     --text-cta is named for this exact threshold. Never shrink it at a call
-     site without changing the hover colours in the same edit. */
   font-size: var(--text-cta);
   font-weight: 700;
   line-height: 1.2;
   padding: var(--space-3) var(--space-6);
   min-height: 48px;
-  border: 1px solid var(--sixt-black);
+  border: 0;
   border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--sixt-black);
   cursor: pointer;
   text-decoration: none;
+}
+
+/* ── The press ────────────────────────────────────────────────────────────
+   Every button on the page compresses 2.5% under a press, and it is stated
+   once, here, for all five classes — the same argument as the shared box
+   above. A hover is a hint that something can be pressed; the press itself
+   had no answer at all, which on a touch screen means the only confirmation
+   a tap ever gets is whatever happens next. 110ms, because feedback that
+   takes longer than about an eighth of a second stops reading as a response
+   and starts reading as lag.
+
+   The transform is what each class's own transition has to carry — see the
+   line in each rule below. It cannot be declared in the shared rule: the five
+   of them each set `transition` for their own colour property, and transition
+   is not additive, so a shared declaration would simply be overwritten five
+   times. */
+.btn-primary:active,
+.btn-secondary:active,
+.btn-outline:active,
+.promo-cta:active,
+.vehicle-cta:active { transform: scale(0.975); }
+
+/* ── The chevrons ─────────────────────────────────────────────────────────
+   Three carousels on this page — the banner, the promotions, the fleet row —
+   and each draws the same 48px disc. They answer a pointer identically too,
+   stated once here rather than three times in three sections.
+
+   The glyph moves, not the disc, and that is forced rather than chosen: two of
+   these three discs are centred on their rail with `transform: translateY(-50%)`,
+   so any transform of their own has to restate that translate or throw the
+   button off its line. The <svg> inside carries no transform at all and is
+   free. It is also the better read — a chevron leaning the way it will take
+   you says more than a circle growing.
+
+   2px. Enough to see, not enough to look like the button is drifting off its
+   own centre; the same restraint .link-arrow's 3px takes.
+
+   The press is on the disc, and the two arrows with a rail transform restate
+   it. Written as a group they would silently lose their centring. */
+.hero-arrow svg,
+.promo-arrow svg,
+.fleet-arrow svg { transition: transform var(--transition-move); }
+.hero-arrow--prev:hover svg,
+.promo-arrow--prev:hover svg,
+.fleet-arrow--prev:hover svg { transform: translateX(-2px); }
+.hero-arrow--next:hover svg,
+.promo-arrow--next:hover svg,
+.fleet-arrow--next:hover svg { transform: translateX(2px); }
+
+.hero-arrow:active { transform: scale(0.92); }
+.promo-arrow:active,
+.fleet-arrow--prev:active,
+.fleet-arrow--next:active { transform: translateY(-50%) scale(0.92); }
+
+.btn-primary {
+  background: var(--sixt-orange);
+  color: var(--white);
+  transition: background var(--transition), transform var(--dur-press) ease;
+}
+.btn-primary:hover,
+.btn-primary:active { background: var(--sixt-orange-deep); }
+
+.btn-secondary {
+  background: var(--sixt-black);
+  color: var(--white);
+  transition: opacity var(--transition), transform var(--dur-press) ease;
+}
+.btn-secondary:hover { opacity: 0.85; }
+
+/* The ring is drawn with an inset shadow, not a border, and that is a layout
+   decision rather than a stylistic one: a 1px border is 2px of box, so this
+   was the only 49px button among 48s. A shadow is painted inside the box it
+   is given, so the outline button is now exactly the height of every other
+   one and stays that way if the ring is ever thickened.
+
+   Its colour is one custom property because six rules change it — the header
+   in both states, the two coloured bands, and the hovers. Each of those used
+   to set border-color and color as a pair and could set one without the
+   other; here the ring and the ink are the same value by construction. */
+.btn-outline {
+  --outline-ink: var(--sixt-black);
+  box-shadow: inset 0 0 0 1px var(--outline-ink);
+  background: transparent;
+  color: var(--outline-ink);
   transition: background var(--transition), color var(--transition),
-              border-color var(--transition);
+              box-shadow var(--transition), transform var(--dur-press) ease;
 }
 /* Orange fill with a WHITE label on hover, on every ground this button appears
    on — see the header and stuck-header rules further down.
@@ -148,11 +216,13 @@ body h3 { font-size: var(--text-h3); }
    value, which measures 4.88:1 and is legal at any size — but it is no longer
    the brand orange. That was the trade refused.
 
-   The border turns orange with the fill; left black it drew a hairline around
-   a colour that has no edge to justify it. */
+   The ring turns orange with the fill; left black it drew a hairline around
+   a colour that has no edge to justify it. The label is the one thing that
+   does not follow --outline-ink here: it goes white against the fill while
+   the ring goes orange to disappear into it. */
 .btn-outline:hover {
+  --outline-ink: var(--sixt-orange);
   background: var(--sixt-orange);
-  border-color: var(--sixt-orange);
   color: var(--white);
 }
 
@@ -169,7 +239,7 @@ body h3 { font-size: var(--text-h3); }
   content: ' \2192';
   color: var(--sixt-orange);
   display: inline-block;
-  transition: transform var(--transition);
+  transition: transform var(--transition-move);
 }
 .link-arrow:hover::after { transform: translateX(3px); }
 
@@ -219,7 +289,7 @@ body h3 { font-size: var(--text-h3); }
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: box-shadow var(--transition), transform var(--transition);
+  transition: box-shadow var(--transition), transform var(--transition-move);
 }
 .card:hover { box-shadow: var(--shadow-card); }
 
@@ -260,6 +330,7 @@ body h3 { font-size: var(--text-h3); }
   background: var(--grey-100);
   overflow: hidden;
 }
+.ph[data-ratio="1200:838"] { aspect-ratio: 1200 / 838; }
 .ph[data-ratio="16:9"] { aspect-ratio: 16 / 9; }
 .ph[data-ratio="2:1"]  { aspect-ratio: 2 / 1; }
 .ph[data-ratio="3:4"]  { aspect-ratio: 3 / 4; }
@@ -290,6 +361,7 @@ body h3 { font-size: var(--text-h3); }
   overflow: hidden;
   background: var(--grey-50);
 }
+.media[data-ratio="1200:838"] { aspect-ratio: 1200 / 838; }
 .media[data-ratio="16:9"] { aspect-ratio: 16 / 9; }
 .media[data-ratio="2:1"]  { aspect-ratio: 2 / 1; }
 .media[data-ratio="3:4"]  { aspect-ratio: 3 / 4; }
@@ -336,7 +408,21 @@ body h3 { font-size: var(--text-h3); }
   color: var(--error);
   margin-top: var(--space-1);
 }
-.field-error.is-visible { display: block; }
+/* The message arrives rather than appearing. `display` cannot be transitioned
+   — which is why this is a keyframe and not another line in the transition
+   above — and a validation error that blinks into existence under a field is
+   the one moment on this form where the visitor most needs to see WHERE the
+   problem is. 4px of drop from the field it belongs to is what points at it.
+
+   It does not delay the announcement: the element carries role="alert", and
+   assistive technology reads the text change, not the paint. */
+.field-error.is-visible {
+  display: block;
+  animation: field-error-in var(--dur-move) var(--ease-out) both;
+}
+@keyframes field-error-in {
+  from { opacity: 0; transform: translateY(-4px); }
+}
 
 /* Location combobox ------------------------------------------------------------- */
 .combo { position: relative; }
@@ -357,6 +443,21 @@ body h3 { font-size: var(--text-h3); }
   list-style: none;
 }
 .combo-list[hidden] { display: none; }
+/* The list drops out of the field it belongs to — and flips with it when the
+   list flips. .combo-list--up exists because a bar near the foot of the window
+   would open its list off the bottom of the screen; a panel that opens upward
+   while its motion still says "downward" contradicts itself, so the direction
+   of the 6px is read from the same class that decides the placement.
+
+   It fires on opening only. Typing rebuilds the options inside a list that is
+   already open, and `hidden` never changes on those keystrokes, so the
+   animation is not restarted under the visitor's fingers. */
+.combo-list:not([hidden]) {
+  animation: combo-in var(--dur-move) var(--ease-out) both;
+}
+.combo-list--up:not([hidden]) { animation-name: combo-in-up; }
+@keyframes combo-in    { from { opacity: 0; transform: translateY(-6px); } }
+@keyframes combo-in-up { from { opacity: 0; transform: translateY(6px); } }
 .combo-group {
   font-size: var(--text-label);
   font-weight: 700;
@@ -379,49 +480,290 @@ body h3 { font-size: var(--text-h3); }
 }
 
 /* Tabs ---------------------------------------------------------------------------- */
+/* ── Fleet row ────────────────────────────────────────────────────────────
+   The cards scroll sideways rather than wrapping. Four fit at 1024px and up
+   and every tab holds six, so there are always two waiting off the right edge
+   — which is what the arrows below are for. The counts are deliberately out of
+   step: matched, the arrows would have nothing to do on a wide window. */
+.fleet-track {
+  display: flex;
+  gap: var(--space-6);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  /* The cards lift 4px on hover; without this the lift is clipped by the
+     scroller's own overflow. */
+  padding-block: 6px;
+  scroll-padding-inline: 0;
+}
+.fleet-track::-webkit-scrollbar { display: none; }
+.fleet-track > * {
+  flex: 0 0 82%;
+  scroll-snap-align: start;
+}
+@media (min-width: 640px) {
+  .fleet-track > * { flex-basis: calc((100% - var(--space-6)) / 2); }
+}
+@media (min-width: 1024px) {
+  .fleet-track > * { flex-basis: calc((100% - 3 * var(--space-6)) / 4); }
+}
+
+/* ── Restaging the row ────────────────────────────────────────────────────
+   Six cards are torn down and rebuilt whenever the tab changes, the language
+   changes, or a search comes back with trip totals to put on them. That is the
+   one place on this page where a stagger is honest: the whole set is genuinely
+   new, and it genuinely is a list. Nothing else scrolls into view here.
+
+   Two animations, because the card and its photograph are saying different
+   things. The card fades — it is arriving. The photograph settles out of a 5%
+   overscale inside a frame that already clips it, which is the same gesture
+   the banner makes on load, one section down and an order of magnitude
+   quieter. Cropping is what a frame does, so nothing can escape its box and no
+   layout is touched.
+
+   35ms apart and six cards deep: 175ms from the first to the last, and the
+   last one has finished by 395. Both numbers came down after the first build,
+   where 45ms against a 340ms fade left the row visibly empty for more than
+   half a second every time a tab was pressed — a stagger long enough to
+   notice is a stagger that has stopped saying "these arrived together" and
+   started saying "this is loading". The card's fade is on --dur-move for the
+   same reason: a tab press is a routine state change, not an entrance.
+   --stagger goes to zero under reduced motion; see the note on the token.
+
+   `backwards`, not `both`. Both would keep the animation's end state applied
+   for the life of the element, and the card's end state includes a transform —
+   which is the property .card:hover moves. The row would have arrived and then
+   never lifted under a pointer again.
+
+   Gated on the section having been scrolled to, which is what makes this the
+   row's entrance as well as its restage. Both are the same event as far as
+   the cards are concerned — six new cards, arriving in order — so they are the
+   same animation rather than two that would have to be kept in step. See the
+   reveal block at the foot of this file for what arms and releases it. */
+@keyframes fleet-card-in { from { opacity: 0; } }
+@keyframes fleet-shot-in { from { transform: scale(1.05); } }
+[data-reveal="fleet"].is-armed .fleet-track > .card { opacity: 0; }
+[data-reveal="fleet"].is-revealed .fleet-track > .card {
+  animation: fleet-card-in var(--dur-move) ease backwards;
+  animation-delay: calc(var(--i, 0) * var(--stagger));
+}
+/* --i is set on the card by ui.js and inherited down to here, so the picture
+   and the card it belongs to cannot fall out of step. */
+[data-reveal="fleet"].is-revealed .fleet-track > .card .media img {
+  animation: fleet-shot-in var(--dur-enter) var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * var(--stagger));
+}
+
+/* The rail: the track, plus the two arrows laid on its ends.
+
+   -12px, so each disc hangs a quarter of itself past the row and covers 36px
+   of the outer card. That number is bounded at the narrow end rather than the
+   wide one: .container-x pays 16px of padding below 640, so -12 puts the disc
+   4px inside the viewport, and anything past -16 would start a horizontal
+   scrollbar on a phone. It is the same distance at every width because the
+   arrows read as attached to the row, and a gap that grows with the viewport
+   would detach them from it. */
+.fleet-rail { position: relative; }
+/* A box with nothing in it but two absolutely positioned children — it exists
+   because ui.js appends both arrows to one node. Nothing here may be
+   positioned, or the arrows would resolve against it instead of the rail. */
+.fleet-nav { display: flex; }
+.fleet-arrow--prev,
+.fleet-arrow--next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+.fleet-arrow--prev { inset-inline-start: -12px; }
+.fleet-arrow--next { inset-inline-end: -12px; }
+/* The disc sits on a photograph at the row's edge, so it needs a shadow the
+   flat black alone does not give it — on a white bonnet the silhouette is
+   unmistakable, on a dark one it is a black circle on black bodywork. */
+.fleet-arrow--prev,
+.fleet-arrow--next { box-shadow: var(--shadow-card); }
+
+/* The catalogue link, centred and alone. */
+.fleet-foot {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-8);
+}
+
+/* Solid black on the warm ground rather than a white disc: a white circle on
+   a near-white section is a 1.07:1 edge, the same trap the tab pills had while
+   this section was light. Black stands at 15.14:1. */
+.fleet-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 48px, the same disc .hero-arrow and .promo-arrow draw and the same box
+     every button on the page stands in. It was 44 — the touch-target floor
+     rather than a chosen size, which is how it ended up differing from the
+     hero's by four pixels for no reason either could state. */
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--sixt-black);
+  color: var(--white);
+  cursor: pointer;
+  transition: background var(--transition), opacity var(--transition),
+              transform var(--dur-press) ease;
+}
+.fleet-arrow:hover { background: var(--sixt-orange); color: var(--sixt-black); }
+/* Disabled controls are exempt from the contrast minimums, which is the only
+   reason this may fade this far. It fades rather than disappearing: an arrow
+   that vanishes at the end of the row takes with it the only sign that the row
+   scrolls at all, and on a rail with two ends that is exactly when someone
+   looks for the other one. Position is absolute now, so nothing moves when it
+   changes state either way. */
+.fleet-arrow[aria-disabled="true"] {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Heading and tabs share a line, the heading left and the tabs right. They
+   stack below 1024px — four pills beside a 40px heading runs out of width long
+   before the grid under them does. */
+.fleet-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+@media (min-width: 1024px) {
+  .fleet-head {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+  }
+}
+
+/* Scrollable rather than wrapping: four tabs on two lines stop reading as one
+   set of choices, and the scroll keeps the row's shape at any width. min-width
+   lets it actually shrink inside the flex row above — without it the tabs
+   would push the heading out instead of scrolling. */
+.fleet-tabs {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  scrollbar-width: none;
+  min-width: 0;
+  padding-block: 2px;
+}
+.fleet-tabs::-webkit-scrollbar { display: none; }
+
+/* Pills that look pressable, rather than words with a rule under one of them.
+
+   No border, and on a black ground it needs none: the white pill stands at
+   17.4:1 against the section, which is the clearest edge any control on this
+   page has. It was the reverse problem while this section was near-white.
+
+   44px is the touch-target floor, met by the drawn pill itself — the label is
+   back at body size, so the padding is what holds the pill to it. */
+/* Still inline-flex with the label centred, even though there is only one
+   child now: that is what holds the pill at its 44px without padding having
+   to guess at the line height. */
 .tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-5);
   font-family: var(--font-sans);
   font-size: var(--text-body);
   font-weight: 700;
   color: var(--grey-500);
-  background: none;
+  background: var(--white);
   border: 0;
-  border-bottom: 2px solid transparent;
-  padding: var(--space-2) var(--space-1);
+  border-radius: 999px;
+  box-shadow: var(--shadow-rest);
   cursor: pointer;
   white-space: nowrap;
-  transition: color var(--transition), border-color var(--transition);
+  transition: color var(--transition), background var(--transition),
+              transform var(--dur-press) ease;
 }
+.tab:hover { color: var(--sixt-black); }
+/* The pill takes the same press as every button on the page. It is a control
+   that replaces the six cards under it, and until now the only thing it did
+   under a finger was change colour at the same moment the row it governs was
+   torn down and rebuilt — two events at once, neither attributable. */
+.tab:active { transform: scale(0.97); }
+
+/* The selected pill fills black.
+
+   It was orange with a white label, which only ever held because the tabs were
+   19px/700 — white on orange is 3.28:1 and needs the large-text exemption. The
+   label is body size now, so that pairing is gone: at 16px it would be
+   measured against 4.5 and fail. Black takes white at 17.4:1 and asks nothing
+   of the size, which is what let the text shrink at all.
+
+   The other way round would have worked too — an orange pill with a black
+   label reads 5.30:1 and is equally legal here. Black was chosen because it is
+   what was asked for before the section briefly went dark and forced it off. */
 .tab[aria-selected="true"] {
-  color: var(--sixt-black);
-  border-bottom-color: var(--sixt-orange);
+  background: var(--sixt-black);
+  color: var(--white);
 }
 
 /* Accordion ------------------------------------------------------------------------ */
+/* The list was a white box with a 1px --grey-200 edge sitting on the grey-50
+   band, and rows divided by the same grey. That is three greys within two
+   points of each other doing the work one rule can do: the box is gone, the
+   questions sit on the band, and a single hairline between them is the only
+   thing drawn. The last item keeps its rule — with no box around the list it
+   is what closes the column. */
 .acc-item { border-bottom: 1px solid var(--grey-200); }
-.acc-item:last-child { border-bottom: 0; }
+.acc-item:first-child { border-top: 1px solid var(--grey-200); }
+/* 19px/700, up from 16px/700 — and both halves of that are load-bearing.
+
+   The size is a reading decision: the question is the only thing anyone reads
+   before deciding whether to open the row, so it is set at the size the page's
+   buttons use rather than at body size. The weight is a compliance one, the
+   same contract .btn-primary and .price-total carry. 19px/700 clears WCAG's
+   large-text threshold — over 18.66px and bold — which is what lets the hover
+   go orange at all. It was briefly 600, which looks near-identical and is not
+   large text at all: at that weight the hover needs 4.5:1, and even the darker
+   --sixt-orange-deep reaches only 3.92:1 on this band, so nothing in the
+   palette could have carried it. Drop the weight and the hover has to stop
+   being a colour change.
+
+   And it is the page's tightest pair even at 700: orange measures 3.06:1 on
+   --grey-50 against a bar of 3.0. There is no margin here for the band to get
+   any darker — putting this section on anything below grey-50 breaks the
+   hover, not the heading. */
 .acc-trigger {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--space-6);
   text-align: start;
   font-family: var(--font-sans);
-  font-size: var(--text-body);
+  font-size: var(--text-cta);
   font-weight: 700;
+  line-height: 1.4;
   color: var(--sixt-black);
   background: none;
   border: 0;
-  padding: var(--space-4);
+  padding-block: var(--space-6);
+  padding-inline: 0;
   cursor: pointer;
+  transition: color var(--transition);
 }
+.acc-trigger:hover { color: var(--sixt-orange); }
+
+/* A thin cross, and thin on purpose — 1px against the 2px it was. At 19px of
+   question beside it, a 2px mark reads as a control on a form. */
 .acc-icon {
   flex: none;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   position: relative;
-  transition: transform var(--transition);
+  transition: transform var(--transition-move);
 }
 .acc-icon::before,
 .acc-icon::after {
@@ -429,18 +771,48 @@ body h3 { font-size: var(--text-h3); }
   position: absolute;
   background: var(--sixt-orange);
   inset-inline: 0;
-  top: 9px;
-  height: 2px;
+  top: 8px;
+  height: 1px;
 }
 .acc-icon::after { transform: rotate(90deg); }
 .acc-trigger[aria-expanded="true"] .acc-icon { transform: rotate(45deg); }
+
+/* Opens by growing a grid row from 0fr to 1fr. `hidden` snapped, and an
+   instant state change is the one thing every motion guideline names.
+
+   The row is the only thing animating — no height to measure in JS, no
+   max-height guess that clips a long answer or lags after a short one. The
+   inner wrapper carries the overflow and the visibility; see renderFAQ for why
+   visibility and not opacity. */
 .acc-panel {
-  padding: 0 var(--space-4) var(--space-4);
-  font-weight: 300;
-  color: var(--grey-500);
-  max-width: 82ch;
+  display: grid;
+  grid-template-rows: 0fr;
+  /* On the page's own arrival curve rather than the material-design ease it
+     was written with. The row is making room for an answer; a long settle is
+     what stops the two lines underneath from being shoved. */
+  transition: grid-template-rows var(--dur-layout) var(--ease-out);
 }
-.acc-panel[hidden] { display: none; }
+.acc-panel__inner {
+  overflow: hidden;
+  visibility: hidden;
+  transition: visibility var(--dur-layout);
+}
+.acc-item.is-open .acc-panel { grid-template-rows: 1fr; }
+.acc-item.is-open .acc-panel__inner { visibility: visible; }
+.acc-panel p {
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--grey-500);
+  max-width: 68ch;
+  padding-bottom: var(--space-6);
+  padding-inline-end: var(--space-8);
+}
+/* The answer is information, not decoration, so it still has to arrive — it
+   just arrives at once instead of unrolling. There is no reduced-motion block
+   here any more and that is not an omission: all three of the durations above
+   are --dur-layout and --transition-move, and tokens.css takes both to zero
+   under the query. A second rule restating it would be a place for the two to
+   disagree. */
 
 /* Header ------------------------------------------------------------------------------ */
 /* Two states: black on arrival, white once the page moves. Every child that
@@ -460,20 +832,37 @@ body h3 { font-size: var(--text-h3); }
    rather than being filtered. Both files are already decoded by the time the
    header changes state, so the switch costs nothing at scroll time.
 
+   They CROSS-FADE, and they used to swap with `display`. That was a bug the
+   stylesheet could not see and a scroll makes obvious: the ground under them
+   takes 200ms to travel from black to white, and an instant swap put the
+   black-ground artwork on a bar that was still black for the whole of it. For
+   a fifth of a second at every scroll, the only visible part of the wordmark
+   was its orange accent. Two things that describe one state have to change on
+   one clock.
+
+   Both are in the layout at all times now, in the same grid cell, which fixes
+   something else in passing: `display: none` on the dark lockup took its alt
+   text with it, and the light one is deliberately alt="" and aria-hidden — so
+   a scrolled header handed a screen reader a link with no accessible name at
+   all. The named image is now always present, whatever its opacity.
+
    Scoped through .site-header on purpose. `.header-logo` further down this
-   file sets `display: block`, and at equal specificity the later rule wins —
-   which left both lockups stacked, the light one showing nothing but its
-   orange accent against the black bar. */
-.site-header .header-logo--on-light { display: none; }
-.site-header.is-stuck .header-logo--on-dark { display: none; }
-.site-header.is-stuck .header-logo--on-light { display: block; }
-.site-header .btn-outline { border-color: var(--white); color: var(--white); }
+   file sets `display: block`, and at equal specificity the later rule wins. */
+.header-lockup { display: grid; }
+.header-lockup .header-logo {
+  grid-area: 1 / 1;
+  transition: opacity var(--transition);
+}
+.site-header .header-logo--on-light { opacity: 0; }
+.site-header.is-stuck .header-logo--on-dark { opacity: 0; }
+.site-header.is-stuck .header-logo--on-light { opacity: 1; }
+.site-header .btn-outline { --outline-ink: var(--white); }
 /* The rest state differs per header state — white ink on the black bar, black
    ink once it turns white — but the hover is the same orange in both, so the
    button answers the pointer identically wherever the page has scrolled to. */
 .site-header .btn-outline:hover {
+  --outline-ink: var(--sixt-orange);
   background: var(--sixt-orange);
-  border-color: var(--sixt-orange);
   color: var(--white);
 }
 .site-header .lang-switch { background: rgba(255, 255, 255, 0.14); }
@@ -489,10 +878,10 @@ body h3 { font-size: var(--text-h3); }
   box-shadow: var(--shadow-header);
 }
 .site-header.is-stuck .nav-link { color: var(--sixt-black); }
-.site-header.is-stuck .btn-outline { border-color: var(--sixt-black); color: var(--sixt-black); }
+.site-header.is-stuck .btn-outline { --outline-ink: var(--sixt-black); }
 .site-header.is-stuck .btn-outline:hover {
+  --outline-ink: var(--sixt-orange);
   background: var(--sixt-orange);
-  border-color: var(--sixt-orange);
   color: var(--white);
 }
 .site-header.is-stuck .lang-switch { background: var(--grey-50); }
@@ -597,12 +986,21 @@ body h3 { font-size: var(--text-h3); }
   background: var(--white);
   padding: var(--space-6);
   transform: translateX(-100%);
-  transition: transform var(--transition);
+  /* 340ms, not the 200 every hover on this page takes. The panel travels the
+     entire width of the window — on a phone that is around 400px, against the
+     3px a link's arrow moves — and the same duration over two hundred times
+     the distance does not read as fast, it reads as a cut. Distance is what
+     sets duration here.
+
+     It leaves faster than it arrives, which is the one asymmetry worth having:
+     an arrival is being shown to you, a dismissal is being got out of the way. */
+  transition: transform var(--dur-layout) var(--ease-out);
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
   overflow-y: auto;
 }
+.drawer:not(.is-open) { transition-duration: var(--dur-move); }
 .drawer.is-open { transform: translateX(0); }
 
 /* Filled out to the window rather than a 320px list left floating in one
@@ -624,10 +1022,34 @@ body h3 { font-size: var(--text-h3); }
   line-height: 1.2;
   padding-block: var(--space-3);
 }
-.drawer .btn-outline {
-  padding-block: var(--space-4);
-  font-size: var(--text-cta);
+/* The four links settle in as the panel arrives. They rise rather than slide,
+   which is the point: the panel is already travelling sideways, and four
+   children travelling the same way inside it is one motion happening twice.
+   Perpendicular, they read as the panel's contents coming to rest.
+
+   No base delay — the last link lands 135ms into a 340ms slide, so this
+   finishes inside the panel's own arrival rather than after it. A menu is a
+   thing to get past, not a thing to watch.
+
+   --i by position, because these four are written into index.html and there is
+   no renderer to hand them an index the way the fleet row gets one. */
+.drawer nav .nav-link:nth-child(1) { --i: 0; }
+.drawer nav .nav-link:nth-child(2) { --i: 1; }
+.drawer nav .nav-link:nth-child(3) { --i: 2; }
+.drawer nav .nav-link:nth-child(4) { --i: 3; }
+.drawer.is-open nav .nav-link {
+  animation: drawer-link-in var(--dur-layout) var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * var(--stagger));
 }
+@keyframes drawer-link-in {
+  from { opacity: 0; transform: translateY(8px); }
+}
+/* The drawer's login button used to grow its own padding to 16px, which made
+   it 57px — the tallest button on the site, against the 48 everything else
+   holds. The drawer is the one place a visitor sees a single button with
+   nothing to compare it to, which is how it stayed that way. It takes the
+   shared box now; w-full already gives it the width the extra height was
+   standing in for. */
 /* Stretched to match the button above it rather than sitting as a small pill
    against the left edge. */
 .drawer .lang-switch { align-self: stretch; }
@@ -647,28 +1069,155 @@ body.is-locked { overflow: hidden; }
 @media (max-width: 767px) { .quarter { width: 96px; height: 96px; } }
 
 /* Footer ---------------------------------------------------------------------------------- */
+/* Three tiers, hairline-separated: wordmark, links, legal. It was two — a
+   block of five link columns, then a bottom bar carrying the wordmark, the
+   operator line, the ISO badge and the copyright all at 12px. Everything that
+   was not a link was the same size, so nothing in it had a rank, and the
+   brand was the smallest mark in its own footer. */
 .site-footer {
   background: var(--sixt-black);
   color: var(--white);
 }
+.footer-inner {
+  padding-block: clamp(3.5rem, 6vw, 6rem) var(--space-8);
+}
+
+/* The hairline. rgba white rather than a grey token, because it has to sit on
+   --sixt-black and stay a hairline rather than becoming a line. */
+.footer-masthead,
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+.footer-masthead {
+  border-top: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  padding-bottom: var(--space-8);
+  margin-bottom: clamp(2.5rem, 4vw, 4rem);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+/* The wordmark is black artwork; invert it to sit on the dark footer. */
+.footer-logo {
+  filter: brightness(0) invert(1);
+  height: 2.75rem;
+  width: auto;
+}
+
+/* The number people actually call, given the size that implies. It is in the
+   header too, but the header's is a 19px line in a crowded bar — this is the
+   one on the page that can be read across a room. */
+.footer-hotline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  text-decoration: none;
+}
+@media (min-width: 640px) { .footer-hotline { align-items: flex-end; } }
+.footer-hotline__number {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--white);
+  transition: color var(--transition);
+}
+.footer-hotline:hover .footer-hotline__number { color: var(--sixt-orange); }
+
+.footer-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-8) var(--space-6);
+}
+@media (min-width: 768px)  { .footer-cols { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1024px) { .footer-cols { grid-template-columns: repeat(5, 1fr); gap: var(--space-8); } }
+
+/* 13px with 0.14em of tracking, in the muted wash rather than in white. The
+   headings were 12px/700 uppercase in solid white, which made five column
+   labels the brightest type in the footer and louder than the links they
+   label. Tracking is what a small-caps label should be carrying, not weight
+   and not contrast. */
+.footer-heading {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--on-dark-muted);
+  margin-bottom: var(--space-5);
+}
+/* No gap — each link carries its own 44px row instead, so what separates two
+   of them is their targets touching rather than a hole between them.
+
+   They are 19px of drawn type set 12px apart. That squeaks past WCAG 2.5.8 on
+   the spacing exception and it misses the 44px this project has already
+   decided on twice: the language buttons and the section links both grew
+   overlays to reach it. An overlay is the wrong tool here — twenty-five links
+   stacked 31px apart cannot each grow a 44px hit area without overlapping
+   their neighbours, which is the one thing the note on that block rules out.
+   So the row becomes the target instead. */
+.footer-links {
+  display: flex;
+  flex-direction: column;
+}
+.footer-links a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+/* 15px, up from 14, at weight 400 rather than 300. A 300-weight 14px white
+   link on black is thin enough that the type reads as grey before it reads as
+   white, and there are twenty-five of them. */
 .site-footer a {
   color: var(--white);
   text-decoration: none;
-  font-size: var(--text-small);
+  font-size: 0.9375rem;
+  font-weight: 400;
+  transition: color var(--transition);
+}
+/* Orange on hover instead of an opacity step. The underline stays, because
+   colour alone is not a state cue — and on a list this dense the underline is
+   what tells you which one line the pointer is on. */
+.site-footer a:hover {
+  color: var(--sixt-orange);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+/* The hotline block is a link with its own hover; keep the list rule off it. */
+.footer-hotline:hover { text-decoration: none; }
+
+.footer-bottom {
+  margin-top: clamp(2.5rem, 4vw, 4rem);
+  padding-top: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+@media (min-width: 1024px) {
+  .footer-bottom { flex-direction: row; align-items: flex-end; justify-content: space-between; gap: var(--space-8); }
+}
+/* 13px, not 12, and at the wash rather than at opacity: 0.7. White at 70% on
+   black composites to 8.0:1 and passes, but it was set as an opacity on the
+   element, which meant the number changed if anything above it ever became
+   translucent. --on-dark-muted is the tone the rest of the page's dark grounds
+   already use for exactly this. */
+.footer-legal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.footer-legal p,
+.footer-copyright {
+  font-size: 0.8125rem;
   font-weight: 300;
-  opacity: 0.82;
-  transition: opacity var(--transition);
+  line-height: 1.6;
+  color: var(--on-dark-muted);
+  max-width: 62ch;
 }
-.site-footer a:hover { opacity: 1; text-decoration: underline; }
-.footer-heading {
-  font-size: var(--text-label);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: var(--space-4);
+@media (min-width: 1024px) {
+  .footer-copyright { text-align: end; }
 }
-/* The wordmark is black artwork; invert it to sit on the dark footer. */
-.footer-logo { filter: brightness(0) invert(1); }
 
 /* Reads as the active search context, so it is shaped like a filter chip
    rather than a callout. An accent stripe down one edge was the first idea and
@@ -688,7 +1237,23 @@ body.is-locked { overflow: hidden; }
   font-size: var(--text-small);
   font-weight: 700;
 }
-.search-summary.is-visible { display: flex; }
+/* The chip lands. It is the page's answer to the one form on it, and it
+   arrives at the far end of a smooth scroll the visitor did not ask for — so
+   it has to be findable at the moment they stop moving, not already sitting
+   there as though it had been all along. 10px of drop from the heading above
+   it is what marks it as new.
+
+   ui.js restarts this on every search rather than only the first: the second
+   search changes the words inside a chip that is already on the page, which
+   without a restart is the one state change here with no acknowledgement at
+   all. See initSearchHandoff. */
+.search-summary.is-visible {
+  display: flex;
+  animation: search-chip-in var(--dur-layout) var(--ease-out) both;
+}
+@keyframes search-chip-in {
+  from { opacity: 0; transform: translateY(-10px); }
+}
 
 /* ══ Editorial hero ══════════════════════════════════════════════════════
    A large picture inset in the page rather than bled to the window edge, with
@@ -736,14 +1301,165 @@ body .booking-title {
   position: absolute;
   inset: 0;
   opacity: 0;
-  transition: opacity 700ms ease;
+  /* The outgoing slide's fade, and only the outgoing one's — the arriving
+     slide is animated instead, further down, because it has to know which
+     chevron was pressed and a transition cannot be told. 420ms, down from the
+     700 this was: with the incoming banner now travelling as well as fading,
+     700 left the two overlapping long enough to read as a dissolve rather than
+     as one picture replacing another. */
+  transition: opacity 420ms ease;
 }
-.hero-slide.is-active { opacity: 1; }
+/* The arriving slide paints over the leaving one. Without this the two are
+   siblings at z-index auto and the last in source order wins, so going
+   backwards would have the old banner sitting on top of the new one for the
+   length of the fade. */
+.hero-slide.is-active { opacity: 1; z-index: 1; }
 .hero-slide img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* ── Which way the banner came from ───────────────────────────────────────
+   Press the right chevron and the next banner arrives from the right. The
+   crossfade this replaces said nothing at all about direction: both controls
+   produced the identical event, so the only way to know which one had been
+   pressed was to remember pressing it.
+
+   Written as two keyframes selected by an attribute on the slider rather than
+   as a transition, and that is a mechanism decision rather than a stylistic
+   one. A transition needs its start value to have been rendered before the
+   end value is set, so the direction would have to be written to the incoming
+   slide, forced through a reflow, and only then made active — three steps
+   where one is a layout flush the page does not otherwise need. An animation
+   simply starts from its own first keyframe. ui.js sets data-dir on the
+   slider; nothing is written to the slides at all.
+
+   The attribute is absent on the first paint, so slide 0 gets neither
+   animation. That is deliberate: its arrival belongs to the curtain below.
+
+   4% of a full-bleed banner is 77px at a 1920 monitor, and the frame clips its
+   own overflow, so nothing leaks past the picture. */
+@keyframes hero-in-next { from { opacity: 0; transform: translateX(4%); } }
+@keyframes hero-in-prev { from { opacity: 0; transform: translateX(-4%); } }
+.hero-slider[data-dir="next"] .hero-slide.is-active {
+  animation: hero-in-next var(--dur-enter) var(--ease-out) both;
+}
+.hero-slider[data-dir="prev"] .hero-slide.is-active {
+  animation: hero-in-prev var(--dur-enter) var(--ease-out) both;
+}
+
+/* ══ The reveal ══════════════════════════════════════════════════════════
+   The page's one authored moment, spent here and nowhere else.
+
+   An orange panel covers the banner and leaves to the right, uncovering the
+   photograph behind it; the picture settles out of a 6% overscale as the
+   panel goes; the booking form rises into the frame the panel has cleared.
+   Once, on arrival, and never again — there is no scroll listener anywhere on
+   this page and nothing below the banner enters on approach.
+
+   Why a wipe and not the fade-and-rise every page opens with. This site has
+   exactly one loud colour and spends it twice: on the membership band, and as
+   the wash that dissolves that band's photograph into its ground. The curtain
+   is the same material — brand orange laid over a photograph — used as a
+   shutter instead of a gradient, so the moment belongs to this brand rather
+   than to the technique. It is also the only gesture a rental company can
+   make honestly: something passes, and what was behind it is the thing you
+   came for.
+
+   The panel is built by ui.js and removed by it when the animation ends. It
+   is deliberately NOT in index.html: a curtain that only a script can take
+   away must only ever be put there by that script, or a page whose JavaScript
+   fails ships with an orange rectangle over its banner. Under
+   prefers-reduced-motion the script does not build it at all — see the block
+   at the foot of this section for what arrives instead.
+
+   z-index 4 puts it over the slides and over the chevrons at 3. It does not
+   cover the booking panel, which sits outside the slider at 5; that panel is
+   held back by .hero-armed instead and released on the same frame. */
+.hero-curtain {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  /* Wider than the frame on both sides, because the panel is skewed and a
+     skewed rectangle no longer reaches the corners of the box it was drawn
+     in. 8 degrees over a 950px banner leans the edge 133px sideways, which is
+     9% of a 1440 window — 10% covers it at every width the frame can take. */
+  left: -10%;
+  right: -10%;
+  z-index: 4;
+  /* The leading edge is a diagonal, not a vertical. A rectangle crossing a
+     rectangle reads as a colour being slid over the page; the same panel with
+     its front edge raked reads as a shutter, and the difference costs one
+     declaration. Eight degrees — enough to be a decision, short of the angle
+     where it starts to look like a transition preset.
+
+     The 10px band of the deeper orange rides that edge, which is the edge
+     doing the uncovering. It is the only place on this page --sixt-orange-deep
+     appears as something other than a hover state. */
+  transform: skewX(-8deg);
+  background: linear-gradient(to right,
+                var(--sixt-orange-deep) 0 10px,
+                var(--sixt-orange) 10px);
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* Held back, not hidden: the form is in the layout and in the tab order the
+   whole time. Only its paint waits. */
+#hero.hero-armed .booking-card { opacity: 0; }
+
+/* The skew is restated in the keyframe because a transform list is one value:
+   animating to a bare translate would unskew the panel on its way out, and the
+   raked edge would straighten as it left.
+
+   115% of a box that is already 120% of the frame, so the trailing edge clears
+   the right-hand side with the skew's own lean to spare. */
+@keyframes hero-wipe    { to   { transform: skewX(-8deg) translateX(115%); } }
+@keyframes hero-settle  { from { transform: scale(1.06); } }
+@keyframes hero-panel-in { from { opacity: 0; transform: translateY(18px); } }
+
+#hero.hero-running .hero-curtain {
+  animation: hero-wipe var(--dur-reveal) var(--ease-wipe) forwards;
+}
+/* The picture is already moving while the curtain is still over it, so what
+   emerges is a frame settling rather than a still being unveiled. Longer than
+   the wipe by design — it is still travelling, barely, after the orange has
+   gone, which is what makes the banner read as having come to rest.
+
+   :first-child rather than .is-active: the reveal fires before the visitor can
+   have touched a chevron, and pinning it to the first slide keeps it from
+   re-firing on every banner change for the rest of the session. */
+#hero.hero-running .hero-slide:first-child img {
+  animation: hero-settle calc(var(--dur-reveal) + var(--dur-enter))
+             var(--ease-out) both;
+}
+/* Behind the curtain for the first 420ms, then up into the cleared frame. The
+   delay is most of the wipe rather than all of it: the form starts moving
+   while the last third of the orange is still leaving, so the two read as one
+   gesture instead of as a sequence of two. */
+#hero.hero-running .booking-card {
+  animation: hero-panel-in var(--dur-enter) var(--ease-out) 420ms both;
+}
+
+/* The reduced-motion arrival. Not "nothing": the four duration tokens are all
+   1ms under the query, so without this rule the page would simply be finished
+   the instant it painted, and the one thing the reveal exists to say — that
+   the form is the thing to use — would go with it. It is said in opacity
+   alone, which is the half of the effect the query is not asking about.
+
+   The curtain has no reduced form and is not built at all. A full-viewport
+   orange panel crossing the screen is precisely the kind of large-area motion
+   the preference exists to refuse, and there is no gentler version of it that
+   is still a wipe. */
+@media (prefers-reduced-motion: reduce) {
+  @keyframes hero-panel-fade { from { opacity: 0; } }
+  #hero.hero-running .booking-card {
+    animation-name: hero-panel-fade;
+    animation-duration: 280ms;
+    animation-delay: 0ms;
+  }
 }
 
 /* Paired at the foot of the picture on the left. They sat at the two edges
@@ -772,7 +1488,7 @@ body .booking-title {
   backdrop-filter: blur(6px);
   color: var(--white);
   cursor: pointer;
-  transition: background var(--transition);
+  transition: background var(--transition), transform var(--dur-press) ease;
 }
 .hero-arrow:hover { background: rgba(26, 26, 26, 0.82); }
 .hero-arrow:focus-visible { outline-color: var(--white); }
@@ -926,6 +1642,24 @@ body .booking-title {
 }
 .booking-foot { margin-top: var(--space-3); }
 
+/* The return-location field, when the toggle under the form asks for it.
+   `hidden` is what carries the state — it is the attribute the toggle's
+   aria-controls and aria-expanded are describing, and it is the only one that
+   takes the field out of the accessibility tree — and `hidden` cannot be
+   transitioned. So the field's arrival is a keyframe instead.
+
+   The panel does still change height on the same frame; this is not a reveal
+   that animates the layout, and pretending otherwise would mean animating a
+   height. What it fixes is smaller and worth having on its own: a field that
+   materialises fully formed reads as though it had always been there, and the
+   visitor has to re-read the form to find what they just added. */
+#return-location-row:not([hidden]) {
+  animation: booking-field-in var(--dur-layout) var(--ease-out) both;
+}
+@keyframes booking-field-in {
+  from { opacity: 0; transform: translateY(-6px); }
+}
+
 /* The date cells need a wider basis than the location: a native date input and
    a native time input side by side have a combined intrinsic width of roughly
    215px in Chrome, and they will not shrink below it without min-width: 0.
@@ -953,15 +1687,23 @@ body .booking-title {
    colour it needs rather than inheriting, because the defaults assume a white
    ground and would silently drop to unreadable ratios here. */
 
+/* --black-true, not --sixt-black. At the size of a whole section the brand
+   black reads as a dark grey; the difference only becomes visible once the
+   ground is large, which is why nothing else on the page uses it. It also
+   widens every pairing here — white goes from 17.40:1 to 21.00:1 — so nothing
+   inside the band had to be re-checked.
+
+   It is also what shows through wherever a band lays a picture over it, and
+   what is left if that picture fails to load. */
 .band-dark {
-  background: var(--sixt-black);
+  background: var(--black-true);
   color: var(--on-dark);
 }
 .band-dark h1, .band-dark h2, .band-dark h3 { color: var(--on-dark); }
 .band-dark .lead { color: var(--on-dark-muted); }
 /* The orange focus ring is only 1.9:1 on black. Swap it for white. */
 .band-dark :focus-visible { outline-color: var(--white); }
-.band-dark .btn-outline { border-color: var(--white); color: var(--white); }
+.band-dark .btn-outline { --outline-ink: var(--white); }
 .band-dark .btn-outline:hover { background: var(--white); color: var(--sixt-black); }
 
 .band-orange {
@@ -978,7 +1720,7 @@ body .booking-title {
    Black inverts cleanly at 17.4:1. */
 .band-orange .btn-primary { background: var(--sixt-black); color: var(--white); }
 .band-orange .btn-primary:hover { background: var(--white); color: var(--sixt-black); }
-.band-orange .btn-outline { border-color: var(--sixt-black); color: var(--sixt-black); }
+.band-orange .btn-outline { --outline-ink: var(--sixt-black); }
 /* The one ground where the orange hover cannot follow. Every other outline
    button on the page fills orange on hover; here the ground is already that
    orange, so the fill would be 1.00:1 and the button would appear to vanish
@@ -987,16 +1729,399 @@ body .booking-title {
 .band-orange .btn-outline:hover { background: var(--sixt-black); color: var(--white); }
 .band-orange a { color: var(--on-orange); }
 
+/* ══ Editorial primitives ════════════════════════════════════════════════
+   Three small pieces the lower half of the page shares. They exist because
+   membership, news, FAQ and the footer were each drawing the same two things —
+   a section head and a small-caps label — out of Tailwind utilities written
+   fresh at every call site, which is why no two of them lined up.
+
+   The third piece, .overline--accent, is not here — it lives immediately
+   below .overline itself, and the note there says why it has to. */
+
+/* A heading beside the link that leaves the section. Ends up as a row from
+   1024, stacked below it, and the link sits on the baseline of the lead rather
+   than the heading — which is what `items-end` was already doing by hand in
+   three places. */
+.section-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-12);
+}
+@media (min-width: 1024px) {
+  .section-head {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-8);
+  }
+}
+
+/* A short rule under the heading. Decoration — it says nothing the words do
+   not — so it is aria-hidden and measured at the 3:1 non-text bar rather than
+   4.5.
+
+   It takes its colour from the band it is in rather than being orange by
+   name, which is the correction the panel going orange forced: an orange rule
+   on an orange ground is 1.00:1 and simply is not there. Same for the eyebrow
+   above it. Both were orange-on-black marks and both had to invert. */
+/* No margin of its own. It sat directly under the heading before and carried
+   the space itself; in a flex column with a gap that space is added to the
+   gap rather than replacing it, and the rule ended up twice as far from the
+   heading above as from the paragraph below. */
+.rule-accent {
+  display: block;
+  width: 56px;
+  height: 3px;
+  background: var(--sixt-orange);
+}
+.band-orange .rule-accent,
+.band-orange .overline--accent { color: var(--on-orange); background: var(--on-orange); }
+/* The label is type, so it wants the colour and not the fill; the shorthand
+   above hands it both and the transparent background costs nothing. */
+.band-orange .overline--accent { background: none; }
+
+/* ══ Membership ══════════════════════════════════════════════════════════
+   An inset panel: the artwork across the whole of it, an orange wash coming
+   in from the left, and every word of the copy standing on the solid part of
+   that wash.
+
+   The picture is on the right and only on the right — it covers 56% of the
+   panel, not all of it — and the wash is over the picture's own left edge
+   rather than across the panel. That is the difference from the arrangement
+   before this one, and it takes a whole class of problem off the page: the
+   copy now stands on the panel's flat --sixt-orange with no photograph under
+   it at any alpha, so its contrast is a colour pair rather than a measurement
+   against artwork. The picture holds pure white in places, and a wash that
+   merely tinted could never have carried black type over that.
+
+   What the wash does now is dissolve the picture's left edge. A photograph
+   cropped to a hard vertical line inside a coloured panel reads as two panels;
+   run the panel's own orange over the first fifth of it and the two become
+   one surface with a subject on one side. */
+.member-panel {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 24px;
+  /* Orange, from .band-orange, restated here because it is now load-bearing
+     rather than decorative: it is the ground the copy is measured against, and
+     it is what the picture's left edge fades into. If the photograph never
+     arrives the panel is simply an orange panel, which is a state this section
+     has shipped in before and reads as finished. */
+  background: var(--sixt-orange);
+  --member-pad: clamp(1.75rem, 4.5vw, 4rem);
+  display: flex;
+  align-items: center;
+  padding: var(--member-pad);
+  min-height: clamp(20rem, 30vw, 27rem);
+}
+/* Right-hand 56%, full height. */
+/* overflow: hidden is load-bearing and it is not about the panel's corners —
+   .member-panel already clips those. It is about the wash.
+
+   The wash below is a pseudo-element on THIS box, so it covers exactly this
+   box and no more. The picture inside is scaled on the way in (see the
+   "settle" reveal), and a scaled image in a box that does not clip spills past
+   its own wash — a sliver of un-dimmed photograph landing to the left of the
+   frame, on the flat orange that the copy's contrast is measured against. The
+   whole argument of this panel is that no photograph is ever under those
+   words at any alpha. Clipping here is what keeps that true while the picture
+   is moving, and it costs nothing at rest, where the image fills the box
+   exactly at both breakpoints. */
+.member-art {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-end: 0;
+  width: 56%;
+  overflow: hidden;
+}
+.member-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The wash, on the picture's own box rather than the panel's — so the ramp is
+   measured against the picture's width and stays put when the two stop being
+   proportional, which is exactly what happens below 1024.
+
+   ::after rather than ::before, for the same reason the service tiles' hover
+   wash lives on .media: a pseudo-element inserted before an element's real
+   children paints before them, so ::before would sit under the photograph and
+   do nothing visible at all. That mistake has now been made twice in this
+   file; ::after paints last, above the image.
+
+   Solid for the first fifth, gone by three fifths. The solid part is what
+   hides the crop; the rest is the picture. */
+.member-art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to right,
+                var(--sixt-orange) 0 20%,
+                rgba(var(--sixt-orange-rgb), 0) 62%);
+}
+
+/* Below 1024 the panel is too narrow to put a column of type beside a
+   picture, so the picture goes underneath — and it goes there in normal flow,
+   not as a percentage of the panel's height.
+
+   That distinction is the whole of this block. The first version kept the
+   picture absolute and gave it the bottom 52%, which works only while the copy
+   happens to be shorter than the other 48% — and it was not: the Thai
+   "already a member?" line sat on the part of the artwork the wash had already
+   let through, black type on a darkening photograph. A percentage split cannot
+   know how tall a paragraph is in a language nobody tested it in. In flow the
+   question does not arise; the picture starts where the copy ends.
+
+   It bleeds to the panel's edges by cancelling the padding, and the panel
+   stops paying padding underneath it, so the artwork reaches three sides of
+   the box the way it reaches one on desktop. */
+@media (max-width: 1023px) {
+  .member-panel {
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 0;
+    padding-bottom: 0;
+  }
+  /* Underneath, and underneath in the markup too — the picture follows the
+     copy in source order, which is the desktop reading order laid on its side
+     and the order a screen reader gets either way. The wash therefore runs
+     from the picture's top edge, dissolving it into the copy above; reversed,
+     it would hide the edge that has the panel's rounded corner already. */
+  .member-art {
+    position: relative;
+    inset: auto;
+    width: auto;
+    margin: var(--space-8) calc(-1 * var(--member-pad)) 0;
+  }
+  .member-art img {
+    height: auto;
+    aspect-ratio: 3 / 2;
+  }
+  .member-art::after {
+    background: linear-gradient(to bottom,
+                  var(--sixt-orange) 0 14%,
+                  rgba(var(--sixt-orange-rgb), 0) 56%);
+  }
+}
+
+.member-copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: start;
+  gap: var(--space-8);
+  /* 32rem keeps the copy clear of the picture's edge rather than clear of a
+     gradient stop — a simpler thing to hold. At the 1536 container the panel
+     is 1456 wide, the padding starts the column at 64px and 32rem ends it at
+     576; the picture begins at 44% of the panel, which is 641. Sixty-five
+     pixels of orange between the last letter and the first pixel of
+     photograph. */
+  max-width: 32rem;
+}
+
+/* Bigger than the page's h2 and allowed to be, because this panel is the one
+   place on the page asking for an account. Balanced wrapping over a bounded
+   measure: `balance` is a hint the browser may decline, so the measure is what
+   actually holds the shape and the property only improves on it. */
+.member-title {
+  font-size: clamp(1.875rem, 3vw, 2.75rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  max-inline-size: 16ch;
+  text-wrap: balance;
+}
+.member-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-6);
+}
+/* The body copy carries the whole argument for joining, so it is set at
+   reading size rather than at the 16px the .lead default gives it.
+
+   No measure of its own — the 32rem on .member-copy is the measure, and that
+   works out at about 60 characters at this size. It had a 44ch cap for one
+   revision and the English immediately went to three lines against the Thai's
+   two, which is the wrong kind of difference between two translations of the
+   same paragraph: one column, one width, and the two languages fall where
+   they fall inside it. tests.js holds the strings short enough that they both
+   land on two. */
+.member-copy .lead {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}
+.member-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-5);
+}
+@media (min-width: 640px) {
+  .member-actions { flex-direction: row; align-items: center; gap: var(--space-8); }
+}
+/* Solid ink, not a muted tone. It sits beside the button and reads as the
+   second of two choices, which a wash would not — and on the orange ground
+   there is no muted tone available anyway: black at 78% falls to 4.01:1 there.
+   See the note in tokens.css. */
+.member-have {
+  font-size: 0.9375rem;
+  color: var(--on-orange);
+}
+.member-have a {
+  color: var(--on-orange);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: text-decoration-thickness var(--transition);
+}
+/* The hover thickens the underline instead of changing colour. Nothing in the
+   palette can recolour 15px type on this ground: white is 3.28:1 and fails,
+   both oranges vanish into it, and black is already what it is. */
+.member-have a:hover { text-decoration-thickness: 3px; }
+
+/* ══ News ════════════════════════════════════════════════════════════════
+   Three columns of type under a hairline each. No card, no picture — see the
+   note on renderNews in ui.js.
+
+   The hairline is 2px of black rather than 1px of --grey-200. At one pixel in
+   a 1.3:1 grey it is not a rule, it is a smudge, and it was the only thing
+   separating one item from the next once the card edges went. Black at the
+   top of the column is a deliberate mark. */
+.news-list {
+  display: grid;
+  gap: var(--space-8);
+}
+@media (min-width: 640px)  { .news-list { grid-template-columns: 1fr 1fr; gap: var(--space-12); } }
+@media (min-width: 1024px) { .news-list { grid-template-columns: repeat(3, 1fr); } }
+
+.news-item {
+  border-top: 2px solid var(--sixt-black);
+  padding-top: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* With a photograph, the rule moves from the top of the item to under the
+   picture — it is the same mark doing the same job, dividing the item from
+   whatever is above it, and above a photo rather than below one it reads as
+   the frame's edge instead of as the column's cap.
+
+   3:2 and not the 16:9 the placeholder used. Three columns of 16:9 is a strip
+   of letterboxes; 3:2 gives each picture enough height to hold its own column
+   beside a two-line headline, and it is the ratio the photographs will arrive
+   in. The aspect-ratio is on the wrapper and the img fills it with cover, so
+   the row heights are identical whatever the three sources measure. */
+.news-item--illustrated {
+  border-top: 0;
+  padding-top: 0;
+  gap: var(--space-4);
+}
+.news-media {
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: var(--grey-100);
+  border-bottom: 2px solid var(--sixt-black);
+  margin-bottom: var(--space-2);
+}
+/* The grey behind it is what shows for the width of one decode. It is a fill
+   rather than nothing because the wrapper already reserves the height — the
+   ratio is declared here and the img carries width/height attributes — so
+   there is no reflow when the file lands, only a colour changing. */
+.news-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* 12px, not the 11 .overline gives it elsewhere. The date used to be one of
+   five things in a card, under a picture; it is now one of three things in the
+   item and the only one that says when. Same reason the accent label is a
+   point larger — a Thai date string at 11px with 0.1em of tracking is set
+   below where it resolves. */
+.news-item .overline { font-size: var(--text-label); }
+/* 1.375rem, which is larger than the 1.125 the card gave it and larger than
+   --text-h3 would make it at this level. With the picture gone the headline is
+   what the item is, and it holds the column on its own. */
+.news-title {
+  font-size: 1.375rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  max-inline-size: 28ch;
+  text-wrap: balance;
+}
+/* No line clamp. The three strings are written to a length in content.js and
+   tested for it, so clamping was guarding against copy that the tests already
+   prevent — and a clamp that never fires still costs an ellipsis risk when a
+   translation runs long. */
+.news-body {
+  font-size: 0.9375rem;
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--grey-500);
+  max-width: 46ch;
+}
+
+/* ══ FAQ ═════════════════════════════════════════════════════════════════ */
+.faq-layout {
+  display: grid;
+  gap: var(--space-12);
+}
+@media (min-width: 1024px) {
+  .faq-layout {
+    grid-template-columns: 4fr 8fr;
+    gap: clamp(3rem, 6vw, 7rem);
+    align-items: start;
+  }
+}
+.faq-head { display: flex; flex-direction: column; }
+/* Sticky from the width where the two columns exist. The list is the taller
+   column by a long way once two or three answers are open, and a heading that
+   has scrolled away takes the list's context with it. */
+@media (min-width: 1024px) {
+  .faq-head { position: sticky; top: calc(var(--space-18) + 4rem); }
+}
+
 /* ══ Card refinements ════════════════════════════════════════════════════
    Cards carry weight through elevation rather than a hairline border, which
-   keeps them from reading as boxes stacked on a form. */
+   keeps them from reading as boxes stacked on a form.
+
+   A card brings its own white ground, so it restates its ink rather than
+   inheriting the band's. .band-dark sets every word in its section white and
+   its headings white by name — on a white card that is white on white, and
+   the whole card would have gone blank the moment the fleet section turned
+   black. Scoped under .band-dark so it outranks that rule by specificity
+   rather than by whichever block happens to sit lower in the file. */
+.band-dark .card,
+.band-dark .card h1,
+.band-dark .card h2,
+.band-dark .card h3 { color: var(--sixt-black); }
+
+/* Same argument, its own light ground: the search summary is a grey pill and
+   its words are black on it, not white. */
+.band-dark .search-summary { color: var(--sixt-black); }
 .card {
   border: 0;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-rest);
 }
+/* --shadow-lift-brand rather than --shadow-lift: the brand orange at 5%
+   instead of black at 12%, which reads at roughly a third the weight — a warm
+   tint under the card rather than a shadow. Faint by design, and on the fleet
+   section's own warm ground it is fainter still, because the tint and the
+   shadow are close to the same colour. */
 .card:hover {
-  box-shadow: var(--shadow-lift);
+  box-shadow: var(--shadow-lift-brand);
   transform: translateY(-4px);
 }
 
@@ -1009,10 +2134,13 @@ body .booking-title {
   padding: var(--space-3);
   background: var(--white);
 }
+/* The photograph gets a surface rather than a panel — see --surface-vehicle.
+   The radius steps down from the card's --radius-lg to --radius-md, which is
+   what keeps an inset frame reading as inset rather than as a second card. */
 .card--vehicle .media,
 .card--vehicle .ph {
   border-radius: var(--radius-md);
-  background: var(--grey-50);
+  background: var(--surface-vehicle);
 }
 .card--vehicle .card-body {
   padding: var(--space-4) var(--space-2) var(--space-2);
@@ -1021,55 +2149,83 @@ body .booking-title {
 
 /* Marks a card whose photograph belongs to another model. Deliberately plain
    and always visible — this is a correctness notice, not decoration. */
-.standin-flag {
-  position: absolute;
-  top: var(--space-2);
-  left: var(--space-2);
-  z-index: 2;
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  padding: 3px 8px;
-  border-radius: 4px;
+/* The class sits under the name in the wireframe, in the secondary tone, so
+   the two read as one label rather than as two facts. */
+.vehicle-class {
+  color: var(--grey-500);
+  font-size: var(--text-small);
+  margin-top: calc(var(--space-1) * -1);
+}
+
+/* Price on its own line, button on the next one and running the full width of
+   the card. No rule above it: the card holds four lines now, and a hairline
+   across three of them was dividing something that no longer needed dividing.
+   The space does that job.
+
+   It was a space-between row, which is the arrangement this replaces. That
+   row only held at the widest column: it was already set to wrap, so at four
+   columns the button dropped to a second line by itself and the card's foot
+   changed shape halfway across the grid. Stacking always is the same layout
+   at every column count, and it gives the button the whole measure instead of
+   whatever the price leaves — a 48px target across the full card rather than
+   a 130px one in the corner. What it costs is one line of card height, paid
+   at every breakpoint including the one where the row used to fit.
+
+   align-items is left at its stretch default and that is what widens the
+   button; the width: 100% on .vehicle-cta says so out loud, since an
+   inline-flex element being full width otherwise reads as an accident. */
+.vehicle-foot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-top: var(--space-5);
+}
+
+/* The name is the card's one loud line, so it carries the optical correction
+   a large bold setting needs: tightened tracking, and leading pulled in.
+   Everything under it is deliberately quieter. */
+/* Orange, and the size is what makes that legal. Orange on white is 3.28:1 —
+   under the 4.5 normal text needs, over the 3.0 large text is allowed. At
+   1.5rem/700 this clears WCAG's large-text bar twice over: 24px on its own,
+   and bold well past 18.66px. Shrink it and the colour has to go back to ink.
+   tests.js holds the size for exactly that reason. Stated on the same rule as
+   the size, not a second .price-total block: the two are one decision and a
+   split rule is how they come apart. */
+
+/* Black fill, white label, orange on hover.
+
+   The rest state asks nothing of the size: white on --sixt-black is 15.63:1
+   and holds at any setting. The hover is what the 19px/700 is for. White on
+   orange is 3.28:1 — under the 4.5 normal text needs, over the 3.0 large text
+   is allowed — so --text-cta is not decoration here, it is the only thing
+   making the hover legal. Shrink this button and the hover has to stop being
+   orange in the same edit. Same trade .btn-primary, .btn-hotline and
+   .btn-outline all make, and the reason that token exists.
+
+   Going black also takes an orange off the card. The price above it is orange
+   at 1.5rem/700 and had a solid orange block sitting directly under it; the
+   two were competing for the same glance, and the one that should win is the
+   price. Now the card reads price, then button. */
+.vehicle-cta {
+  width: 100%;
   background: var(--sixt-black);
   color: var(--white);
+  white-space: nowrap;
+  transition: background var(--transition), transform var(--dur-press) ease;
 }
+/* Lights to brand orange rather than darkening. The label stays white and
+   stays 3.28:1, which is the tightest pair on the card and legal only because
+   the button is held at --text-cta — see above. */
+.vehicle-cta:hover { background: var(--sixt-orange); }
 
 .vehicle-name {
-  font-size: 1.1875rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  line-height: 1.25;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
 }
-.vehicle-similar {
-  font-size: 0.875rem;
-  font-weight: 400;
-  color: var(--grey-500);
-  white-space: nowrap;
-}
-
 /* Solid orange with black type — 5.31:1. White type here would be 3.28:1 and
    a badge is far too small to claim the large-text exemption. */
-.badge-deal {
-  display: inline-block;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 5px 12px;
-  border-radius: 999px;
-  background: var(--sixt-orange);
-  color: var(--sixt-black);
-}
-.badge-spec {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 4px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--border-input);
-  color: var(--sixt-black);
-}
-
 /* Icon muted, value in full black — the number is the information. */
 .spec-inline {
   display: flex;
@@ -1077,57 +2233,31 @@ body .booking-title {
   align-items: center;
   gap: var(--space-4);
 }
+/* Secondary data, set as secondary data. It was 15px bold in the ink colour,
+   which put it level with the name; at 14px in --grey-500 the eye reads name,
+   then price, then these — which is the order they matter in. */
 .spec-inline .spec {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.9375rem;
+  color: var(--grey-500);
+  font-size: var(--text-small);
   font-weight: 700;
   color: var(--sixt-black);
 }
 .spec-inline .spec svg { color: var(--grey-500); flex: none; }
 
-.include-list {
-  display: grid;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.include-list li {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
-  font-size: 0.8125rem;
-  font-weight: 300;
-  color: var(--grey-500);
-}
 /* A tick is non-text, so orange clears the 3:1 bar it has to meet. */
-.include-list svg { color: var(--sixt-orange); flex: none; margin-top: 2px; }
-
 .price-total {
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.1;
+  color: var(--sixt-orange);
 }
 .price-breakdown {
   font-size: 0.8125rem;
   color: var(--grey-500);
-}
-
-.spec-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  line-height: 1;
-  padding: 5px 9px;
-  border-radius: 999px;
-  background: var(--grey-50);
-  color: var(--grey-500);
-  white-space: nowrap;
 }
 
 .overline {
@@ -1136,6 +2266,24 @@ body .booking-title {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--grey-500);
+}
+/* The same object in orange, for the dark grounds. 6.39:1 there, which it
+   needs: a label is normal text however small, and the large-text exemption
+   does not apply to it in either direction.
+
+   One point larger than the grey original, because both places it is used
+   carry a Thai string. Thai has no uppercase for the transform to act on, and
+   its glyphs carry more detail than Latin at the same size, so 11px with
+   0.1em of tracking is below where a Thai label resolves.
+
+   It has to sit here, immediately below .overline, and not with the other
+   editorial primitives further down the file. A modifier at the same
+   specificity as the class it modifies is decided purely by source order, and
+   written above .overline it lost its font-size in silence — the colour
+   applied, the size did not, and the only symptom was an 11px label. */
+.overline--accent {
+  color: var(--sixt-orange);
+  font-size: var(--text-label);
 }
 
 .price-amount {
@@ -1148,35 +2296,325 @@ body .booking-title {
 /* ══ Service cards ═══════════════════════════════════════════════════════
    Black bodies under the image. The three of them give the section its own
    weight without another full-bleed band, and the picture stays uncovered. */
+
+/* This band breaks the page's --space-18 rhythm, on purpose and alone.
+
+   Everywhere else the 48px above and below a section meet to make one 96px
+   gap, and the rhythm is the only thing marking where one section ends. Here
+   the band brings its own ground — flat black, between the white fleet
+   section and the orange membership one — so its edges are drawn rather than
+   implied, and the padding is read as room inside a panel rather than as the
+   distance to the neighbour. A panel that size wants more than 48px: at the
+   old figure the heading sat almost on the section's edge and the bento
+   filled the rest, which left the whole band looking packed.
+
+   It scales with the viewport rather than stepping at a breakpoint, because
+   what makes it feel tight is the ratio of margin to the bento beside it and
+   the bento is fluid. 56px on a phone, 92px at the 1536 container, capped at
+   112 so an ultrawide does not open a void.
+
+   The ground is assigned here, and to the `background` shorthand rather than
+   to `background-image` — see --surface-services for what happens otherwise,
+   and for why the picture behind this band is a studio sweep rather than a
+   photograph with a subject in it. It outranks .band-dark's own `background`
+   by specificity, and the token restates black as its colour layer so nothing
+   is lost in the override.
+
+   Full-bleed, not an inset box. It was inset for one revision, at
+   .promo-ground's 6% so the page's two dark panels would agree on a width,
+   and the thing that broke was two sections further down: the membership
+   panel straddles a black half-band whose whole argument is that it is this
+   band carrying on. Take this one off the window's edges and that half-band
+   begins out of nowhere. The two panels matching was worth less than the two
+   sections joining. */
+#services {
+  padding-block: clamp(3.5rem, 6vw, 7rem);
+  background: var(--surface-services);
+}
+
+/* Orange, alone on the page among the section headings.
+
+   6.39:1 on this ground. That is comfortably clear of the 4.5 it would need
+   at body size, let alone the 3.0 a 40px bold heading is entitled to, and it
+   holds at every width because the ground behind it is one flat colour.
+
+   It was not, for one revision: with a photograph back there the number
+   depended on which pixels the glyphs happened to land on, which had to be
+   measured at eight widths and re-measured whenever the string or the picture
+   changed. Orange is only 1.89:1 against the worst ground that arrangement
+   could produce. Any future attempt to put a picture behind this band has to
+   answer for the heading first — check-contrast.js keeps that pair listed as
+   forbidden so the number stays in view. */
+#services h2 { color: var(--sixt-orange); }
+/* ── Services bento ───────────────────────────────────────────────────────
+   One tall card down the left, two wide ones stacked beside it:
+
+     +-----------+-----------+
+     |           |   wide    |
+     |   tall    +-----------+
+     |           |   wide    |
+     +-----------+-----------+
+
+   Equal columns, and it is the wide pair that sets the height — see the
+   media query below for why that direction and not the other one. So the
+   number that decides the whole block is the wide cards' aspect, and 7:4 is
+   what it is set to. At the 1536 container each column comes out 716 wide:
+
+     wide  716 x 409  1.750:1   the picture is 2.000, so 12% of its height
+                                is cropped away, centred
+     tall  716 x 842  0.850:1   the picture is 0.750, so 12% of its width
+                                is cropped away, centred
+
+   That is the trade, and it is deliberately an even one. At the 2:1 this
+   block used to carry, the wide pictures fitted exactly and the whole cost
+   fell on the tall one — 716 x 740, cropping 23% off its sides. Splitting it
+   evenly costs the wide pair a band of sky and floor they had spare (both put
+   their subject across the middle) and hands the tall picture back most of
+   its frame, and it is worth 100px of extra height to the section besides,
+   which is the other thing the block was short of.
+
+   One column below 768px, where a two-up bento is just two narrow columns —
+   and where the taller wide tile matters most, since that is the width at
+   which the overlay copy has the least room under it. */
+.service-bento {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: 1fr;
+}
+
+/* The picture is the card. It fills the tile edge to edge and the words lie on
+   top of it, so nothing competes with the image for the tile's area — which is
+   the point of a bento block, and the reason the white card face is gone.
+
+   The black underneath is what shows while the picture loads, and what the
+   scrim composites against if it never arrives. */
+/* Each tile takes its picture's ratio. In the grid the tall one's aspect sets
+   the row heights and the wide ones stretch to fill them, so these only apply
+   on their own below 768px — which is exactly where a fixed min-height used to
+   leave them squat. */
+.service-card--tall { aspect-ratio: 3 / 4; }
+.service-card--wide { aspect-ratio: 7 / 4; }
+
+/* Two up, and the wide cards are what set the row height — not the tall one.
+
+   It was the other way round and the heights never matched. A card that spans
+   two rows and carries its own aspect-ratio is asking the grid to divide its
+   height between rows it does not control, which is a tie the browser may
+   settle either way. Turned around there is nothing to settle: each wide card
+   sizes itself from its own 7:4, the two rows are therefore identical, and the
+   tall card spanning both comes out at exactly their sum plus the gap. Equal
+   by construction rather than by arithmetic that has to be trusted.
+
+   The tall card gives up its 3:4 to do it, so its picture crops at the sides.
+   That was the trade taken when the columns went equal.
+
+   These rules sit AFTER the ratios above on purpose. They carry the same
+   specificity, so source order is the only thing deciding them — which is what
+   went wrong the first time: this block was written above the ratios and never
+   won a single declaration. */
+@media (min-width: 768px) {
+  .service-bento { grid-template-columns: 1fr 1fr; }
+  .service-card--tall {
+    grid-row: span 2;
+    aspect-ratio: auto;
+  }
+}
+
 .service-card {
+  position: relative;
   background: var(--sixt-black);
-  color: var(--on-dark);
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-rest);
   display: flex;
-  flex-direction: column;
-  transition: box-shadow var(--transition), transform var(--transition);
+  transition: box-shadow var(--transition), transform var(--transition-move);
+}
+/* The media carries its own aspect-ratio for the placeholder state; stretched
+   to fill the tile, that ratio is overridden and the picture crops instead. */
+.service-card > .media,
+.service-card > .ph {
+  position: absolute;
+  inset: 0;
+  aspect-ratio: auto;
+  border-radius: 0;
+}
+.service-card > .media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .service-card:hover { box-shadow: var(--shadow-lift); transform: translateY(-4px); }
-.service-card h3 { color: var(--on-dark); }
-.service-card .service-body {
+
+/* Orange rising from the foot of the tile on hover.
+
+   It has to land between the picture and the scrim, and where it is attached
+   is what puts it there. On .media rather than on the card: .media is the
+   positioned wrapper holding the img, and the img itself is not positioned, so
+   this paints above the photograph and below everything that follows .media
+   in the card — which is the card's own ::after, the 62% scrim.
+
+   It was on .service-card::before first and that is one layer too low. A
+   pseudo-element inserted before the card's real children paints before them,
+   so the wash went under the photograph and nothing appeared on hover at all.
+   Two layers to choose from and both wrong ones are silent: too low and the
+   effect is invisible, too high and it is over the scrim, where white on brand
+   orange is 3.28:1 and every caption on the tile fails for as long as the
+   pointer rests there.
+
+   Under the scrim, fully opaque orange composites to rgb(97,30,0) and white
+   reads 12.4:1 on it — better than the 4.5 the photograph alone was measured
+   at. Every frame of the fade lies between those two, so there is no moment
+   in the transition on a ground that has not been measured. */
+.service-card .media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top,
+                var(--sixt-orange) 0%,
+                rgba(var(--sixt-orange-rgb), 0.55) 45%,
+                rgba(var(--sixt-orange-rgb), 0) 85%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 320ms ease;
+}
+.service-card:hover .media::after,
+.service-card:focus-within .media::after { opacity: 1; }
+/* The lift is a nicety; the wash is the state. Keeping it under reduced
+   motion costs nothing — a cross-fade is not motion in the sense the query is
+   asking about — but it is slowed, because a fast colour change over a
+   photograph is the part of this that flickers. */
+@media (prefers-reduced-motion: reduce) {
+  .service-card { transition: box-shadow var(--transition); }
+  .service-card:hover { transform: none; }
+  .service-card .media::after,
+  .service-card::after,
+  .service-card .media img { transition-duration: 1ms; }
+}
+/* White ink, over a scrim that earns it.
+
+   Flat across the whole tile rather than faded up from one edge, so the
+   picture darkens evenly and the words sit on the same ground wherever they
+   are placed. The gradient it replaced only guaranteed the region it had
+   fully darkened, which made the copy length a contrast dependency.
+
+   62% of the brand black, and that number was measured rather than guessed.
+   Every one of the three photographs holds near-white pixels inside the zone
+   its own text occupies — the subscription tile has literal rgb(255,255,255)
+   there — so the alpha the real pictures need is the same as the alpha that
+   bounds any picture at all:
+
+     lightest pixel in the text zone        flat scrim needed
+     self-drive     rgb(255,255,250)        60%
+     limousine      rgb(255,251,238)        59%
+     subscription   rgb(255,255,255)        60%
+
+   62% is that floor with two points of margin, and it holds for whatever
+   replaces these photographs later without anyone re-measuring. A genuinely
+   faint wash is not available while the words are white and lie on the
+   picture: at 55% the worst of these drops to 3.90:1. */
+/* The wash itself, over the picture and under the words. ::after is generated
+   last, so it would paint above the text without the z-index on the overlay
+   below. */
+.service-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(26, 26, 26, 0.62);
+  pointer-events: none;
+  transition: background 320ms ease;
+}
+/* The scrim lifts on hover and the picture comes up with it — 0.62 down to
+   0.45, alongside a small brightness lift on the photograph itself.
+
+   It does not go to zero, and the number is where it is because of arithmetic
+   rather than taste. The captions are white and they sit at the foot of the
+   tile, where the orange wash is between 0.55 and fully opaque. Compose the
+   worst case at each end — the lightest pixel a photograph can hold is white,
+   so 0.55 orange over white, then this scrim — and white copy reads 4.97:1 at
+   the top of the caption block and 7.23:1 at its foot. The first of those is
+   the number that fixes 0.45: it clears the 4.5 bar by less than half a point,
+   so the scrim cannot be lifted further without the caption failing. Take it
+   off entirely and the same two become 2.01:1 and 3.28:1 — the second is white
+   on brand orange, the pair this file refuses everywhere it appears, and the
+   first is simply the photograph. There is no version of "no scrim" that keeps
+   the words. Measured in tools/check-contrast.js, not estimated here.
+
+   The brightness lift is free by comparison. A filter cannot push a pixel past
+   white, so the worst ground it can produce is the one already measured — the
+   picture gets visibly brighter and the bound does not move. */
+.service-card:hover::after,
+.service-card:focus-within::after { background: rgba(26, 26, 26, 0.45); }
+.service-card .media img { transition: filter 320ms ease, transform 320ms ease; }
+.service-card:hover .media img,
+.service-card:focus-within .media img { filter: brightness(1.14) saturate(1.06); }
+.service-overlay {
+  position: relative;
+  z-index: 1;
+  align-self: flex-end;
+  width: 100%;
   padding: var(--space-6);
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: var(--space-3);
-  flex: 1;
 }
+/* align-items: flex-start above shrinks every child to its own content, which
+   is what the button wanted — it was stretching the full width of the tile
+   because a flex column stretches by default. The words do not want it, so
+   they take the width back and cap it.
+
+   24rem, not the 34 it was: at 34 four of the six strings fitted on one line
+   and the three tiles read as a ragged set. The measure is what decides the
+   line count once the copy is fixed, so it is set from the copy rather than
+   picked for the tile — every string here falls at two lines between roughly
+   20rem and 26rem, and 24 sits in the middle of that. tests.js holds the
+   lengths at both ends so neither edge of that window is walked out of. */
+.service-overlay h3,
+.service-overlay .service-text {
+  align-self: stretch;
+  max-width: 24rem;
+}
+
+/* 24px is right against a 358px-wide phone tile and mean on a 716px one. The
+   tiles grew; the inset the words keep from the edge grows with them, or the
+   copy ends up looking dropped into a corner of a much larger picture.
+
+   1024 and not the 768 where the bento goes two-up, because 768 is where the
+   tiles are at their smallest: two columns of a 720px measure is 348 wide and
+   199 tall, and the overlay is about 136px of content, so the extra 16px of
+   padding is what pushes it past the tile's own height and makes the 7:4 stop
+   holding. Above 1024 there is 60px of slack and the ratio survives it. */
+@media (min-width: 1024px) {
+  .service-overlay { padding: var(--space-8); }
+}
+
+/* All three read from the same corner. The tall tile used to start from the
+   top instead — the flat scrim made it free to, since there is no gradient to
+   turn over any more — and free is not the same as worth doing. Three tiles in
+   one block with their copy pinned to three different heights is three
+   alignments where the grid is drawing one, and the eye has to find each
+   heading rather than knowing where the next one will be.
+
+   The picture allows it either way. The scrim is flat at 62% across the whole
+   tile, so the words are on the same ground wherever they sit, which is the
+   property that made this a layout decision rather than a contrast one. */
+/* Solid white. --on-dark-muted is white at 78%, which holds on solid black but
+   composites to 3.59:1 against the lightest ground the scrim can leave — the
+   same arithmetic that decided the promotions detail copy.
+
+   pre-line honours the line breaks written into content.js and collapses
+   everything else, so the author decides where a line turns and the box still
+   wraps beyond that if a narrow screen forces it. */
 .service-card .service-text {
+  white-space: pre-line;
   font-size: 0.9375rem;
   font-weight: 300;
-  color: var(--on-dark-muted);
-  flex: 1;
+  color: var(--white);
 }
-/* A black button on a black card is invisible — invert it to white. */
-.service-card .btn-secondary { background: var(--white); color: var(--sixt-black); }
-.service-card .btn-secondary:hover { opacity: 0.88; }
-.service-card :focus-visible { outline-color: var(--white); }
+/* .btn-secondary is black on white by default, which is exactly right on a
+   white card — the inversion that used to live here existed only because the
+   card was black. Nothing to override any more, and the focus ring goes back
+   to the page's orange for the same reason. */
 
 /* ══ Value props ═════════════════════════════════════════════════════════
    Three equal columns on the page's own white, each a ringed icon over a
@@ -1192,9 +2630,30 @@ body .booking-title {
   display: grid;
   gap: var(--space-4);
 }
-@media (min-width: 640px) {
+/* Three up from 768, not from 640.
+
+   At 640 the three columns come out 181px each, and the item is a 64px icon
+   tile plus a gap plus the words — which leaves the text about 100px. Two of
+   the six strings are unbroken Thai runs wider than that, and Thai has no
+   spaces for the browser to break at, so the run cannot wrap and pushes the
+   grid track instead. The page grew 37px of horizontal scroll between 640 and
+   roughly 660, on every phone held sideways.
+
+   Both halves of the fix are here on purpose. The breakpoint is the design
+   answer — 181px is too narrow for this item whatever it holds. min-width: 0
+   is the structural one: a grid item defaults to min-content, so any future
+   string that cannot break gets to widen its track and take the page with it.
+   Set to zero, the track holds and the text overflows its own box instead,
+   which is visible in one section rather than as a scrollbar on the document. */
+@media (min-width: 768px) {
   .props-grid { grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
 }
+.props-grid > * { min-width: 0; }
+/* And again one level in. The item is a flex row, so its children default to
+   min-width: auto as well — zeroing the grid track alone leaves the flex
+   child free to push the item wider than the track it sits in, which is the
+   same failure one box further down. */
+.prop-text { min-width: 0; }
 
 /* Each item is its own surface, so the hover can lift the whole column —
    icon and words together — as one card rather than moving a piece of it.
@@ -1219,7 +2678,7 @@ body .booking-title {
   background: var(--white);
   border-radius: var(--radius-md);
   padding: var(--space-8) var(--space-6);
-  transition: transform var(--transition), box-shadow var(--transition),
+  transition: transform var(--transition-move), box-shadow var(--transition),
               border-radius var(--transition);
 }
 /* --shadow-lift-brand, not --shadow-lift: the same 34px of blur, carrying the
@@ -1308,7 +2767,10 @@ body .booking-title {
    themselves are at full strength — none of them is dimmed, including the two
    cropped at the edges. */
 
-.promo-title { text-align: center; margin-bottom: var(--space-8); }
+/* One class for every centred section heading, rather than one per section.
+   Promotions had .promo-title first; the fleet asked for the same thing, and a
+   second class doing the same job is how two of them drift apart. */
+.section-title { text-align: center; margin-bottom: var(--space-8); }
 
 /* No fixed overhang. The strip below the banners is exactly as deep as the
    detail row needs, because that row is in the flow and the panel below is
@@ -1415,7 +2877,7 @@ body .booking-title {
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-card);
-  transition: transform var(--transition), box-shadow var(--transition);
+  transition: transform var(--transition-move), box-shadow var(--transition);
 }
 .promo-slide img {
   display: block;
@@ -1462,21 +2924,10 @@ body .booking-title {
    change. */
 .promo-cta {
   flex: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 44px;
-  padding: var(--space-2) var(--space-6);
-  border-radius: var(--radius-sm);
   background: var(--white);
   color: var(--sixt-black);
-  font-family: var(--font-sans);
-  font-size: var(--text-body);
-  font-weight: 700;
-  line-height: 1.2;
-  text-decoration: none;
   white-space: nowrap;
-  transition: background var(--transition);
+  transition: background var(--transition), transform var(--dur-press) ease;
 }
 .promo-cta:hover { background: var(--grey-50); }
 .promo-cta:focus-visible { outline-color: var(--white); }
@@ -1491,16 +2942,17 @@ body .booking-title {
 
    The disc is a translucent black rather than an outline: it sits on three
    different photographs, and the darkest fill available is the only one that
-   reads on all of them. 44px is the touch-target floor, met by the drawn box
-   rather than by an overlay. */
+   reads on all of them. The touch target is met by the drawn box rather than
+   by an overlay. */
 .promo-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   z-index: 1;
   cursor: pointer;
-  width: 44px;
-  height: 44px;
+  /* 48px — see .fleet-arrow. */
+  width: 48px;
+  height: 48px;
   border: 0;
   border-radius: 50%;
   background: rgba(26, 26, 26, 0.62);
@@ -1509,7 +2961,7 @@ body .booking-title {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background var(--transition);
+  transition: background var(--transition), transform var(--dur-press) ease;
 }
 .promo-arrow:hover { background: rgba(26, 26, 26, 0.82); }
 .promo-arrow:focus-visible { outline-color: var(--white); }
@@ -1534,7 +2986,7 @@ body .booking-title {
      panel covered these words completely. .promo-stage never had the problem
      because it was already relative. */
   position: relative;
-  transition: transform var(--transition);
+  transition: transform var(--transition-move);
   /* Exactly as wide as the banner above it, and centred the same way, so the
      first letter of the title lands on the picture's left edge and the button
      lands on its right. Reading --promo-slide-w rather than repeating the
@@ -1574,11 +3026,180 @@ body .booking-title {
   max-width: 46rem;
 }
 
+/* ══ Section reveals ═════════════════════════════════════════════════════
+   Every block below the banner arrives as the reader reaches it. Once, on the
+   way down, and never again on the way back up — a section that re-animates
+   when it is scrolled past a second time is a section arguing with the reader.
+
+   The risk this whole system runs is that it becomes one fade-and-rise
+   repeated eleven times, which is the single most templated thing a page can
+   do and reads as a theme rather than as a design. So there are five kinds,
+   not one, and each is drawn from what its block is actually made of:
+
+     rise      a block arrives.  For headings, section heads and the two
+               "view all" links — things that are one object and have no
+               internal order to express.
+     stagger   children arrive in order. The container is not faded, its
+               children are, and what the stagger looks like is decided by the
+               layout it is applied to: three columns read left to right, the
+               FAQ's list reads top to bottom. Same rule, different sentence.
+     panel     the promotions band grows up out from under its banners, which
+               is the shape that section already has — an orange panel pushed
+               down behind the artwork and emerging below it.
+     settle    the membership photograph seats itself out of an overscale
+               while its copy rises after it.
+     fleet     the row restages, using the animation the tabs already trigger.
+               Its entrance and its restage are the same event.
+
+   ARMING IS DONE BY SCRIPT, NOT BY THIS FILE. Nothing here hides anything
+   until ui.js has added .is-armed, and ui.js only does that in the same
+   statement that starts observing the element. A stylesheet that hid these
+   blocks on its own would hide them permanently for anyone whose JavaScript
+   failed — which is the standard way this pattern ships broken.
+
+   Reduced motion is handled in ui.js too: nothing is armed at all, every
+   block is marked revealed at once, and the page is simply finished. There is
+   no gentler version of "content appears as you scroll" worth offering; the
+   honest reduced form of it is content that is already there. */
+
+/* The child index every staggered container reads. By position rather than
+   written in by a renderer, because four of the six containers here are
+   rebuilt from scratch on a language change and an inline style would have to
+   be rewritten each time. Nine is past the longest list on the page. */
+[data-reveal] > *:nth-child(1) { --i: 0; }
+[data-reveal] > *:nth-child(2) { --i: 1; }
+[data-reveal] > *:nth-child(3) { --i: 2; }
+[data-reveal] > *:nth-child(4) { --i: 3; }
+[data-reveal] > *:nth-child(5) { --i: 4; }
+[data-reveal] > *:nth-child(6) { --i: 5; }
+[data-reveal] > *:nth-child(7) { --i: 6; }
+[data-reveal] > *:nth-child(8) { --i: 7; }
+[data-reveal] > *:nth-child(9) { --i: 8; }
+
+@keyframes reveal-rise   { from { opacity: 0; transform: translateY(14px); } }
+@keyframes reveal-fade   { from { opacity: 0; } }
+@keyframes reveal-panel  { from { transform: scaleY(0); } }
+@keyframes reveal-settle { from { transform: scale(1.05); } }
+@keyframes reveal-mark   { from { opacity: 0; transform: scale(0.82); } }
+
+/* 14px. Small enough that the block reads as settling rather than as flying
+   in, large enough to be a movement at all — and it is the same distance
+   everywhere, because eleven blocks each travelling their own distance is
+   eleven arrivals rather than one page. */
+[data-reveal="rise"].is-armed { opacity: 0; }
+[data-reveal="rise"].is-revealed {
+  animation: reveal-rise var(--dur-enter) var(--ease-out) backwards;
+}
+
+[data-reveal="stagger"].is-armed > * { opacity: 0; }
+[data-reveal="stagger"].is-revealed > * {
+  animation: reveal-rise var(--dur-enter) var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * var(--stagger-reveal));
+}
+
+/* `backwards`, not `both`, throughout. Four of these containers hold the
+   page's hover lifts — the value props, the service tiles, the cards — and a
+   forwards fill would keep the animation's end transform applied for the life
+   of the element, so the block would arrive and then never move under a
+   pointer again. Backwards holds the start state through the delay and then
+   hands the element back to its own stylesheet. */
+
+/* The value props' one mark. The tile is the only orange on a white band and
+   the only drawn thing in the section, so it arrives as an object rather than
+   as part of a paragraph — and 80ms behind its own column, which is what
+   makes it read as landing in a space that was waiting for it. */
+#value-props.is-revealed .prop-icon {
+  animation: reveal-mark var(--dur-move) var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * var(--stagger-reveal) + 80ms);
+}
+
+/* The promotions band. The panel is anchored to the foot of the showcase and
+   hidden behind the banners at its top, so growing it from its bottom edge is
+   the section's own construction played forwards — the colour comes out from
+   under the artwork rather than fading onto the page behind it.
+
+   The banners and the words only fade. The strip is a carousel whose track
+   carries a transform written by ui.js, and the detail row carries the hover
+   lift; animating either one's transform here would fight code that owns it. */
+[data-reveal="panel"].is-armed .promo-ground { transform: scaleY(0); }
+[data-reveal="panel"].is-armed .promo-stage,
+[data-reveal="panel"].is-armed .promo-detail { opacity: 0; }
+.promo-ground { transform-origin: bottom; }
+[data-reveal="panel"].is-revealed .promo-ground {
+  animation: reveal-panel var(--dur-reveal) var(--ease-out) backwards;
+}
+[data-reveal="panel"].is-revealed .promo-stage {
+  animation: reveal-fade var(--dur-enter) ease backwards;
+  animation-delay: 120ms;
+}
+[data-reveal="panel"].is-revealed .promo-detail {
+  animation: reveal-fade var(--dur-enter) ease backwards;
+  animation-delay: 260ms;
+}
+
+/* Membership. The panel holds one photograph and one column of type, and they
+   arrive as those two things: the picture seats itself inside a frame that
+   already crops it — the same gesture the banner makes on load and the fleet's
+   cars make in their frames — and the copy rises after it.
+
+   The overscale is on the img, not on .member-art, because the wash that
+   dissolves the picture's left edge is a pseudo-element on that wrapper. Scale
+   the wrapper and the wash scales with it, and the ramp that holds the copy's
+   contrast would move off the column it was measured against. */
+[data-reveal="settle"].is-armed .member-art img { transform: scale(1.05); }
+[data-reveal="settle"].is-armed .member-copy > * { opacity: 0; }
+[data-reveal="settle"].is-revealed .member-art img {
+  animation: reveal-settle calc(var(--dur-enter) + var(--dur-layout))
+             var(--ease-out) backwards;
+}
+/* The copy's own two rows need their own indices. The generic nth-child block
+   above only reaches a container's direct children, and .member-copy is one
+   level further in — left alone, the title and the body would both inherit the
+   column's single --i and arrive together, which is a stagger that does not
+   stagger. */
+[data-reveal="settle"] .member-copy > *:nth-child(1) { --i: 0; }
+[data-reveal="settle"] .member-copy > *:nth-child(2) { --i: 1; }
+[data-reveal="settle"].is-revealed .member-copy > * {
+  animation: reveal-rise var(--dur-enter) var(--ease-out) backwards;
+  animation-delay: calc(140ms + var(--i, 0) * var(--stagger-reveal));
+}
+
+/* ══ Reduced motion ══════════════════════════════════════════════════════
+   What is left after tokens.css has done its half.
+
+   This block used to be a wildcard that took every transition and every
+   animation on the page to zero with !important. It was the wrong instrument
+   twice over. It stopped colour and opacity changes, which the preference is
+   not asking about and which are the only way a control can say it heard you.
+   And being a sweep, it hid the fact that nothing else in the file had been
+   asked to think about the question at all.
+
+   The durations are gone from here because they belong to the tokens: every
+   animation on this page reads --dur-press, --dur-move, --dur-layout,
+   --dur-enter or --dur-reveal, and every transform transition reads
+   --transition-move. One line in tokens.css stops all of them.
+
+   What is left is the class of thing a zero duration cannot fix — a rest
+   state that is still displaced. A hover lift set to arrive in zero
+   milliseconds is not a hover lift that has stopped; it is one that teleports,
+   which is worse than the animation. Those end states have to be withdrawn,
+   and this is the list of them.
+
+   Three kinds of movement deliberately survive:
+
+   — The drawer still slides and the accordion still opens. Both ARE the state
+     change rather than an embellishment on it, and they arrive instantly.
+   — The accordion's plus still turns into a cross. It is the control's only
+     open/closed indicator; removing it removes information.
+   — Buttons still compress 2.5% under a press. A control answering a finger
+     under the finger is the feedback WCAG 2.3.3's own note carves out, and
+     2.5% of a 48px button is a pixel of travel. The chevrons' 2px nudge stays
+     on the same argument. */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    transition-duration: 0ms !important;
-    animation-duration: 0ms !important;
-    scroll-behavior: auto !important;
-  }
-  .card:hover, .service-card:hover { transform: none; }
+  .card:hover,
+  .service-card:hover,
+  .props-grid > *:hover,
+  .promo-slide:hover,
+  .promo-stage:hover ~ .promo-detail { transform: none; }
+  .link-arrow:hover::after { transform: none; }
 }
