@@ -337,6 +337,86 @@
     });
     autoStart();
 
+    /* ── Drag and swipe ───────────────────────────────────────────────────
+       Client direction, 2026-08-17: "you should be able to drag the banner to
+       change it."
+
+       Pointer events, not touchstart/touchmove, so one implementation serves a
+       finger, a mouse and a stylus. The chevrons stay exactly as they were —
+       this is an additional way in, not a replacement, and a carousel whose
+       only affordance is a gesture has no affordance at all for a keyboard.
+
+       THE AXIS TEST IS THE WHOLE OF IT. This banner is 720px tall at 1440 and
+       fills a phone screen, so most drags that start on it are someone
+       scrolling the page, not changing the slide. A swipe is only a swipe if it
+       has travelled further sideways than down: `Math.abs(dx) > Math.abs(dy)`,
+       checked at the end rather than the beginning, so a drag that starts
+       diagonal and settles into a scroll is still a scroll.
+
+       `touch-action: pan-y` in app.css is the other half. It tells the browser
+       to keep owning vertical scrolling — which stays smooth and native, on the
+       compositor — while letting horizontal movement reach this code. Without
+       it a phone either scrolls or swipes depending on which listener wins, and
+       which one wins is not something to leave to chance.
+
+       60px, not a percentage. A swipe threshold that scales with the viewport
+       asks for a 216px drag on a desktop and 23px on a phone, which is
+       backwards: the small screen is the one where the gesture is deliberate.
+       60 is comfortably past a tap's slop and short of a scroll's intent.
+
+       Dragging ends the auto-advance for good, exactly as a chevron does, and
+       for the same reason: the reader has said which banner they want.
+
+       No transform follows the finger. The slides are absolutely stacked and
+       crossfade — there is no strip to move — and faking one would mean
+       rebuilding the layout for the sake of a rubber-band. What it costs is the
+       drag feeling less physical than it looks on a native carousel; what it
+       buys is that the arrival animation stays the one the chevrons produce, so
+       the two routes in do not disagree about what a slide change looks like. */
+    var dragX = 0, dragY = 0, dragging = false;
+    var SWIPE_MIN = 60;
+
+    root_.addEventListener('pointerdown', function (e) {
+      /* Not on the chevrons: those have their own handler and a drag that
+         starts on one is a mis-aimed press, not a gesture. */
+      if (e.target.closest && e.target.closest('.hero-arrow')) { return; }
+      dragging = true;
+      dragX = e.clientX;
+      dragY = e.clientY;
+      /* POINTER CAPTURE, and it is not a nicety — without it this gesture is
+         lost about a third of the time at desktop widths.
+
+         The booking card is absolutely positioned INSIDE #hero, over the right
+         of the banner, and it is not a descendant of .hero-slider. A drag that
+         starts on the picture and ends under the card fires its pointerup on
+         the card, so the listener below never hears it and the swipe silently
+         does nothing. Found by driving it: a 200px drag right from the centre
+         at 1440 ends at x=920, which is the card's left edge to the pixel.
+
+         Capture retargets every subsequent pointer event for this gesture to
+         the element that took it, whatever is painted on top — and it survives
+         the pointer leaving the window, which is the same bug one step
+         further out. */
+      if (root_.setPointerCapture) {
+        try { root_.setPointerCapture(e.pointerId); } catch (err) { /* not capturable */ }
+      }
+    });
+
+    root_.addEventListener('pointerup', function (e) {
+      if (!dragging) { return; }
+      dragging = false;
+      var dx = e.clientX - dragX;
+      var dy = e.clientY - dragY;
+      if (Math.abs(dx) < SWIPE_MIN || Math.abs(dx) <= Math.abs(dy)) { return; }
+      autoEnd();
+      /* Drag left, go forward — the picture follows the finger, which is the
+         direction every native gallery has taught. */
+      var step = dx < 0 ? 1 : -1;
+      show(heroIndex + step, step);
+    });
+
+    root_.addEventListener('pointercancel', function () { dragging = false; });
+
     function label() {
       arrows.forEach(function (a) { a.el.setAttribute('aria-label', i18n.t(a.key)); });
     }

@@ -1847,6 +1847,22 @@ body .booking-title {
      height therefore follows the window — 952px at a 1920 monitor. */
   overflow: hidden;
   background: var(--grey-50);
+  /* The browser keeps the vertical axis, the drag handler in ui.js gets the
+     horizontal one. Without it a phone has to decide for itself whether a drag
+     on a full-screen banner was a swipe or a scroll, and it decides per frame:
+     the page stutters, or the swipe is swallowed, depending on which listener
+     wins the race. This is the commonest way a draggable banner breaks a
+     phone, and .promo-showcase carries the same declaration for the same
+     reason. */
+  touch-action: pan-y;
+}
+/* A drag across a photograph starts a native image drag on a mouse, which
+   lifts a translucent ghost of the banner off the page in the middle of the
+   gesture. Both properties, because the unprefixed one is not universal. */
+.hero-slide img {
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 @media (max-width: 767px) {
   /* Squarer on a phone so the artwork has some height, at the cost of the

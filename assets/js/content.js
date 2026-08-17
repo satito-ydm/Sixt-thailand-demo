@@ -125,27 +125,51 @@
     },
     {
       /* Replaced the KBank domestic banner on 2026-08-17 at the client's
-         direction. That slide is not deleted from the project — its file is
-         still assets/img/promo-kbank-domestic.webp and it is still the
-         promotions carousel's first card, which is where a domestic-travel
-         offer belongs. What it was doing HERE was being the second of two
-         hero banners while also being a promotion card, so the same artwork
-         met the reader twice on one page.
+         direction, then re-supplied within the hour as the full campaign
+         artwork: the first version carried the lockup, the headline and the
+         coupon bar, this one adds the LINE QR, the ADD LINE call, the run
+         dates, the excluded-models line and the 1798 / master lockups.
 
-         1672x941, which is 1.777:1 in a 2:1 frame — cover trims the TOP AND
-         BOTTOM, not the sides, because this is the first hero slide that is
-         squarer than the frame rather than wider. 5.58% per edge against the
-         6% budget, so no safeEdge override; what it costs is sky at the top
-         and tarmac at the bottom, and the lockup, the headline and the coupon
-         bar all sit in the middle two-thirds. It is the same 1672x941 the
-         three promotion banners are, which is not a coincidence — this is that
-         set's master size. */
+         1717x916 is 1.875:1 in a 2:1 frame, so cover trims 58 rows — the TOP
+         AND BOTTOM, because this slide is squarer than the frame rather than
+         wider. 3.14% per edge, inside the 6% budget.
+
+         AND THE BUDGET IS NOT WHAT DECIDES THIS ONE. The ratio test passes at
+         3.14% while a centred crop cuts the bottom lockup by 27 rows: the
+         "1798 / www.sixthailand.com / master" strip is hard against the
+         artwork's bottom edge, ink to row 915 of 916. A budget measures the
+         SHAPE of a slide, not what its author put at the edges, and this is the
+         first slide on this page where the two answers differ.
+
+         Measured before choosing, by counting dark pixels in the 58 rows at
+         each end:
+
+           top 58 rows     0.0% ink across the left three quarters,
+                           43.6% in the far right — the tree, which already
+                           bleeds off the frame on purpose
+           bottom 58 rows  97.8% ink in the left quarter — solid type
+
+         So the crop is biased to the bottom and the whole loss is taken off the
+         top. It costs foliage that was already running out of frame and saves
+         every piece of type, including the legal line. */
       id: 'mobilife-coupon',
       image: 'assets/img/hero-mobilife.webp',
-      width: 1672,
-      height: 941,
-      th: { alt: 'แคมเปญ SIXT ร่วมกับ MOBILIFE — ยิ่งเช่า ยิ่งได้คืน รับ E-Coupon สูงสุด 1,000 บาท สำหรับสมาชิก MOBILIFE ภาพครอบครัวนั่งท้ายรถ MINI Countryman สีส้มเปิดฝาท้าย จอดอยู่จุดชมวิวริมทะเล' },
-      en: { alt: 'SIXT with MOBILIFE — the more you rent, the more you get back: an e-coupon worth up to ฿1,000 for MOBILIFE members. Three travellers sit in the open boot of an orange MINI Countryman at a coastal viewpoint' }
+      width: 1717,
+      height: 916,
+      focus: '50% 100%',
+      /* THE ALT CARRIES THE TERMS, because they exist nowhere else on the page.
+         This artwork prints its own run dates, its own exclusions and its own
+         hotline, and the alt is the only route any of that has to a reader who
+         cannot see the picture. Same rule the closing key visual follows.
+
+         Two of them are worth a human eye before launch: the offer runs
+         1–31 August 2026, so it is live today and expires in two weeks with
+         nothing on the page that knows it; and four models are excluded, three
+         of which — Yaris, City, Altis — are cars this site's own fleet tab
+         offers. Neither is a bug in the markup. Both are claims inside a JPEG,
+         which is the thing this project keeps finding. */
+      th: { alt: 'แคมเปญ SIXT ร่วมกับ MOBILIFE — ยิ่งเช่า ยิ่งได้คืน รับ E-Coupon สูงสุด 1,000 บาท สำหรับสมาชิก MOBILIFE สมัครสมาชิกผ่าน LINE ด้วยคิวอาร์โค้ดบนภาพ ระยะเวลา 1–31 สิงหาคม 2569 ไม่ร่วมรายการ Toyota Yaris, Honda City, Toyota Altis และ Honda Civic สอบถาม 1798 ภาพกลุ่มเพื่อนนั่งท้ายรถ MINI Countryman สีส้มที่เปิดฝาท้าย จอดอยู่จุดชมวิวริมทะเล' },
+      en: { alt: 'SIXT with MOBILIFE — the more you rent, the more you get back: an e-coupon worth up to ฿1,000 for MOBILIFE members. Join MOBILIFE through the LINE QR code shown. Runs 1–31 August 2026. Excludes the Toyota Yaris, Honda City, Toyota Altis and Honda Civic. Enquiries on 1798. Three friends sit in the open boot of an orange MINI Countryman at a coastal viewpoint' }
     }
   ];
 
