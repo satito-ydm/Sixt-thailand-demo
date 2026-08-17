@@ -198,7 +198,35 @@
       /* The first slide is the largest thing above the fold. */
       if (index === 0) { img.setAttribute('fetchpriority', 'high'); }
       else { img.loading = 'lazy'; }
+
+      /* ── The phone cut, when the slide has one ────────────────────────
+         A <picture> with one <source>, not two <img> hidden by CSS, and the
+         difference is the whole reason it is built this way: <picture> lets
+         the browser pick BEFORE it fetches, so a phone downloads the 164 KB
+         mobile file and never touches the 158 KB desktop one. Two <img> and a
+         display:none would download both — 322 KB to show one of them, on the
+         connection least able to afford it.
+
+         The media query is the same 767px the stylesheet changes the frame at,
+         and it has to be: the source is cut for 4:3 and the frame is only 4:3
+         below that. If .hero-slider's breakpoint moves, this moves with it.
+         Nothing enforces that pairing yet — it is two numbers in two files. */
+      if (slide.mobile) {
+        var picture = el('picture');
+        var source = el('source');
+        source.media = '(max-width: 767px)';
+        source.srcset = slide.mobile.image;
+        source.width = slide.mobile.width;
+        source.height = slide.mobile.height;
+        picture.appendChild(source);
+        picture.appendChild(img);
+        fig.appendChild(picture);
+        return fig;
+      }
+
       fig.appendChild(img);
+      return fig;
+    }).map(function (fig) {
       root_.appendChild(fig);
       return fig;
     });
@@ -259,6 +287,55 @@
       arrow('prev', ICON_PREV, -1, 'hero.prev'),
       arrow('next', ICON_NEXT, 1, 'hero.next')
     ];
+
+    /* ── Auto-advance, and the four things that stop it ───────────────────
+       Client direction, 2026-08-17: "it should slide by itself if you do not
+       press a button." The second half of that sentence is the whole design —
+       this is a carousel that yields, not one that insists.
+
+       PRESSING A CHEVRON ENDS IT FOR GOOD. Not pauses: ends. Someone reaching
+       for a control has said which banner they want to look at, and a strip
+       that carries on moving thirty seconds later is arguing with them. There
+       is no way to turn it back on, and that is deliberate — a resume would be
+       the same argument on a delay.
+
+       Hovering or tabbing in only PAUSES it, and it resumes on the way out.
+       That is a different intent: the pointer is resting, not choosing.
+
+       WCAG 2.2.2 asks for a way to pause anything that moves for more than
+       five seconds beside other content, and both of the above provide one.
+       Under prefers-reduced-motion it never starts at all — the crossfade
+       survives as the thing that signals a change, but nothing moves unasked.
+
+       And it stops while the tab is in the background, which is not a nicety:
+       an interval left running in a hidden tab burns a repaint every seven
+       seconds on a page nobody is looking at, and browsers throttle it to
+       something unpredictable rather than to nothing.
+
+       7000ms because these banners carry a headline, a price and a line of
+       terms in baked-in Thai. Five seconds is the usual figure for a picture;
+       it is not enough to read a paragraph, and this slide is a paragraph. */
+    var AUTO_MS = 7000;
+    var autoTimer = null;
+    var autoStopped = reduce;
+
+    function autoStop() { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } }
+    function autoStart() {
+      if (autoStopped || autoTimer || document.hidden) { return; }
+      autoTimer = setInterval(function () { show(heroIndex + 1, 1); }, AUTO_MS);
+    }
+    /* The permanent one. */
+    function autoEnd() { autoStopped = true; autoStop(); }
+
+    arrows.forEach(function (a) { a.el.addEventListener('click', autoEnd); });
+    root_.addEventListener('pointerenter', autoStop);
+    root_.addEventListener('pointerleave', autoStart);
+    root_.addEventListener('focusin', autoStop);
+    root_.addEventListener('focusout', autoStart);
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) { autoStop(); } else { autoStart(); }
+    });
+    autoStart();
 
     function label() {
       arrows.forEach(function (a) { a.el.setAttribute('aria-label', i18n.t(a.key)); });

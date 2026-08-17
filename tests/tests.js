@@ -545,7 +545,55 @@
     if (!fs) { return; }
     root.SIXT.content.HERO_SLIDES.forEach(function (s) {
       T.ok(fs.existsSync(here + '/../' + s.image), 'missing slide asset: ' + s.image);
+      /* A phone cut is optional, but a declared one that is not there is worse
+         than none: <picture> falls back silently to the desktop file, so the
+         page looks correct on a laptop and quietly serves the 18%-cropped
+         landscape banner to every phone. */
+      if (s.mobile) {
+        T.ok(fs.existsSync(here + '/../' + s.mobile.image),
+          'missing mobile slide asset: ' + s.mobile.image);
+      }
     });
+  });
+
+  /* The phone cut is measured against the MOBILE frame, which is 4:3 — not the
+     2:1 the desktop slides are checked against. Checking it against the wrong
+     frame is the whole failure this test exists to stop: hero-lionair-skyline-m
+     is 1.333:1, which is 25% off each edge of a 2:1 frame and would look like a
+     catastrophe, and is exactly right for the frame it actually renders in. */
+  T.test('every hero mobile cut fits the 4:3 phone frame', function () {
+    var C = root.SIXT.content;
+    var frame = C.HERO_MOBILE_FRAME_RATIO;
+    T.ok(frame, 'content.js must declare HERO_MOBILE_FRAME_RATIO');
+    C.HERO_SLIDES.forEach(function (s) {
+      if (!s.mobile) { return; }
+      var ratio = s.mobile.width / s.mobile.height;
+      var lost = ratio > frame
+        ? (ratio - frame) / ratio
+        : (1 / ratio - 1 / frame) * ratio;
+      var budget = s.mobile.safeEdge || 0.06;
+      T.ok(lost / 2 <= budget, s.id + ' mobile cut is ' + ratio.toFixed(3) + ':1 in a ' +
+        frame.toFixed(3) + ':1 frame — ' + (lost / 2 * 100).toFixed(1) +
+        '% off each edge, budget ' + (budget * 100).toFixed(0) + '%');
+    });
+  });
+
+  /* The CSS breakpoint the <picture> source keys off is 767px, and .hero-slider
+     changes frame at the same number. They are two literals in two files and
+     nothing else ties them together — if one moves, phones get a 4:3 artwork in
+     a 2:1 frame or the reverse, and neither shows as an error anywhere. */
+  T.test('the phone frame breakpoint in the stylesheet is the one ui.js serves at', function () {
+    if (!fs) { return; }
+    var css = readProjectFile('assets/css/app.css');
+    var js = readProjectFile('assets/js/ui.js');
+    var cssHit = css.match(/@media \(max-width: (\d+)px\)[^{]*\{[^@]*?\.hero-slider\s*\{\s*aspect-ratio:\s*4\s*\/\s*3/);
+    T.ok(cssHit, '.hero-slider must set a 4/3 aspect-ratio inside a max-width media query');
+    var jsHit = js.match(/source\.media = '\(max-width: (\d+)px\)'/);
+    T.ok(jsHit, 'ui.js must set the hero <source> media query');
+    if (cssHit && jsHit) {
+      T.eq(jsHit[1], cssHit[1],
+        'ui.js serves the phone cut below ' + jsHit[1] + 'px but the 4:3 frame starts below ' + cssHit[1] + 'px');
+    }
   });
 
   /* The width and height a slide declares must be the ones in the file, and
@@ -603,6 +651,21 @@
         s.id + ' declares width ' + s.width + ' but ' + s.image + ' is ' + size.w);
       T.eq(size.h, s.height,
         s.id + ' declares height ' + s.height + ' but ' + s.image + ' is ' + size.h);
+
+      /* And the phone cut, for the same reason and one more: lossy WebP rounds
+         odd dimensions down to even when it subsamples chroma, so a 1447x1087
+         master encodes to 1448x1086. Declaring the source's numbers rather than
+         the output's is a mistake that only this check catches. */
+      if (!s.mobile) { return; }
+      var mPath = here + '/../' + s.mobile.image;
+      if (!fs.existsSync(mPath)) { return; }
+      var mSize = webpSize(fs.readFileSync(mPath));
+      T.ok(mSize, s.id + ': could not read the dimensions out of ' + s.mobile.image);
+      if (!mSize) { return; }
+      T.eq(mSize.w, s.mobile.width,
+        s.id + ' mobile declares width ' + s.mobile.width + ' but the file is ' + mSize.w);
+      T.eq(mSize.h, s.mobile.height,
+        s.id + ' mobile declares height ' + s.mobile.height + ' but the file is ' + mSize.h);
     });
   });
 

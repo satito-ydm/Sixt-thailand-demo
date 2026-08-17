@@ -65,6 +65,16 @@
 
      Adding a slide: convert it in tools/prepare-images.py and append it here. */
   var HERO_FRAME_RATIO = 2 / 1;
+  /* The frame is not 2:1 on a phone — .hero-slider goes 4/3 under 768 so the
+     artwork has some height. A landscape banner in that frame loses a third of
+     its width, which on this campaign set means the wordmark and the price: the
+     three originals keep 68%, 64% and 51% of themselves, measured.
+
+     So a slide may carry its own `mobile` artwork, cut for THIS ratio, and
+     ui.js swaps to it with a <picture> source. Same rules as the main image —
+     declare the real width and height, and the tests check both against the
+     file and against this frame rather than the desktop one. */
+  var HERO_MOBILE_FRAME_RATIO = 4 / 3;
 
   var HERO_SLIDES = [
     {
@@ -85,16 +95,57 @@
          and inventing the difference, which is not more detail, only more bytes.
          If a larger master ever arrives, this is the slide to re-cut first —
          it is the first picture on the page. */
+      /* The phone cut of the same campaign, supplied 2026-08-17. 1448x1086 is
+         1.3333:1 against the mobile frame's 1.3333 — the file IS the frame, and
+         nothing is cropped at any width where it is used. The landscape file in
+         that same frame lost 18% off each side and took the SIXT and Thai Lion
+         Air lockup with it.
+
+         It is a RE-LAYOUT, not a re-crop, which is what README open item 7 has
+         been asking for: the lockup has moved up and in, the aircraft has come
+         down into the frame, and the headline and its two lines of terms are
+         set above the car instead of beside it. A 2:1 composition cannot be
+         made to work at 4:3 by any amount of cropping — the proof is that
+         cropping the desktop file is exactly what was already happening.
+
+         3.4x the widest phone box (428px), so it holds on a 3x screen.
+
+         The declared numbers are the ENCODED file's, not the PNG's. Lossy WebP
+         subsamples chroma and rounds odd dimensions down to even: the source
+         was 1447x1087 on its first supply and came out 1448x1086, and the test
+         that matches these numbers against the header would have failed on the
+         PNG's. Read them back from the .webp, never from what went in. */
+      mobile: {
+        image: 'assets/img/hero-lionair-skyline-m.webp',
+        width: 1448,
+        height: 1086
+      },
       th: { alt: 'แคมเปญ SIXT ร่วมกับ Thai Lion Air — เช่ารถพร้อมคนขับ รับ-ส่งสนามบิน สิทธิพิเศษสำหรับผู้โดยสาร Thai Lion Air เพียงแสดงบัตรโดยสารหรือ E-Ticket ภาพ Mercedes-Benz E-Class สีขาวหน้าอาคารผู้โดยสาร มีเครื่องบิน Thai Lion Air และสกายไลน์กรุงเทพฯ เป็นฉากหลัง' },
       en: { alt: 'SIXT with Thai Lion Air — chauffeured airport transfers, a perk for Thai Lion Air passengers on showing a boarding pass or e-ticket; a white Mercedes-Benz E-Class outside the terminal, a Thai Lion Air aircraft and the Bangkok skyline behind' }
     },
     {
-      id: 'kbank-domestic',
-      image: 'assets/img/promo-kbank-domestic.webp',
-      width: 1774,
-      height: 887,
-      th: { alt: 'แคมเปญ SIXT ร่วมกับ KBank — การเดินทางภายในประเทศ เช่ารถขับเอง 799 บาทต่อวัน ลีมูซีน 1,090 บาทต่อเที่ยว ส่วนลดตั๋วเครื่องบิน 300 บาท' },
-      en: { alt: 'SIXT and KBank domestic travel — self-drive from ฿799 a day, limousine from ฿1,090 a trip, ฿300 off flights' }
+      /* Replaced the KBank domestic banner on 2026-08-17 at the client's
+         direction. That slide is not deleted from the project — its file is
+         still assets/img/promo-kbank-domestic.webp and it is still the
+         promotions carousel's first card, which is where a domestic-travel
+         offer belongs. What it was doing HERE was being the second of two
+         hero banners while also being a promotion card, so the same artwork
+         met the reader twice on one page.
+
+         1672x941, which is 1.777:1 in a 2:1 frame — cover trims the TOP AND
+         BOTTOM, not the sides, because this is the first hero slide that is
+         squarer than the frame rather than wider. 5.58% per edge against the
+         6% budget, so no safeEdge override; what it costs is sky at the top
+         and tarmac at the bottom, and the lockup, the headline and the coupon
+         bar all sit in the middle two-thirds. It is the same 1672x941 the
+         three promotion banners are, which is not a coincidence — this is that
+         set's master size. */
+      id: 'mobilife-coupon',
+      image: 'assets/img/hero-mobilife.webp',
+      width: 1672,
+      height: 941,
+      th: { alt: 'แคมเปญ SIXT ร่วมกับ MOBILIFE — ยิ่งเช่า ยิ่งได้คืน รับ E-Coupon สูงสุด 1,000 บาท สำหรับสมาชิก MOBILIFE ภาพครอบครัวนั่งท้ายรถ MINI Countryman สีส้มเปิดฝาท้าย จอดอยู่จุดชมวิวริมทะเล' },
+      en: { alt: 'SIXT with MOBILIFE — the more you rent, the more you get back: an e-coupon worth up to ฿1,000 for MOBILIFE members. Three travellers sit in the open boot of an orange MINI Countryman at a coastal viewpoint' }
     }
   ];
 
@@ -372,6 +423,7 @@
   root.SIXT.content = {
     HERO_SLIDES: HERO_SLIDES,
     HERO_FRAME_RATIO: HERO_FRAME_RATIO,
+    HERO_MOBILE_FRAME_RATIO: HERO_MOBILE_FRAME_RATIO,
     VALUE_PROPS: VALUE_PROPS,
     FLEET_INCLUDES: FLEET_INCLUDES,
     PROMOS: PROMOS,
