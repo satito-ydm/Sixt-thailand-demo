@@ -738,6 +738,38 @@
          the first child, so all three sit on one line because they start at the
          same edge — where before it depended on the pill below them being the
          same height in every column. */
+      /* THE COLUMN'S OWN PICTURE, and it only exists below 768.
+
+         Above that this section is one banner with one photograph behind three
+         columns, and the layer that carries it is .svc-bg — three images
+         stacked, one opaque, crossfading as the pointer moves. That is a
+         pointer effect, and on a phone there is no pointer: the reader got one
+         picture at the top of the section and two services with no picture at
+         all, which is the arrangement the client called "each box should have
+         its own picture".
+
+         So each column carries a second copy of its own image, hidden by CSS
+         above 768. Two <img> tags for one photograph looks wasteful and is
+         not: the file is the same URL, so the browser fetches it once and the
+         hidden one costs a cache hit. The alternative — moving the image into
+         the column and rebuilding the shared layer from it — would mean the
+         crossfade reaching across three parents.
+
+         alt is empty and it is aria-hidden, for the same reason it is on the
+         layer above: the column's own <h3> names the service immediately after
+         it, and a screen reader does not need the picture announced twice. */
+      if (item.image) {
+        var colMedia = el('div', 'svc-col__media');
+        var colImg = el('img');
+        colImg.src = item.image;
+        colImg.alt = '';
+        colImg.setAttribute('aria-hidden', 'true');
+        colImg.loading = 'lazy';
+        colImg.decoding = 'async';
+        colMedia.appendChild(colImg);
+        col.appendChild(colMedia);
+      }
+
       var head = el('div', 'svc-col__head');
       /* An <h3> and not a link: the CTA below is the link, and a second anchor
          to the same destination is what the news list already decided against. */

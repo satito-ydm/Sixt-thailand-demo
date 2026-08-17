@@ -1510,8 +1510,28 @@ body.is-locked { overflow: hidden; }
   background: var(--sixt-black);
   color: var(--white);
 }
+/* THE TOP PADDING IS THE CARD'S OVERHANG PLUS A GAP, and it is written as that
+   sum rather than as a number so the two stay tied together.
+
+   .closing-contact straddles the join with `margin: -4rem 0`, so it hangs a
+   fixed 64px down into this footer at every width. Whatever is first inside
+   here has to start below that or the card lands on top of it.
+
+   IT WAS clamp(3.5rem, 6vw, 6rem) AND THAT BROKE WHEN THE MASTHEAD WENT. The
+   clamp's floor is 56px — eight pixels SHORT of the overhang on its own — and
+   it never showed, because .footer-masthead used to be the first block in here
+   and carried 32px of its own bottom padding plus a 40-64px margin under it.
+   Removing the masthead removed that buffer and left a 56px floor facing a 64px
+   overhang. Measured after the removal: 8px of the first column heading covered
+   at 768, 390 and 320. Desktop escaped only because 6vw is 86 at 1440.
+
+   A CONSTANT, NOT A CLAMP, and that is the actual correction. What this padding
+   has to clear does not scale with the viewport — it is a fixed -4rem — so
+   scaling the thing that clears it is how the floor ended up under the ceiling
+   in the first place. 4rem + --space-12 is 112px, which leaves 48px of gap
+   under the card at every width from 320 up. */
 .footer-inner {
-  padding-block: clamp(3.5rem, 6vw, 6rem) var(--space-8);
+  padding-block: calc(4rem + var(--space-12)) var(--space-8);
 }
 
 /* The hairline. rgba white rather than a grey token, because it has to sit on
@@ -2094,6 +2114,38 @@ body .booking-title {
   box-shadow: var(--shadow-widget);
   padding: var(--space-6);
 }
+/* SOLID AND FULL-BLEED BELOW 768, at the client's direction: "make the box
+   solid black, no frame, let the colour run on from the picture."
+
+   The glass was designed for the width where this card floats ON the hero
+   photograph. Down here it does not: the picture stops and the card sits under
+   it, in flow, over the page's own white — so a 0.70 black card is a grey
+   rectangle with nothing to be translucent about. The effect had already lost
+   its subject; what was left was the cost of it.
+
+   Which is the same reason it is solid rather than merely darker: with the
+   card on white, --sixt-black restores the ink to 17.40:1 and the muted labels
+   to 10.95, against 6.39 and 4.66 through the glass. The pairs are already in
+   check-contrast.js as the @supports-not fallback — this breakpoint now uses
+   the same ground, so nothing new had to be measured.
+
+   Full-bleed by cancelling the dock's gutter rather than by negative margins on
+   the card: the card is the dock's only child, so the padding IS the inset.
+   The picture above already runs 0..390 and the card now meets it edge to edge
+   with the 0px gap it always had — the frame was the only thing making them
+   read as two objects. */
+@media (max-width: 767px) {
+  .booking-dock { padding-inline: 0; max-width: none; }
+  .booking-card {
+    background: var(--sixt-black);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
 /* No backdrop-filter, no glass — and a translucent card with nothing blurred
    behind it is worse than an opaque one, because the alpha was chosen against
    a white worst case and the look it buys is gone. Falls back to the flat
@@ -2773,6 +2825,63 @@ body .booking-title {
    It bleeds to the panel's edges by cancelling the padding, and the panel
    stops paying padding underneath it, so the artwork reaches three sides of
    the box the way it reaches one on desktop. */
+/* Centred below 1280, at the client's direction on 2026-08-17.
+
+   Three things have to move together or it only looks centred: the flex
+   alignment of the column, the text-align inside each line, and .member-actions
+   — which is its own flex container and keeps its own `align-items: flex-start`
+   from the desktop rule. Centre the first two and the button stays hard left
+   under centred type, which reads as a mistake rather than as a choice.
+
+   .member-title's max-inline-size of 16ch stays. Centred text with no measure
+   is centred to the panel rather than to itself, and on a 358px band that puts
+   a two-word heading on three lines.
+   SCOPED THROUGH .member-panel, which is the second time today this exact trap
+   has been walked into on this page: .member-copy sets its own `align-items:
+   flex-start` LATER in this file, so a single-class override here loses the tie
+   on source order and reports as applied while rendering left-aligned. Two
+   classes settles it wherever either rule sits. */
+@media (max-width: 1279px) {
+  /* max-width: none is the half that actually centres it. --member-copy is a
+     clamp whose floor is 17.5rem, so the column was a fixed 280px pinned to the
+     band's left gutter — centring the text inside it centred it on the COLUMN,
+     which at 768 left the button 256px from the middle of the band and at 1024
+     left it 368px out. Measured before believing it: the text looked centred in
+     a screenshot and was not.
+
+     The measure exists to keep the last letter inside the opaque part of the
+     orange wash, and there is no wash down here — the picture is underneath the
+     copy rather than beside it. So the constraint that produced the 280 does
+     not apply at these widths and the column can have the band.
+
+     justify-content AND align-items, because .member-actions changes axis at
+     640: it is a column below that, where align-items centres horizontally, and
+     a row above it, where justify-content does. Setting one centres the button
+     at half the widths and leaves it hard left at the others. */
+  .member-panel .member-copy {
+    max-width: none;
+    width: 100%;
+    align-items: center;
+    text-align: center;
+  }
+  .member-panel .member-actions {
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+  .member-panel .member-title { margin-inline: auto; }
+  /* The column takes the band; the PARAGRAPH must not. Freeing the column's
+     max-width is what centres it, and it also let the lead run the full 720px
+     at 768 — a line of Thai that long is a measure problem the centring
+     created. 46ch caps it and margin-inline keeps the cap centred rather than
+     left-aligned inside a centred column, which is the same mistake one level
+     down. The heading has its own 16ch and needs nothing here. */
+  .member-panel .member-copy .lead {
+    max-width: 46ch;
+    margin-inline: auto;
+  }
+}
+
 @media (max-width: 1279px) {
   .member-panel {
     flex-direction: column;
@@ -2899,6 +3008,27 @@ body .booking-title {
    12.37 and carries no such condition; that asymmetry is the thing to remember
    when this is next touched. */
 .member-title__accent { color: var(--sixt-orange); }
+/* AND WHITE BELOW 1280, WHERE IT WAS ORANGE ON ORANGE — 1.00:1, the word
+   "Membership" simply absent from the page. Reported from a phone screenshot,
+   which is the only way it could have been: the rule above was written for the
+   band from 1280 up, where the copy stands on a near-white photograph and
+   orange is the accent. Below that the picture drops underneath and the copy
+   goes back onto flat --sixt-orange, and nobody re-read the one rule that names
+   a colour instead of inheriting one.
+
+   The lesson is the same one the two-ground membership panel keeps teaching: a
+   colour that is an accent on one ground is invisible on another, and this
+   section has had two grounds since the artwork went full-bleed. Every OTHER
+   ink on this panel is already scoped to a breakpoint for exactly that reason —
+   this was the one that was not.
+
+   White is 3.28:1 on the brand orange, which the heading clears because it is
+   large text several times over. The rest of the title is already white here,
+   so what this really does is stop the heading being two colours on a ground
+   that only supports one. */
+@media (max-width: 1279px) {
+  .member-title__accent { color: var(--white); }
+}
 .member-title {
   font-size: clamp(1.875rem, 3vw, 2.75rem);
   line-height: 1.12;
@@ -3788,6 +3918,18 @@ body .booking-title {
   padding: var(--space-5) var(--space-6);
   border-radius: var(--radius-lg);
 }
+/* Centred below 768, at the client's direction. `space-between` is the whole
+   point of this strip at desktop — a question at one end and the number at the
+   other, with the colour between them — and it is exactly what fails when the
+   row wraps: the two items land on separate lines and each is then pushed to
+   the same edge, so a centred-looking strip reads as two left-aligned
+   fragments. justify-content: center is what a wrapped row wants. */
+@media (max-width: 767px) {
+  .faq-escalate {
+    justify-content: center;
+    text-align: center;
+  }
+}
 /* ACCESSIBILITY CONTRACT — do not weaken.
    White on --sixt-orange is 3.28:1. That is legal here and nowhere near
    comfortable: it clears the 3.0 bar for large text and fails the 4.5 every
@@ -4366,6 +4508,13 @@ body .booking-title {
    three titles line up across the banner because they all start at the column's
    top edge — no longer because a pill below them happens to be the same height,
    which is what the previous arrangement was leaning on. */
+/* Hidden above 768: up there the photograph is the banner's shared layer and a
+   second copy inside the column would sit on top of the words. It is display
+   rather than visibility so it leaves the accessibility tree as well as the
+   layout — a decorative duplicate should not be reachable at the widths where
+   it is not drawn. */
+.svc-col__media { display: none; }
+
 .svc-col__head {
   display: flex;
   flex-direction: column;
@@ -4633,24 +4782,79 @@ body .booking-title {
      already is, against a per-breakpoint teardown in the script. */
   .svc-bg.parallax-zoom { transform: none; }
 
+  /* THREE CARDS, EACH WITH ITS OWN PICTURE, AND NO HOVER STATE AT ALL.
+     Client direction, 2026-08-17: "on mobile make it a box each, a picture
+     each, and no hover."
+
+     What this replaces is the banner laid on its side: one shared photograph
+     as a strip at the top, three text blocks under it divided by hairlines.
+     That arrangement is honest about what it is above 768 — one picture that
+     CHANGES as the pointer moves between columns — and it is indefensible
+     without a pointer, because two of the three services then have no picture
+     at all and the one at the top appears to belong to the first.
+
+     So the shared layer goes and each column carries its own image, rendered by
+     ui.js and hidden everywhere but here.
+
+     The scrim goes with it, and that is the part with a number attached. Every
+     white pair in this section is measured against C.serviceScrim — black at
+     62% over the worst pixel a photograph can hold — because the words sit ON
+     the picture. Down here they do not: the picture is above the words and the
+     words are on flat --black-true, which is 21:1 for white and needs no scrim
+     to be safe. Removing it here removes nothing that was protecting anything.
+
+     No hover, no active state, no crossfade. The script still toggles
+     .is-active on tap and every rule that reads it is cancelled below. */
+  .svc-bg, .svc-scrim { display: none; }
+  .svc-banner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    border-radius: 0;
+    overflow: visible;
+    box-shadow: none;
+  }
+  .svc-cols { display: contents; }
+
+  .svc-col {
+    justify-content: flex-start;
+    gap: var(--space-5);
+    min-height: 0;
+    padding: 0 0 var(--space-6);
+    background: var(--black-true);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-rest);
+  }
+  /* No hairline between them any more — they are separate boxes with a gap, and
+     a divider inside a card that already has an edge is one edge too many. */
+  .svc-col + .svc-col { border-inline-start: 0; border-top: 0; }
+
+  /* The picture, full-bleed to the card's own corners. 16:9 rather than the
+     3.58:1 the banner uses: these files are cut for a wide strip, and at 358px
+     a 3.58 crop is 100px tall, which is a letterbox rather than a photograph.
+     16:9 gives it 201 and takes the loss off the sides, where these three
+     compositions have the most room. */
+  .svc-col__media {
+    display: block;
+    margin: 0 0 var(--space-2);
+  }
+  .svc-col__media img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+  /* Everything that is not the picture keeps the card's padding. */
+  .svc-col__head,
+  .svc-col__body { padding-inline: var(--space-6); }
+
+  /* Every trace of the pointer states, cancelled in one place rather than
+     three. The copy is always visible, the title is always white, and the foot
+     wash never paints. */
   .svc-col__body { opacity: 1; pointer-events: auto; }
-  /* And no foot wash. It marks the active column, and down here every column
-     is active in all but the class — three stacked columns with one of them
-     darkened at the foot is a highlight on whichever was tapped last. Same
-     decision as the orange title below. */
   .svc-col.is-active::before { opacity: 0; }
-  /* And no orange title down here either. The colour marks the column being
-     pointed at, and there is no pointer: the class is still toggled by the tap
-     handler, so without this the last column tapped would keep an orange
-     heading that means nothing next to two white ones. All three white is the
-     same decision as all three bodies visible. */
   .svc-col.is-active .svc-col__title { color: var(--white); }
-  /* Stacked, the two-blocks-at-two-ends composition has nothing to compose
-     around — there is no tall picture between them to give room to, only a third
-     of one. Everything closes up to the top of its own column and the copy runs
-     straight into the title it belongs to. */
-  .svc-col { justify-content: flex-start; gap: var(--space-5); min-height: 0; }
-  .svc-col + .svc-col { border-top: 1px solid rgba(255, 255, 255, 0.18); }
 }
 
 /* ══ Value props ═════════════════════════════════════════════════════════
@@ -5041,6 +5245,29 @@ body .booking-title {
   gap: var(--space-6);
   text-align: start;
   color: var(--white);
+}
+/* STACKED BELOW 768, because a row cannot survive this width and was not
+   degrading, it was crushing. The strip is copy on the left and a CTA on the
+   right; the button is 250px of unbreakable pill, so on a 358px band the text
+   was left with about 100px and "20% Off International Travel with KBank" came
+   out one or two words per line, seven lines deep, beside a button that had
+   lost nothing. Every pixel the row could not afford was taken from the half
+   that yields.
+
+   Stacked, the copy gets the whole width and the button sits under it — which
+   is also the reading order the row was always in.
+
+   Centred with it, at the client's direction: text-align on the container for
+   the two paragraphs, align-items for the button, which is a flex child and
+   ignores text-align. */
+@media (max-width: 767px) {
+  .promo-detail {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-5);
+  }
+  .promo-detail__body { margin-inline: auto; }
 }
 /* Takes the middle and lets the two chevrons sit hard against it rather than
    drifting to the panel's edges — the row reads as one control with its label
