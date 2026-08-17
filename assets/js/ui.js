@@ -117,6 +117,10 @@
      which is why the row of dots and its pause button are gone. */
   var heroIndex = 0;
   var heroRelabel = null;
+  /* Set by initParallax when it decides to run, left null when it declines —
+     under reduced motion, or without IntersectionObserver or rAF. Every call
+     site has to check it for that reason. */
+  var parallaxRearm = null;
 
   /* Puts the curtain over the banner, then takes it away once the banner is
      worth looking at. Two classes on #hero rather than one:
@@ -667,34 +671,148 @@
     });
   }
 
+  /* One banner, one picture layer, three columns of words over it.
+
+     Built to the pattern the client supplied from poscoflow.com's FLOWer
+     section. What the layout is and what it gave up is written on .svc-banner
+     in app.css; what lives here is how it is wired.
+
+     The pictures are stacked in one layer rather than one per column, which is
+     what makes the banner read as a banner. Switching column crossfades between
+     them.
+
+     ONE PARALLAX NODE, not three. The bento parallaxed each tile's own picture;
+     there is one picture layer now, so there is one thing to move — and moving
+     the layer moves whichever photograph is currently visible without three
+     nodes having to stay in step. The cap in initParallax measures the node it
+     is given, so a taller node simply gets its full authored travel. */
   function renderServices() {
     var host = document.getElementById('service-grid');
     clear(host);
-    /* Bento: the first card stands tall down the left, the other two lie wide
-       beside it. Orientation is positional rather than a property of the
-       service — nothing about self-drive makes it the tall one — so it is
-       decided here by index and not carried in content.js. */
+    if (!content.SERVICES.length) { return; }
+
+    var bg = el('div', 'svc-bg');
+    bg.setAttribute('data-parallax', '34');
+    bg.setAttribute('data-parallax-zoom', '');
+
+    var cols = el('div', 'svc-cols');
+    var imgs = [];
+
     content.SERVICES.forEach(function (item, index) {
       var c = copy(item);
-      var tall = index === 0;
-      var card = el('article', 'service-card service-card--' + (tall ? 'tall' : 'wide'));
-      /* The tall card's picture stands up; the wide ones lie down beside their
-         words, so each takes the frame its own shape asks for. */
-      /* The ratio is only a fallback shape for the placeholder — once a real
-         picture is in, the stylesheet stretches it to fill the whole card and
-         the aspect-ratio stops applying. */
-      card.appendChild(mediaOrPlaceholder(item.image, item.imageSlot,
-        tall ? '3:4' : '1:1', c.alt || c.title));
-      /* The words sit on the picture, in a scrim that guarantees they are
-         readable whatever the picture turns out to be. See .service-overlay. */
-      var body = el('div', 'service-body service-overlay');
-      body.appendChild(el('h3', null, c.title));
-      body.appendChild(el('p', 'service-text', c.body));
-      var btn = el('a', item.variant === 'primary' ? 'btn-primary mt-2' : 'btn-secondary mt-2', c.cta);
-      btn.href = '#';
-      body.appendChild(btn);
-      card.appendChild(body);
-      host.appendChild(card);
+
+      /* The picture. alt is empty on purpose and this is the one place on this
+         page where that is right: the layer is decorative here. Only one of the
+         three is ever visible, which one depends on a hover, and the column
+         beside it already names the service in text. Three alt strings for a
+         backdrop that swaps under the pointer would be read out as three
+         unrelated photographs. The descriptive alt each of these carries in
+         content.js is not lost — it is still the string the bento used, and it
+         is still in the file if this ever becomes a picture that stands alone. */
+      if (item.image) {
+        var img = el('img', 'svc-bg__img' + (index === 0 ? ' is-active' : ''));
+        img.src = item.image;
+        img.alt = '';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        bg.appendChild(img);
+        imgs.push(img);
+      }
+
+      var col = el('div', 'svc-col' + (index === 0 ? ' is-active' : ''));
+      col.setAttribute('data-svc-index', String(index));
+
+      /* Two blocks: the title at the top, the detail and its CTA at the foot.
+
+         This is the third arrangement and each one answered the last. The
+         reference puts copy at the top and the title alone at the bottom; with
+         our CTA added that left the button stranded in the top block a long way
+         from the title it belongs to. Moving the CTA down to join the title
+         fixed the stranding and put both blocks at the bottom half. Inverting
+         them is what the client settled on, and it is the better read anyway: a
+         title is the first thing in a column, not the last, and the detail
+         arriving underneath it on hover is the detail answering the title rather
+         than preceding it.
+
+         It also makes the alignment free instead of contrived. The title is now
+         the first child, so all three sit on one line because they start at the
+         same edge — where before it depended on the pill below them being the
+         same height in every column. */
+      var head = el('div', 'svc-col__head');
+      /* An <h3> and not a link: the CTA below is the link, and a second anchor
+         to the same destination is what the news list already decided against. */
+      head.appendChild(el('h3', 'svc-col__title', c.title));
+      col.appendChild(head);
+
+      /* The half that fades, and it holds the column's only focusable child —
+         see .svc-col__body in app.css for why this is opacity and
+         pointer-events rather than visibility. Taking the CTA out of the tab
+         order would lock the keyboard out of the state it opens. */
+      var body = el('div', 'svc-col__body');
+      body.appendChild(el('p', 'svc-col__text', c.body));
+      var cta = el('a', (item.variant === 'primary' ? 'btn-primary' : 'btn-secondary') + ' svc-col__cta', c.cta);
+      cta.href = '#';
+      body.appendChild(cta);
+      col.appendChild(body);
+
+      cols.appendChild(col);
+    });
+
+    host.appendChild(bg);
+    host.appendChild(el('div', 'svc-scrim'));
+    host.appendChild(cols);
+
+    wireServiceBanner(cols, imgs);
+  }
+
+  /* Activation, and it answers three inputs rather than one.
+
+     The reference is hover-only. That is enough on a desktop mouse and nothing
+     at all otherwise: a touch screen has no hover, and a keyboard cannot hover
+     by definition. So:
+
+       — pointerenter, for the mouse.
+       — focusin, for the keyboard. The CTA inside each column is focusable
+         whether or not its column is active, which is what gives tab a way in.
+       — click, for touch on a screen wide enough to still be showing the
+         three-column layout. Below 768 every column is active and none of this
+         is needed; the listeners stay attached and simply have nothing to
+         change.
+
+     No mouseleave handler. Something is always active — the section never
+     returns to a state where all three columns are dimmed, because that state
+     shows a banner with no copy on it and reads as unfinished. The first column
+     is active on arrival for the same reason.
+
+     Delegated to the container. Three columns is not many, but renderAll
+     rebuilds this on every language change and per-column listeners would be
+     three more things to detach or leak. */
+  function wireServiceBanner(cols, imgs) {
+    var columns = Array.prototype.slice.call(cols.children);
+    if (columns.length < 2) { return; }
+
+    function activate(index) {
+      if (index < 0 || index >= columns.length) { return; }
+      columns.forEach(function (col, i) { col.classList.toggle('is-active', i === index); });
+      imgs.forEach(function (img, i) { img.classList.toggle('is-active', i === index); });
+    }
+
+    function indexFrom(target) {
+      var col = target.closest ? target.closest('.svc-col') : null;
+      return col ? columns.indexOf(col) : -1;
+    }
+
+    cols.addEventListener('pointerenter', function (e) {
+      var i = indexFrom(e.target);
+      if (i > -1) { activate(i); }
+    }, true);
+    cols.addEventListener('focusin', function (e) {
+      var i = indexFrom(e.target);
+      if (i > -1) { activate(i); }
+    });
+    cols.addEventListener('click', function (e) {
+      var i = indexFrom(e.target);
+      if (i > -1) { activate(i); }
     });
   }
 
@@ -718,10 +836,14 @@
      this page. mediaOrPlaceholder is not used here on purpose: its placeholder
      is a grey box naming the file the client still owes, and that is the right
      answer for a vehicle card, where a missing photograph is a gap in the
-     catalogue. It is the wrong answer here. These three items have no
-     photographs commissioned, so the absence is not a debt to display; the
-     list is a finished design either way and simply gains an image when one
-     arrives. Set `image` in content.js and it appears. */
+     catalogue. It is the wrong answer here: a news item without a picture is
+     still a whole news item.
+
+     All three now carry one, but the branch stays. The list ran for five
+     sessions with `image: null` on every entry and looked finished the whole
+     time, which is the property worth keeping — a fourth item can be written
+     today and illustrated next month without touching this function. Set
+     `image` in content.js and it appears. */
   function renderNews() {
     var host = document.getElementById('news-grid');
     clear(host);
@@ -739,16 +861,29 @@
         img.loading = 'lazy';
         img.decoding = 'async';
         img.width = 1000;
-        img.height = 667;
+        img.height = 1000;
         media.appendChild(img);
         article.appendChild(media);
         article.classList.add('news-item--illustrated');
       }
 
-      var date = el('time', 'overline', i18n.formatDate(item.date));
+      var date = el('time', 'eyebrow', i18n.formatDate(item.date));
       date.setAttribute('datetime', item.date);
       article.appendChild(date);
-      article.appendChild(el('h3', 'news-title', c.title));
+      /* The headline carries the link rather than the whole item. Wrapping the
+         article would put the picture, the date and the body inside one anchor,
+         which a screen reader reads out as a single unbroken link name; the
+         headline alone is what a reader would have clicked anyway.
+
+         It also gives the hover something to hang on. The item is an <article>
+         and hovering one means nothing on its own — :focus-within needs a
+         focusable child before a keyboard can reach the same state a pointer
+         gets. */
+      var title = el('h3', 'news-title');
+      var link = el('a', 'news-link', c.title);
+      link.href = '#';
+      title.appendChild(link);
+      article.appendChild(title);
       article.appendChild(el('p', 'news-body', c.body));
       host.appendChild(article);
     });
@@ -757,7 +892,7 @@
   function renderFAQ() {
     var host = document.getElementById('faq-list');
     clear(host);
-    content.FAQ.forEach(function (item) {
+    content.FAQ.forEach(function (item, index) {
       var c = copy(item);
       var wrap = el('div', 'acc-item');
 
@@ -766,6 +901,15 @@
       trigger.id = 'faq-t-' + item.id;
       trigger.setAttribute('aria-expanded', 'false');
       trigger.setAttribute('aria-controls', 'faq-p-' + item.id);
+
+      /* Zero-padded and aria-hidden. The number is the list's spine, not part
+         of the question — the order is already in the markup, and a screen
+         reader announcing "zero one" before every question is noise. Padded
+         in JS rather than by a CSS counter so the digits are real text the
+         font can set as tabular figures; a counter's content is not. */
+      var num = el('span', 'acc-num', ('0' + (index + 1)).slice(-2));
+      num.setAttribute('aria-hidden', 'true');
+      trigger.appendChild(num);
       trigger.appendChild(el('span', null, c.q));
       trigger.appendChild(el('span', 'acc-icon'));
 
@@ -1025,6 +1169,169 @@
     }, 350);
   }
 
+  /* ── Parallax ─────────────────────────────────────────────────────────
+     Elements carrying data-parallax="N" are offset along Y as they cross the
+     window. N is the offset at each extreme, so 34 means "this may sit 34px
+     above where the layout put it, or 34px below, and nowhere further" — a
+     budget rather than a rate, which is what keeps it from needing recalculating
+     when the viewport changes size.
+
+     N is a ceiling and not always what is spent: .parallax-zoom nodes are
+     capped against their own frame, below.
+
+     Three gates, and if any of them is shut nothing is armed and no class is
+     added — see the note in app.css for why the resting state has to be the
+     untouched page:
+
+       — prefers-reduced-motion. Parallax is the one effect here that is a
+         vestibular trigger rather than a matter of taste. There is no reduced
+         version of it worth shipping; the honest one is a page that does not
+         move.
+       — no IntersectionObserver. Without it every parallax node would be
+         measured on every frame whether or not it is on screen.
+       — no requestAnimationFrame. Writing transforms straight from a scroll
+         event is how this effect earns its reputation for jank.
+
+     Only what is on screen is measured. The observer keeps a live list and the
+     paint loop walks that, not the document — with a 25% margin either side so
+     an element is already correct by the time its first pixel appears rather
+     than snapping into place.
+
+     One rAF in flight at a time. Scroll fires far more often than the screen
+     refreshes and the extra calls are work thrown away. */
+  function initParallax() {
+    var nodes = Array.prototype.slice.call(document.querySelectorAll('[data-parallax]'));
+    if (!nodes.length) { return; }
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce ||
+        typeof IntersectionObserver !== 'function' ||
+        typeof window.requestAnimationFrame !== 'function') {
+      return;
+    }
+
+    var live = [];
+    var ticking = false;
+
+    /* Read once, from the same custom property .parallax-zoom scales by, so
+       there is one number rather than two that can drift apart.
+
+       A zoomed picture may only travel through the slack its scale creates. At
+       1.14 the picture is 14% taller than its frame, so 7% of it hangs off each
+       edge — and getBoundingClientRect reports the SCALED box, so against that
+       measurement the slack is 0.07/1.14 = 6.14% of what is read. The ratio
+       below takes 85% of that and leaves the rest as margin.
+
+       This is the cap that was got wrong first, by exactly a factor of two: the
+       offset written to --par-y runs from -N to +N, so N is the travel on one
+       side and not the whole span. Capping N at twice the slack let every tile
+       overrun it — measured peaks of 34px against 13.7px of slack at 390 —
+       which is the picture's own cut edge sliding into the frame. Frames tall
+       enough never reach the cap and keep their authored travel. */
+    var zoomScale = parseFloat(
+      window.getComputedStyle(document.documentElement)
+        .getPropertyValue('--parallax-zoom-scale')) || 1.14;
+    var zoomTravelRatio = ((zoomScale - 1) / 2 / zoomScale) * 0.85;
+
+    function schedule() {
+      if (ticking) { return; }
+      ticking = true;
+      window.requestAnimationFrame(paint);
+    }
+
+    function paint() {
+      ticking = false;
+      var vh = window.innerHeight || 1;
+      for (var i = 0; i < live.length; i++) {
+        var node = live[i];
+        var box = node.getBoundingClientRect();
+        /* +0.5 when the element's middle sits at the top of the window, -0.5
+           when it sits at the bottom, 0 when it is level with the middle.
+           Clamped, so an element taller than the screen cannot run away. */
+        var t = ((vh / 2) - (box.top + box.height / 2)) / vh;
+        if (t < -1) { t = -1; } else if (t > 1) { t = 1; }
+        var amp = parseFloat(node.getAttribute('data-parallax')) || 0;
+        /* box.height here is the SCALED height, which is what is on screen and
+           what the slack is measured against — so the cap is taken from the
+           same box the overhang comes out of. */
+        if (node.classList.contains('parallax-zoom')) {
+          var cap = box.height * zoomTravelRatio;
+          if (amp > cap) { amp = cap; }
+        }
+        node.style.setProperty('--par-y', (t * amp).toFixed(2) + 'px');
+      }
+    }
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var at = live.indexOf(entry.target);
+        if (entry.isIntersecting && at === -1) { live.push(entry.target); }
+        else if (!entry.isIntersecting && at !== -1) { live.splice(at, 1); }
+      });
+      schedule();
+    }, { rootMargin: '25% 0px 25% 0px' });
+
+    /* Called again after every renderAll, and it has to be. The service tiles
+       are rebuilt on a language change, which throws away the img elements
+       this was observing and puts fresh ones in their place — unobserved, and
+       without the class, so the effect would quietly die the first time
+       somebody pressed EN. Re-arming is cheap: observe() on an element already
+       being observed is a no-op, and classList.add is idempotent, so this is
+       safe to call as often as it is useful.
+
+       The live list is swept at the same time. Detached nodes do not reliably
+       report themselves as having left the viewport, so without this they
+       would sit in the paint loop forever, measured every frame and moving
+       nothing. */
+    function arm() {
+      for (var i = live.length - 1; i >= 0; i--) {
+        if (!document.contains(live[i])) { live.splice(i, 1); }
+      }
+      var found = document.querySelectorAll('[data-parallax]');
+      Array.prototype.forEach.call(found, function (node) {
+        /* zoom for anything travelling inside a frame that crops it — the
+           scale is what creates the slack it moves through. drift for anything
+           moving on its own, which on this page is the wash over the key
+           visual. */
+        node.classList.add(node.hasAttribute('data-parallax-zoom')
+          ? 'parallax-zoom' : 'parallax-drift');
+        io.observe(node);
+      });
+      schedule();
+    }
+
+    arm();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule, { passive: true });
+    return arm;
+  }
+
+  /* The back-to-top link, upgraded from a jump to a glide.
+
+     It reuses scrollToSection rather than calling window.scrollTo itself, and
+     that is worth a line: that function already handles prefers-reduced-motion
+     and already carries the fallback for environments where smooth behaviour is
+     silently ignored. A second scroll implementation here would be a second
+     place for those two to be got wrong.
+
+     #hero is the first section, so its top is 0 and scrollToSection's
+     Math.max(0, top - HEADER_OFFSET) lands on 0 exactly. The same call the
+     search handoff makes to return to the top.
+
+     preventDefault only once the element is found. If the markup ever loses the
+     hero id, the link falls back to its own href rather than becoming a control
+     that swallows the click and does nothing. */
+  function initBackToTop() {
+    var link = document.querySelector('.to-top');
+    if (!link) { return; }
+    link.addEventListener('click', function (e) {
+      var hero = document.getElementById('hero');
+      if (!hero) { return; }
+      e.preventDefault();
+      scrollToSection(hero);
+    });
+  }
+
   function initSearchHandoff() {
     var summary = document.getElementById('search-summary');
     var text = document.getElementById('search-summary-text');
@@ -1101,15 +1408,23 @@
     initDrawer();
     initLangSwitcher();
     initSearchHandoff();
+    initBackToTop();
     /* Last, and after renderAll: the staggered containers take their child
        index from :nth-child, so their children have to exist before anything
        is armed — and the observer has to measure blocks at their real height,
        which an empty container does not have. */
     initSectionReveals();
+    /* After renderAll for the same reason as the reveals — the service tiles
+       it parallaxes are built by it, so the nodes have to exist before they
+       can be observed. Returns its own re-arm, or undefined when the effect
+       declined to start at all. */
+    parallaxRearm = initParallax();
 
     document.addEventListener('sixt:langchange', function () {
       renderAll();
       if (heroRelabel) { heroRelabel(); }
+      /* renderAll has just replaced the service tiles' images. */
+      if (parallaxRearm) { parallaxRearm(); }
     });
   }
 

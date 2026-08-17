@@ -89,6 +89,10 @@ C.serviceScrim = over(C.black, 0.62, C.white);
    0.78 of black over rgb(163). Everything written on the band is measured
    against it, and because the wash is flat the number does not depend on
    where on the band the words fall. See --surface-services. */
+/* NO LONGER THE LIVE GROUND. The band is flat #000000 as of 2026-08-17; this
+   value is what the sweep-under-a-wash presented and is kept because the two
+   FORBIDDEN entries below are the written record of why a picture behind this
+   band is a trap, and they need a ground to be measured against. */
 C.servicesGround = over('#A3A3A3', 0.22, C.blackTrue);
 /* What the same picture would present unwashed — the pair that sets the 0.78.
    Kept for the FORBIDDEN list, because "soften the wash" is the first thing
@@ -226,12 +230,14 @@ var PAIRS = [
      The tiles are photographs under a flat scrim and bring their own ground,
      so everything written inside one is measured against C.serviceScrim, not
      against the band. Only the heading sits on the black itself. */
-  ['services heading in orange on the washed backdrop', C.orange, C.servicesGround, 4.5,
-    'the one orange section heading on the page, measured against the ' +
-    'brightest ground its band can present anywhere. It clears the ' +
-    'normal-text bar and not merely the 3.0 a 40px bold heading is entitled ' +
-    'to. A flat wash is what makes one number cover every width and every ' +
-    'string length — the gradient this replaced had to be sampled at eight'],
+  ['services heading in orange on the black band', C.orange, C.blackTrue, 4.5,
+    'the one orange section heading on the page. The band is flat #000000 now, ' +
+    'and the heading is better off for it: against the brightest ground the old ' +
+    'studio sweep could present it measured 6.39:1, and on pure black it is ' +
+    '6.49. It clears the normal-text bar rather than the 3.0 a 40px bold heading ' +
+    'is entitled to, and it holds at every width because there is nothing behind ' +
+    'it that varies — which is what the flat wash was for and what a flat colour ' +
+    'gives outright'],
   ['service tile copy at the far end of the orange hover', C.white, C.serviceHoverWash, 4.5,
     'the wash is under the scrim, so full orange composites to rgb(97,30,0) ' +
     'and the copy is better off than on the picture alone. Over the scrim the ' +
@@ -268,26 +274,30 @@ var PAIRS = [
      pairs at the top of this list already cover. That is exactly why they
      were moved off the artwork; see the note on .promo-detail in app.css. */
 
-  // the membership panel — an inset box carrying a photograph, with an orange
-  // wash coming in from the left and every word standing on the solid part of
-  // it. Solid is the operative word and it is measured, not assumed: the
-  // picture reaches rgb(255) in its left half, so anything short of a fully
-  // opaque wash puts black type over white artwork. The pairs below are
-  // therefore all against flat --sixt-orange, and the FORBIDDEN list carries
-  // what happens where the wash has started to go.
-  ['membership button label on its black fill', C.white,   C.black,    4.5,
-    '.band-orange inverts .btn-primary to black-on-orange with a white label, ' +
-    'because a filled orange button on an orange ground has no edge'],
-  ['membership heading on the panel',       C.black,      C.orange,   4.5, ''],
-  ['membership body copy on the panel',     C.black,      C.orange,   4.5,
-    'solid black at weight 300. There is no muted tone on this ground — black ' +
-    'at 78% falls to 4.01:1 — so hierarchy is weight and size only'],
-  ['the "already a member" line',           C.black,      C.orange,   4.5, ''],
-  ['its login link',                        C.black,      C.orange,   4.5,
-    'and it stays black on hover: the hover thickens the underline instead. ' +
-    'Nothing in the palette can recolour 15px type on orange — white is ' +
-    '3.28:1, both oranges vanish into the ground, and black is already what ' +
-    'it is. See the FORBIDDEN entry for the white version'],
+  // the membership panel. THE INK ON IT IS WHITE AS OF 2026-08-17 and most of
+  // this block moved with it: the heading passes on the large-text exemption and
+  // is measured here, and the paragraph and the "already a member" line fail and
+  // are in WAIVED with the client's decision on them. What is left below is the
+  // heading and the button.
+  //
+  // Both are still against flat --sixt-orange, and that part is measured rather
+  // than assumed: the artwork reaches rgb(255) in its left half, so anything
+  // short of a fully opaque wash under the copy would put type over white
+  // photograph. The FORBIDDEN list carries what happens where the wash has
+  // started to go.
+  ['membership heading in white on the panel', C.white,    C.orange,   3.0,
+    '40px/700, so 3.0 is its bar and 3.28 clears it. This is the one piece of ' +
+    'white ink on this panel that is legal, and it is legal only because of the ' +
+    'size — the paragraph beneath it is the same colour on the same ground and ' +
+    'is in WAIVED. Drop the heading below 18.66px bold and it joins them'],
+  ['membership button label on its white fill', C.black, C.white, 4.5,
+    'the button inverted with the ink: a white fill with a black label, on the ' +
+    'promotions CTA\'s model. It is the one element on the panel that gained ' +
+    'contrast from the change — 17.40:1 against the 4.5 it needs'],
+  ['membership button fill against the panel (non-text)', C.white, C.orange, 3.0,
+    'the fill is the button\'s only edge, so 1.4.11 applies to it at 3.0 and ' +
+    'not the 4.5 a word would need. 3.28 clears it, and barely: this is the ' +
+    'same number the white ink beside it is living on'],
   ['the accent rule under the heading (non-text)', C.black, C.orange,  3.0,
     'decoration, aria-hidden, and it repeats nothing — 3.0 is the right bar'],
   ['the panel against the page around it (non-text)', C.orange, C.white, 3.0,
@@ -301,21 +311,71 @@ var PAIRS = [
     '2px of black rather than 1px of --grey-200, which at 1.3:1 is not a ' +
     'rule. With the card edges gone it is the only thing dividing the items'],
 
-  // FAQ — hairline rows on the grey-50 band, no white box.
-  ['an FAQ question on the band',           C.black,      C.grey50,   4.5, ''],
-  ['an FAQ question on hover',              C.orange,     C.grey50,   3.0,
-    'the tightest pair on the page: 3.06 against a bar of 3.0. It is legal ' +
-    'only as large text, so the trigger is held at 19px/700 exactly as ' +
-    '.price-total is at 24px/700 — and it is legal only on this band, because ' +
-    'grey-50 is already a fifth of the way down from white and there is no ' +
-    'margin left to spend. Darkening this band by any amount at all ' +
-    'breaks the hover. At weight 600 the bar becomes 4.5 and no orange in the ' +
-    'palette clears it: see the two FORBIDDEN entries'],
-  ['an FAQ answer on the band',             C.grey500,    C.grey50,   4.5, ''],
-  ['the accordion plus/close mark (non-text)', C.orange,   C.grey50,   3.0,
-    'a control glyph beside a label that already says what it does — and the ' +
-    'same 3.06 as the hover above, for the same reason and with the same ' +
-    'absence of margin'],
+  // FAQ — one white card per question on a --grey-50 band, via .band-tint.
+  //
+  // The band has been three colours in three revisions and the pairs below have
+  // only had to move once, which is the argument for measuring the card rather
+  // than the section: everything written inside a question is on white and was
+  // on white while the band was orange. The heading column is the part that
+  // does sit on the band, and it needs nothing of its own — black heading and
+  // --grey-500 lead on --grey-50 are both already at the top of this list.
+  //
+  // .rule-accent on the tint band. NOT ON THE PAGE — the FAQ heading carried
+  // one for a revision and it came off when the car arrived. Kept for the same
+  // reason the .band-orange block below was kept through two sessions of going
+  // unused: the number is a property of the class, and the next thing to adopt
+  // it inherits this constraint rather than re-deriving it.
+  ['the heading rule on the tint band (non-text)', C.orange, C.grey50, 3.0,
+    'and this is the 3.06 the cards were built to escape. When the questions ' +
+    'sat on --grey-50 that number was load-bearing: it was a hover state on a ' +
+    'control, it was the tightest pair on the page, and it meant the band ' +
+    'could never darken by any amount. On 56x3px of aria-hidden decoration it ' +
+    'is not — the rule can go black at 16.25:1 the moment the band moves. A ' +
+    'tight margin on something with somewhere to fall back to is not the same ' +
+    'risk as a tight margin on something without, and that is the whole reason ' +
+    'this is recorded as a pass rather than as a thing to avoid'],
+  ['an FAQ question on its card',           C.black,      C.white,    4.5, ''],
+  ['an FAQ question on hover',              C.orange,     C.white,    3.0,
+    'still the tightest pair on the page, but no longer at the line: 3.28 ' +
+    'against a bar of 3.0, where the same hover on the old grey-50 band ' +
+    'measured 3.06. It is legal only as large text, so the trigger stays at ' +
+    '19px/700 exactly as .price-total does at 24px/700 — that has not ' +
+    'changed and cannot. At weight 600 the bar becomes 4.5 and no orange in ' +
+    'the palette clears it: see the two FORBIDDEN entries. What the card ' +
+    'bought is the band: grey-50 had no margin left to spend and could not be ' +
+    'darkened by any amount, and the cards are white whatever the band does'],
+  ['an FAQ answer on its card',             C.grey500,    C.white,    4.5, ''],
+  ['the accordion plus/close mark (non-text)', C.orange,   C.white,    3.0,
+    'a control glyph beside a label that already says what it does, on the ' +
+    'same white and with the same 3.28 as the hover above'],
+  ['the accordion numeral when open (non-text)', C.orange, C.white,    3.0,
+    'aria-hidden and decorative, so it owes nothing — measured anyway. At ' +
+    '24px it is large text by size alone, whatever its 300 weight'],
+  // The escalation strip inverted: it is the orange object now, not a white
+  // card on an orange band, so both of its pairs moved onto orange and both
+  // got easier. The strip carries .band-orange itself, so the focus ring it
+  // uses is the black one measured at the foot of this list.
+  ['the escalation strip label on its orange strip', C.white, C.orange, 3.0,
+    'white on the brand orange, and 3.0 is the bar it is measured against ' +
+    'because 19px/700 is large text. It reaches 3.28 and it would fail 4.5, so ' +
+    'the size and the weight are the whole licence: this label may never drop ' +
+    'to 600, may never drop to 16px, and this strip may never carry a caption ' +
+    'or a line of small print. The alternative if any of that changes is not a ' +
+    'different white — it is going back to --on-orange at 5.30:1, which is what ' +
+    '.band-orange hands it by default. The membership panel used to be the ' +
+    'example of that and no longer is: its ink went white too, and two of its ' +
+    'three text elements are in WAIVED as a result'],
+  ['the escalation hotline on its orange strip', C.white, C.orange, 3.0,
+    'the same 3.28 under the same exemption — .btn-hotline is 19px/700 already, ' +
+    'which is the only reason the number could follow the label to white. Its ' +
+    'hover is an underline rather than a colour, so there is no third pair ' +
+    'here to keep in step: orange-deep on orange is 1.16:1 and black would be ' +
+    'a jump to 5.30 that reads as a different component'],
+  ['the escalation strip focus ring (non-text)', C.black, C.orange, 3.0,
+    'black, from .band-orange, while the type on the same strip is white. A ' +
+    'white ring would sit at the same 3.28 as the words it is pointing at, and ' +
+    'a focus indicator is the one mark on a surface that cannot be the ' +
+    'faintest thing on it'],
 
   // footer — three tiers on --sixt-black.
   ['footer column heading',                 C.onDarkMuted, C.black,   4.5,
@@ -331,14 +391,65 @@ var PAIRS = [
   ['footer legal and copyright lines',      C.onDarkMuted, C.black,   4.5,
     '13px in the wash. It was 12px at opacity 0.7, which composites to the ' +
     'same place but as a property of the element rather than a stated tone'],
+  ['the ISO badge label',                   C.onDarkMuted, C.black,   4.5,
+    'the same tone at 11px, which is the smallest type in the footer and the ' +
+    'reason it stays on the full 4.5 rather than borrowing anything. It is a ' +
+    'four-word label on an outlined chip, not copy: the sentence it shortens ' +
+    'is still set in full in the terms column'],
   ['footer hairline against the band (non-text)', over(C.white, 0.14, C.black), C.black, 1.0,
     'listed at 1.0 because it is deliberately below any bar: it is a seam ' +
     'between two parts of one black surface, carries no information, and a ' +
-    'rule strong enough to pass 3.0 would divide the footer into boxes'],
+    'rule strong enough to pass 3.0 would divide the footer into boxes. The ' +
+    'social discs and the ISO chip draw their outlines at the same alpha, and ' +
+    'for the same reason — one value for every faint line on this ground'],
+  // the social row, which is four controls where the masthead used to hold a
+  // 1,000px hole. Both states measured: the glyph carries the meaning in the
+  // rest state and the fill carries it on hover.
+  ['a social glyph on the black band (non-text)', C.white, C.black, 3.0,
+    'measured at 3.0 and not 4.5 because each disc has an aria-label doing the ' +
+    'naming — the mark inside it is a picture of a brand, not a word'],
+  ['a social glyph on its orange hover (non-text)', C.black, C.orange, 3.0,
+    'the glyph inverts to black on the fill rather than staying white. White ' +
+    'would have been 3.28 and legal; black is 5.30 and legal for a word too, ' +
+    'and there is nothing in a 44px disc worth spending the margin on'],
+  ['a social disc fill against the band (non-text)', C.orange, C.black, 3.0,
+    'the hover state is the fill, so the fill is what has to be visible ' +
+    'against the ground it appears on'],
 
-  // .band-orange — still defined, currently unapplied. The membership band
-  // was its only call site and is now a black panel. The pairs stay because
-  // the class stays: anything that adopts it inherits these constraints.
+  // The back-to-top disc — the only mark on the page that is not on a ground.
+  // It is fixed, so it crosses white, --grey-50, the orange membership panel,
+  // two black bands, a photograph and the footer. No solid colour survives that:
+  // whichever fill is chosen reads 1.00:1 against the band that happens to match
+  // it. The mark is two-tone for exactly that reason, and these two pairs are
+  // the halves of one guarantee — on any ground, at least one of them clears 3.
+  ['the to-top disc on a light ground (non-text)', C.black, C.grey50, 3.0,
+    'the tighter of the two light grounds it crosses, and the disc is the half ' +
+    'carrying the edge there — the white ring is invisible on white and nearly ' +
+    'so on grey-50, which is fine, because it is not the half doing the work on ' +
+    'those surfaces'],
+  ['the to-top ring on a dark ground (non-text)', C.white, C.black, 3.0,
+    'and this is the half that carries it on the two black bands, where the ' +
+    'disc itself is 1.00:1 against what is behind it. Take the ring off and the ' +
+    'button disappears over the closing section — which is the ground the page ' +
+    'spends its last screen on'],
+  ['the to-top glyph on its disc (non-text)', C.white, C.black, 3.0,
+    'an arrow with an aria-label doing the naming, so it is measured at the ' +
+    'non-text bar rather than at 4.5'],
+  ['the to-top glyph on its orange hover (non-text)', C.black, C.orange, 3.0,
+    'inverted to black on the fill, the same trade the footer social discs ' +
+    'take: white would be 3.28 and legal, black is 5.30 and there is nothing ' +
+    'in a 48px disc worth spending the margin on'],
+
+  // .band-orange — now on the membership panel and on the FAQ's escalation
+  // strip. It has been adopted, dropped and adopted again three times and this
+  // block has never had to change, which is the whole return on measuring the
+  // class rather than the call site: the FAQ section took it for a session and
+  // handed it back, and the strip inside that section picked it up the same
+  // day, and neither move needed a number here re-run.
+  //
+  // Two rules that undid this contract for the escalation strip — a white
+  // card's orange hotline and its orange focus ring — went out with the band.
+  // A class is only worth measuring while the call sites let it do its job.
   ['heading on the orange band',            C.black,      C.orange,   4.5,
     'this is why the orange band sets black text, not white'],
   ['body copy on the orange band',          C.black,      C.orange,   4.5,
@@ -367,11 +478,12 @@ var FORBIDDEN = [
     'pill here has to take a black label instead, at 5.30:1'],
   ['white on orange at normal text size',   C.white,      C.orange,   4.5,
     'never allowed below 19px bold — use black text or a black ground instead'],
-  ['the membership login link if its hover went white', C.white, C.orange, 4.5,
-    'the obvious hover for a link on this panel, and it fails at 15px. So do ' +
-    'both oranges, against their own ground. That is why the state is carried ' +
-    'by underline thickness — the one cue on an orange band that costs no ' +
-    'contrast at all'],
+  ['the membership login link in white', C.white, C.orange, 4.5,
+    'NO LONGER HYPOTHETICAL — this is on the page as of 2026-08-17 and is in ' +
+    'WAIVED, not here. It is left in this list because the reasoning is what ' +
+    'the waiver rests on: 3.28:1 is a large-text number and a 15px link is not ' +
+    'large text, so no white makes this legal. What carries the link now is the ' +
+    'underline it has always had, which is not a contrast property at all'],
   ['membership copy halfway down the wash, over the night road', C.black, over(C.orange, 0.5, '#0F0F0F'), 4.5,
     'the pair that caps .member-copy at 34rem. Half a wash over the dark two ' +
     'thirds of this artwork is 2.44:1 for black type — and the light half ' +
@@ -432,15 +544,24 @@ var FORBIDDEN = [
     'margin, and these photographs have no dark corner to hide in'],
   ['--on-dark-muted as service tile copy',  over(C.white, 0.78, C.serviceScrim), C.serviceScrim, 4.5,
     'the muted tone holds on solid black and fails on a scrimmed picture'],
-  ['an FAQ question hovering orange at weight 600', C.orange, C.grey50, 4.5,
+  ['an FAQ question hovering orange at weight 600', C.orange, C.white, 4.5,
     'the trigger was 600 for one revision. It looks all but identical to 700 ' +
     'and is a different thing to WCAG: bold starts at 700, so at 600 the ' +
-    'question stops being large text and its hover is measured against 4.5'],
-  ['the same hover in the darker orange, still at 600', C.orangeDeep, C.grey50, 4.5,
+    'question stops being large text and its hover is measured against 4.5. ' +
+    'Measured on the card, which is where the question has sat since; on the ' +
+    'grey-50 the trigger used to sit on it was worse still, at 3.06'],
+  ['the same hover in the darker orange, still at 600', C.orangeDeep, C.white, 4.5,
     'and the obvious escape does not work either — this is the darkest orange ' +
-    'in the palette and it reaches only 3.92:1 on the FAQ band. There is no ' +
-    'orange that carries a 19px/600 question, which is what pinned the ' +
-    'weight at 700'],
+    'in the palette and it reaches only 4.20:1 on the card, which is close ' +
+    'enough to the bar to look like a rounding argument and is not one. There ' +
+    'is no orange that carries a 19px/600 question on any ground this page ' +
+    'has, which is what pinned the weight at 700'],
+  ['the escalation strip label in white at weight 600', C.white, C.orange, 4.5,
+    'the trap the FAQ strip now lives beside. White on orange is 3.28:1 and ' +
+    'only legal as large text; drop the label to 600, or to 16px, and the bar ' +
+    'becomes 4.5 and the same colour is illegal. There is no whiter white, so ' +
+    'the recovery is the ink going back to --on-orange and the strip going ' +
+    'back to black type — not a palette change'],
   ['black ink on an orange ground one shade darker', C.black, C.orangeDeep, 4.5,
     'why nothing black-inked may sit on --sixt-orange-deep: 4.14 is under AA, ' +
     'and it is the trap any darkening of an orange ground walks into'],
@@ -457,6 +578,52 @@ var FORBIDDEN = [
   ['the value-prop icon tile as text-weight orange', C.orange, C.white,  4.5,
     'the tile clears 1.4.11 at 3.28:1 and nothing more — it may never be ' +
     'asked to carry a word, a number or a meaning the title does not repeat']
+];
+
+/* Fails, and is on the page anyway, on a decision that was taken with the
+   number in front of the person who took it.
+
+   This is a THIRD bucket and it is not FORBIDDEN. That list means "never ship
+   this" and exists so nobody rediscovers a trap; this one means "this ships,
+   it does not pass, and here is who decided". Collapsing the two would either
+   hide a live failure among things that are only hypothetical, or turn a
+   recorded decision into a build error every time the suite runs.
+
+   Nothing is added here without a date and a name for the decision. If that
+   cannot be written down, the pair is not waived — it is just broken. */
+var WAIVED = [
+  /* The foreground is white COMPOSITED AT 0.2 over the scrim, not solid white.
+     Written as C.white on first pass, which reported 4.88:1 — the number for a
+     title that is fully opaque, i.e. the number for the thing that is not on the
+     page. A waiver carrying a figure the page does not produce is worse than no
+     waiver at all: it reads as a small compromise instead of the real one. */
+  ['an inactive service column title', over(C.white, 0.2, C.serviceScrim), C.serviceScrim, 4.5,
+   'client decision, 17 August 2026',
+   'white at opacity 0.2 over the 0.62 scrim, against a ' +
+   'bar of 4.5. The client asked for poscoflow.com\'s FLOWer treatment in full ' +
+   'after this number was put to them. What limits the damage is that the state ' +
+   'is recoverable and recovers on any attempt to use it: hover restores full ' +
+   'opacity and so does keyboard focus, through :focus-within on the column, so ' +
+   'nobody navigating the section ever arrives at a dimmed title. It is seen ' +
+   'only by someone not interacting with that column. The fix, if it is ever ' +
+   'revisited, is raising the opacity — 0.62 is the lowest value that clears ' +
+   '4.5 on this ground. A darker scrim cannot help: at 0.2 the text is 80% ' +
+   'transparent and no ground makes it legible.'],
+  ['the membership paragraph in white', C.white, C.orange, 4.5,
+   'client decision, 17 August 2026',
+   '17px at weight 300 on the brand orange. White on --sixt-orange is 3.28:1 ' +
+   'and clears the 3.0 bar only as large text, which body copy is not. The ' +
+   'panel title at 40px/700 does pass on that exemption and is not waived; ' +
+   'these two are the copy underneath it. No white fixes this — the ratio ' +
+   'belongs to the two colours — so the only lever is a darker ground under ' +
+   'the copy, and the panel does not have one: its left half is brand orange ' +
+   'by design and the artwork\'s own field is lighter still at 3.02'],
+  ['the membership "already a member?" line in white', C.white, C.orange, 4.5,
+   'client decision, 17 August 2026',
+   '15px, the smallest type on the panel, on the same ground and at the same ' +
+   '3.28. Its link half carries an underline as well as colour, so the link is ' +
+   'still distinguishable from the sentence around it — that part does not ' +
+   'depend on contrast and is why this is the less serious of the two'],
 ];
 
 var failures = 0;
@@ -480,9 +647,25 @@ FORBIDDEN.forEach(function (p) {
     p[0] + '\n           ' + p[4]);
 });
 
+console.log('\nWAIVED — on the page, does not pass, shipped on a decision:');
+WAIVED.forEach(function (p) {
+  var r = ratio(p[1], p[2]);
+  console.log('  ' + r.toFixed(2) + ':1  (needs ' + p[3].toFixed(1) + ')  ' +
+    p[0] + '  [' + p[4] + ']\n           ' + p[5]);
+});
+
 console.log('');
 if (failures) {
   console.log(failures + ' pair(s) failed');
   process.exit(1);
 }
-console.log('All ' + PAIRS.length + ' pairs pass');
+/* The summary says what is true and no more. It used to read "All N pairs
+   pass", which while WAIVED is empty means the page passes AA and while it is
+   not means nothing of the kind — and the difference is exactly the thing a
+   summary line gets read for. */
+if (WAIVED.length) {
+  console.log('All ' + PAIRS.length + ' measured pairs pass, and ' + WAIVED.length +
+    ' waived failure(s) are on the page — this page does NOT meet WCAG AA throughout.');
+} else {
+  console.log('All ' + PAIRS.length + ' pairs pass');
+}

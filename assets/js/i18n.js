@@ -18,6 +18,7 @@
       'a11y.openMenu': 'เปิดเมนู',
       'a11y.closeMenu': 'ปิดเมนู',
       'a11y.hero': 'แบนเนอร์แคมเปญ SIXT',
+      'a11y.toTop': 'กลับขึ้นด้านบนสุด',
 
       'top.hotline': 'โทร 1798',
       'top.hotlineAria': 'โทรหาศูนย์บริการลูกค้า 1798',
@@ -87,10 +88,23 @@
       'fuel.ev': 'ไฟฟ้า',
 
       'services.title': 'บริการของเรา',
+      'services.viewAll': 'ดูบริการทั้งหมด',
 
-      'member.artAlt': 'บัตรสมาชิก SIXT Thailand ลอยอยู่เหนือรถสามคัน — Honda CR-V สีขาว, Mercedes-Benz สีดำ และ BMW สีส้ม บนถนนยามค่ำคืนโดยมีเส้นขอบฟ้าเมืองเป็นฉากหลัง บนบัตรเขียนว่า MEMBER — EXPERIENCE MORE EXPERIENCE SIXT พร้อมสิทธิประโยชน์สี่ข้อ ได้แก่ ข้อเสนอพิเศษเฉพาะสมาชิก สะสมคะแนน จองก่อนใคร และบริการระดับ VIP',
+      /* No card and no lettering in this artwork, so there is nothing to
+         transcribe. member-ground was replaced on 2026-08-17 with a photograph
+         that has a flat orange field on its left for the copy to sit on — the
+         previous file carried a membership card printed with MEMBER, EXPERIENCE
+         MORE EXPERIENCE SIXT and the four benefits, all of which this alt used
+         to have to carry. The benefits became member.perk1-4 before the swap;
+         the card's own words went out with the card. What is left is a
+         description of a scene, which is all an alt was ever meant to be. */
+      'member.artAlt': 'คู่รักในชุดสีดำยืนคุยกันข้างรถ BMW ซีรีส์ 3 สีส้ม บนลานริมน้ำยามพระอาทิตย์ตก โดยมีเส้นขอบฟ้ากรุงเทพฯ และอาคารกระจกเป็นฉากหลัง',
       'member.title': 'SIXT Thailand Membership',
       'member.body': 'ปลดล็อกสิทธิพิเศษ ช่องทางรับรถแบบเร่งด่วน และบริการที่ออกแบบมาเพื่อการเดินทางของคุณทั้งในไทยและทั่วโลก',
+      'member.perk1': 'ข้อเสนอพิเศษเฉพาะสมาชิก',
+      'member.perk2': 'สะสมคะแนน',
+      'member.perk3': 'จองก่อนใคร',
+      'member.perk4': 'บริการระดับ VIP',
       'member.cta': 'สมัครสมาชิกเลย',
       'member.have': 'เป็นสมาชิกอยู่แล้ว?',
       'member.login': 'เข้าสู่ระบบที่นี่',
@@ -102,12 +116,31 @@
       'faq.title': 'คำถามที่พบบ่อย',
       'faq.lead': 'คำตอบชัดเจนเรื่องเงินมัดจำ การขับข้ามพรมแดน และแนวปฏิบัติสำหรับผู้ขับขี่',
       'faq.viewAll': 'ดู FAQ ทั้งหมด',
+      'faq.escalate': 'ยังไม่เจอคำตอบที่ต้องการ?',
+      'faq.escalateCta': 'โทร 1798',
+
+      /* closing.title, closing.body and closing.alt are gone with the heading,
+         the paragraph and the chauffeur photograph they belonged to. The key
+         visual carries the section's words itself now, so the only string left
+         here is the transcription of them. */
+      'closing.heroAlt': 'ภาพหลักของ SIXT Rent a Car Thailand — รถสามคันจอดเรียงกันริมแม่น้ำโดยมีเส้นขอบฟ้ากรุงเทพฯ เป็นฉากหลัง ได้แก่ BMW ซีรีส์ 3 สีส้ม, Mercedes-Benz สีขาว และ Toyota Fortuner สีดำ ทุกคันติดป้าย SIXT บนภาพเขียนว่า SIXT RENT A CAR THAILAND — DRIVE YOUR JOURNEY, OWN YOUR EXPERIENCE',
+      'closing.stat1Label': 'ก่อตั้งเมื่อปี',
+      'closing.stat2Label': 'ประเทศที่ให้บริการ',
+      'closing.stat3Label': 'สาขาทั่วไทย',
+      'closing.stat4Label': 'ศูนย์บริการลูกค้า',
+
+      'faq.carAlt': 'ผู้หญิงในชุดสีขาว สวมแว่นกันแดด ลากกระเป๋าเดินทางเดินออกจาก BMW X7 สีขาวที่เปิดประตูคนขับไว้ ป้ายทะเบียนเป็นโลโก้ SIXT Rent a Car',
 
       'footer.copyright': '© 2026 SIXT Thailand / Master Car Rental สงวนลิขสิทธิ์',
       'footer.operated': 'ดำเนินการโดย Master Car Rental (เครือ MGC-Asia) ร่วมกับ SIXT Germany ก่อตั้งปี 1912 ให้บริการกว่า 100 ประเทศ',
       'footer.iso': 'ได้รับการรับรอง ISO 9001 (SGS/UKAS)',
       'footer.hotlineLabel': 'บริการลูกค้า',
       'footer.langLabel': 'เลือกภาษา',
+      /* No street address. The only facts about where this company is that
+         appear anywhere on this page are the operator line and "17 สาขาทั่วไทย",
+         and a footer is the last place to start inventing one. */
+      'footer.office': 'สำนักงานใหญ่ กรุงเทพมหานคร · 17 สาขาทั่วไทย',
+      'footer.socialLabel': 'ติดตาม SIXT Thailand',
 
       'lang.th': 'ไทย (TH)',
       'lang.en': 'English (EN)'
@@ -118,6 +151,7 @@
       'a11y.openMenu': 'Open menu',
       'a11y.closeMenu': 'Close menu',
       'a11y.hero': 'SIXT campaign banner',
+      'a11y.toTop': 'Back to top',
 
       'top.hotline': 'Call 1798',
       'top.hotlineAria': 'Call customer service on 1798',
@@ -187,10 +221,15 @@
       'fuel.ev': 'Electric',
 
       'services.title': 'Our Services',
+      'services.viewAll': 'All services',
 
-      'member.artAlt': 'A SIXT Thailand membership card above three cars — a white Honda CR-V, a black Mercedes-Benz and an orange BMW — on a night road against a city skyline. The card reads MEMBER, Experience more, experience SIXT, and lists four benefits: exclusive offers, earn points, priority booking and VIP treatment.',
+      'member.artAlt': 'A couple in black standing by an orange BMW 3 Series on a waterfront forecourt at sunset, with the Bangkok skyline and a glass building behind.',
       'member.title': 'SIXT Thailand Membership',
       'member.body': 'Unlock exclusive status, priority counter service and benefits shaped around your journeys in Thailand and worldwide.',
+      'member.perk1': 'Exclusive offers',
+      'member.perk2': 'Earn points',
+      'member.perk3': 'Priority booking',
+      'member.perk4': 'VIP treatment',
       'member.cta': 'Join Membership Now',
       'member.have': 'Already have an account?',
       'member.login': 'Log in here',
@@ -202,11 +241,23 @@
       'faq.title': 'Frequently Asked Questions',
       'faq.lead': 'Clear answers on security deposits, cross-border travel rules and driver guidelines.',
       'faq.viewAll': 'View All FAQs',
+      'faq.escalate': 'Still not the answer you needed?',
+      'faq.escalateCta': 'Call 1798',
+
+      'closing.heroAlt': 'The SIXT Rent a Car Thailand key visual — an orange BMW 3 Series, a white Mercedes-Benz and a black Toyota Fortuner parked on a riverside plaza against the Bangkok skyline, each carrying a SIXT plate. The artwork reads SIXT RENT A CAR THAILAND — DRIVE YOUR JOURNEY, OWN YOUR EXPERIENCE.',
+      'closing.stat1Label': 'Founded',
+      'closing.stat2Label': 'Countries served',
+      'closing.stat3Label': 'Branches in Thailand',
+      'closing.stat4Label': 'Customer service',
+
+      'faq.carAlt': 'A woman in white with sunglasses wheeling a suitcase away from a white BMW X7, its driver door open and its number plate replaced by the SIXT Rent a Car logo.',
 
       'footer.copyright': '© 2026 SIXT Thailand / Master Car Rental. All rights reserved.',
       'footer.operated': 'Operated by Master Car Rental (MGC-Asia Group) in partnership with SIXT Germany, founded 1912 and serving over 100 countries.',
       'footer.iso': 'ISO 9001 certified (SGS/UKAS)',
       'footer.hotlineLabel': 'Customer service',
+      'footer.office': 'Head office Bangkok · 17 branches nationwide',
+      'footer.socialLabel': 'Follow SIXT Thailand',
       'footer.langLabel': 'Choose language',
 
       'lang.th': 'ไทย (TH)',

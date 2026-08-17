@@ -70,12 +70,21 @@
     {
       id: 'lionair-skyline',
       image: 'assets/img/hero-lionair-skyline.webp',
-      width: 2138,
-      height: 1029,
-      /* 2.08:1, drawn all but on the frame: cover trims 40px off each side,
-         1.9%, comfortably inside the default 6% budget — so no safeEdge
+      width: 1811,
+      height: 868,
+      /* 2.086:1, drawn all but on the frame: cover trims 37.5px off each side,
+         2.07%, comfortably inside the default 6% budget — so no safeEdge
          override, and no focus bias either, since nothing is cropped
-         vertically and the sides lose only sky and terminal glass. */
+         vertically and the sides lose only sky and terminal glass.
+
+         Re-supplied as top1.png and the numbers above are that file's, measured
+         rather than carried over. It replaced a 2138x1029 version of the same
+         campaign and is SMALLER than it, which is the one thing to know about
+         this slide: at 1811px it is under the 1920 breakpoint, so the widest
+         screens scale it up about 6%. The alternative was resampling it to 2138
+         and inventing the difference, which is not more detail, only more bytes.
+         If a larger master ever arrives, this is the slide to re-cut first —
+         it is the first picture on the page. */
       th: { alt: 'แคมเปญ SIXT ร่วมกับ Thai Lion Air — เช่ารถพร้อมคนขับ รับ-ส่งสนามบิน สิทธิพิเศษสำหรับผู้โดยสาร Thai Lion Air เพียงแสดงบัตรโดยสารหรือ E-Ticket ภาพ Mercedes-Benz E-Class สีขาวหน้าอาคารผู้โดยสาร มีเครื่องบิน Thai Lion Air และสกายไลน์กรุงเทพฯ เป็นฉากหลัง' },
       en: { alt: 'SIXT with Thai Lion Air — chauffeured airport transfers, a perk for Thai Lion Air passengers on showing a boarding pass or e-ticket; a white Mercedes-Benz E-Class outside the terminal, a Thai Lion Air aircraft and the Bangkok skyline behind' }
     },
@@ -155,7 +164,7 @@
   var SERVICES = [
     {
       id: 'self-drive',
-      image: 'assets/img/service-self-drive.jpg',
+      image: 'assets/img/service-self-drive.webp',
       imageSlot: 'service-self-drive',
       variant: 'primary',
       th: { title: 'ขับเอง', body: 'เช่าสั้น ยืดหยุ่นตามแผนของคุณ\nควบคุมการเดินทางได้เอง', cta: 'เช่ารถ',
@@ -165,7 +174,7 @@
     },
     {
       id: 'limousine',
-      image: 'assets/img/service-limousine.jpg',
+      image: 'assets/img/service-limousine.webp',
       imageSlot: 'service-limousine',
       variant: 'secondary',
       th: { title: 'ลีมูซีนพร้อมคนขับ', body: 'คนขับผ่านการอบรมมาตรฐาน SIXT\nพาคุณถึงที่หมายอย่างมืออาชีพ', cta: 'ดูบริการลีมูซีน',
@@ -175,7 +184,7 @@
     },
     {
       id: 'subscription',
-      image: 'assets/img/service-subscription.jpg',
+      image: 'assets/img/service-subscription.webp',
       imageSlot: 'service-subscription',
       variant: 'secondary',
       th: { title: 'เช่ารถรายเดือน', body: 'ทางเลือกแทนการเช่าซื้อ จ่ายรายเดือน\nราคาเดียวครบจบ เปลี่ยนรุ่นได้', cta: 'ดูแพ็กเกจรายเดือน',
@@ -185,47 +194,63 @@
     }
   ];
 
-  /* `image: null` on all three, and the list is designed to be complete that
-     way — renderNews draws no placeholder and no gap. Point one of these at a
-     file and that item gains a 3:2 photograph above its rule; the other two
-     keep working unchanged, so they can arrive one at a time.
+  /* The pictures arrived and the copy was rewritten to them, which is the
+     reverse of how the rest of this file was built and worth saying plainly.
+     The alt text elsewhere is a shot brief written before the photograph; here
+     the photographs came first — three of SIXT Thailand's own social posts —
+     so the headline, the body and the alt all describe a frame that already
+     exists. Nothing below is invented about a picture nobody has taken.
 
-     The alt strings are written now rather than with the files, because alt
-     text describes the subject the picture was commissioned for, and that is
-     decided here in the copy. Writing it after the photograph arrives is how
-     alt text ends up restating the headline. Each is a sentence about what is
-     in the frame, in both languages, and each is what the brief for that
-     photograph is: shoot this. */
+     Two of the three carry their own lettering: `family-day` has HAPPY FAMILY
+     DAY set across its top, `why-rent` has a diagonal headline and "17 สาขา
+     ทั่วไทย". That is why .news-media is square rather than the 3:2 it was
+     designed as — a centre crop to 3:2 takes a third off the top and bottom of
+     a square post, which is exactly where a poster puts its title and its
+     logo. The claim in `why-rent`'s body is read off its own artwork rather
+     than added to it.
+
+     It also decides what the headlines may say. Both of those two were first
+     written as the poster's own words and both had to be rewritten, because a
+     headline directly under a picture that already shouts the same sentence in
+     display type says it twice in two typefaces and adds nothing the second
+     time. So the picture keeps the campaign name and the headline carries what
+     the campaign *is* — `family-day`'s names the seven seats, and the campaign
+     title moved down into its body. Anything set large inside the artwork is
+     spoken for; write around it.
+
+     The list still renders complete with `image: null`; renderNews draws no
+     placeholder and no gap. A fourth post exists and is deliberately not here
+     — see NEWS_JOBS in tools/prepare-images.py. */
   var NEWS = [
     {
-      id: 'ev-fleet',
-      date: '2026-10-12',
-      image: null,
-      imageSlot: 'news-ev-fleet',
-      th: { title: 'SIXT ขยายฟลีตรถยนต์ไฟฟ้าในกรุงเทพฯ', body: 'เพิ่มรถ SUV ไฟฟ้าระยะทางไกลเข้าสู่คลาสรถพรีเมียม เปิดให้จองโดยตรงผ่านเว็บไซต์แล้ววันนี้',
-            alt: 'รถ SUV ไฟฟ้าจอดชาร์จอยู่ที่สถานีชาร์จ โดยมีอาคารสูงในกรุงเทพฯ เป็นฉากหลัง' },
-      en: { title: 'SIXT Expands Its Electric Fleet in Bangkok', body: 'Long-range electric SUVs join the premium class and are now bookable directly on the website.',
-            alt: 'An electric SUV parked at a charging point with Bangkok high-rises behind it' }
+      id: 'branch-event',
+      date: '2026-08-09',
+      image: 'assets/img/news-branch-event.webp',
+      imageSlot: 'news-branch-event',
+      th: { title: 'เปิดโชว์รูมใหม่ ต้อนรับลูกค้าองค์กร', body: 'พบทีมงานและทดลองรถได้ที่โชว์รูมแห่งใหม่ พร้อมแพ็กเกจเช่าระยะยาวสำหรับองค์กร',
+            alt: 'ลูกค้าและทีมงานนั่งคุยกันรอบโต๊ะในโชว์รูม มีลูกโป่งสีส้มและรถจอดอยู่หลังผนังกระจก' },
+      en: { title: 'New Showroom Opens for Corporate Clients', body: 'Meet the team and try the cars at our newest showroom, with long-term corporate rental packages.',
+            alt: 'Guests and staff talking around a table in the showroom, with orange balloons and a car parked behind the glass wall' }
     },
     {
-      id: 'chiang-mai-counter',
-      date: '2026-09-28',
-      image: null,
-      imageSlot: 'news-chiang-mai',
-      th: { title: 'เปิดเคาน์เตอร์ใหม่ที่สนามบินเชียงใหม่', body: 'รับรถได้เร็วขึ้นด้วยขั้นตอนเอกสารแบบดิจิทัลเต็มรูปแบบที่เคาน์เตอร์แห่งใหม่ของเรา',
-            alt: 'เคาน์เตอร์รับรถของ SIXT ในอาคารผู้โดยสารสนามบินเชียงใหม่ มีพนักงานยืนรับลูกค้า' },
-      en: { title: 'New Airport Counter Opens in Chiang Mai', body: 'Faster pickups with fully paperless digital onboarding at our newest northern counter.',
-            alt: 'The SIXT pickup counter inside the Chiang Mai airport terminal, with staff receiving a customer' }
+      id: 'family-day',
+      date: '2026-07-26',
+      image: 'assets/img/news-family-day.webp',
+      imageSlot: 'news-family-day',
+      th: { title: 'รถ 7 ที่นั่งพร้อมออกทริปกับครอบครัว', body: 'แคมเปญ Happy Family Day ช่วงวันหยุดยาว จองล่วงหน้าและรับรถได้ทุกสาขาทั่วประเทศ',
+            alt: 'ครอบครัวเดินออกจากบ้านพักริมทะเลตอนพลบค่ำ มีรถ MPV ไฟฟ้าสีเงินจอดรออยู่ข้างหน้า' },
+      en: { title: 'Seven Seats, Ready for the Family Trip', body: 'The Happy Family Day campaign for the long weekends — book ahead and collect from any branch nationwide.',
+            alt: 'A family leaving a beach house at dusk, with a silver electric MPV waiting in front of them' }
     },
     {
-      id: 'southern-routes',
-      date: '2026-08-15',
-      image: null,
-      imageSlot: 'news-southern-routes',
-      th: { title: 'เส้นทางขับรถเที่ยวชายฝั่งภาคใต้', body: 'แนะนำจุดแวะพัก ที่เที่ยวที่คนยังไม่ค่อยรู้จัก และรุ่นรถที่เหมาะกับเส้นทางเลียบทะเล',
-            alt: 'รถเก๋งวิ่งบนถนนเลียบชายฝั่งทะเลภาคใต้ มองเห็นอ่าวและเกาะหินอยู่ด้านข้าง' },
-      en: { title: 'Road Trip Guide: Southern Coastal Routes', body: 'Recommended stopovers, lesser-known spots and the vehicle classes best suited to seaside driving.',
-            alt: 'A car on a coastal road in southern Thailand, with a bay and limestone islands alongside' }
+      id: 'why-rent',
+      date: '2026-07-12',
+      image: 'assets/img/news-why-rent.webp',
+      imageSlot: 'news-why-rent',
+      th: { title: 'ทำไมต้องซื้อ? สิ่งที่การเช่าประหยัดให้', body: 'เปลี่ยนรุ่นรถได้ตามการเดินทาง ไม่ต้องแบกค่าเสื่อมและค่าบำรุงรักษา ครบ 17 สาขาทั่วไทย',
+            alt: 'รถคูเป้สีขาววิ่งบนถนนเลียบชายฝั่งยามพระอาทิตย์ตก มีสาขา SIXT ตั้งอยู่ริมทาง' },
+      en: { title: 'Why Buy? What Renting Saves You', body: 'Change model as the journey changes, with no depreciation or servicing to carry — 17 branches across Thailand.',
+            alt: 'A white coupé on a coastal highway at sunset, with a SIXT branch beside the road' }
     }
   ];
 

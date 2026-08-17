@@ -131,6 +131,18 @@
   --radius-md: 12px;
   --radius-lg: 18px;
   --radius-xl: 26px;  /* the editorial hero frame */
+  /* Every button on the page. 999px rather than 24px — half of the 48px box —
+     because the box is a min-height and a button whose label wraps to two lines
+     would show a half-measured radius the moment it grew. A number no box can
+     reach is the one that always resolves to a capsule. */
+  --radius-pill: 999px;
+
+  /* The arrow every CTA carries, as a mask rather than an image: the fill comes
+     from each button's own currentColor, so one glyph serves white-on-orange,
+     black-on-orange and white-on-black without a second file. The stroke is an
+     opaque black on purpose and is never seen — a mask reads alpha only, so the
+     colour here is just "not transparent". */
+  --arrow-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 12h13.5M12.5 5.5 19 12l-6.5 6.5'/%3E%3C/svg%3E");
   --shadow-rest:   0 1px 3px rgba(0, 0, 0, 0.06);
   --shadow-lift:   0 14px 34px rgba(0, 0, 0, 0.12);
   --shadow-card:   0 2px 16px rgba(0, 0, 0, 0.10);
@@ -202,9 +214,46 @@
   --dur-press:  110ms; /* the frame a control answers a press in */
   --dur-move:   220ms; /* a routine state change */
   --dur-layout: 340ms; /* something the layout has to make room for */
-  --dur-enter:  560ms; /* an authored entrance — spent on the hero, once */
-  /* The curtain itself. Longer than anything else on the page and allowed to
-     be: it is the one moment the visitor is being shown rather than answered. */
+  /* An authored entrance — something appearing for the first time. 1160ms,
+     arrived at in three steps at the client's direction (560, 760, 960, 1160)
+     because the arrival kept reading as quick rather than as placed.
+     --ease-out spends most of its curve on the settle, so each increment lands
+     almost entirely at the end of the movement, which is the part that makes a
+     block look set down rather than slid in.
+
+     THE LONGEST DURATION ON THE PAGE, and past a second it is worth naming what
+     the risk actually is: a block that has not finished arriving by the time the
+     reader's eye reaches it stops being an entrance and becomes a wait. What
+     keeps this the right side of that is the reveal observer's own -12% bottom
+     inset — a block starts arriving well before it is being read, so the settle
+     is spent off to the side of attention rather than in front of it. Raising it
+     again is raising the chance that stops being true. */
+  --dur-enter:  1160ms;
+  /* The carousel's slide change, and the reason it is no longer --dur-enter.
+     560ms, which is where the entrance started before three rounds of slowing
+     it down.
+
+     The note at the top of this group says these durations are grouped by
+     consequence, and a slide change is a different consequence from an arrival:
+     one is the page answering a press, the other is the page introducing
+     something. They shared a token while they happened to want the same number,
+     and the third increment is what separated them — at 1160ms a slide the
+     visitor asked for does not read as considered, it reads as unresponsive.
+
+     Only the hero's two slide keyframes use this. The hero PANEL's entrance is
+     still --dur-enter: it appears once, on load, which makes it an arrival. */
+  --dur-slide:  560ms;
+  /* The curtain itself — the one moment the visitor is being shown rather than
+     answered.
+
+     It used to say "longer than anything else on the page and allowed to be",
+     and that stopped being true when --dur-enter went to 960ms. It is left at
+     700 deliberately rather than raised to keep the ranking: this one runs once,
+     on load, before anything is readable, and every millisecond added to it is a
+     millisecond the visitor spends looking at a shutter. The entrance can afford
+     length because the page is already there behind it. The curtain cannot.
+
+     So the ordering is inverted now and that is a decision, not an oversight. */
   --dur-reveal: 700ms;
   /* The step between siblings when a set arrives as a set. Only two places
      earn it — the fleet row and the drawer's four links — and both cap out
@@ -216,8 +265,18 @@
      A restage is a set being replaced under the reader's own press and has to
      be quick about it; a section arriving is being read for the first time,
      and the eye needs long enough between two columns to register that they
-     came separately. Six items still cap at 350ms. */
-  --stagger-reveal: 70ms;
+     came separately. */
+  /* 100ms, from 70 by way of 90, and it has moved with --dur-enter each time
+     rather than on its own account: a slower entrance makes a fixed step read as
+     tighter, because the movements overlap more of each other, so holding the
+     stagger still would partly undo the change it accompanies.
+
+     Six items now cap at exactly 500ms — ON the half second the note above
+     defends, not inside it. That is the reason this went to 100 and not to the
+     110 the last two steps would suggest: the step follows the entrance until it
+     reaches that line and then it stops. If --dur-enter is raised again, this
+     one stays here. */
+  --stagger-reveal: 100ms;
 }
 
 @media (max-width: 767px) {
@@ -247,6 +306,7 @@
     --dur-move:   1ms;
     --dur-layout: 1ms;
     --dur-enter:  1ms;
+    --dur-slide:  1ms;
     --dur-reveal: 1ms;
     /* Zero, and not for tidiness. Every staggered item holds its own
        from-state through its delay, so a stagger left running against

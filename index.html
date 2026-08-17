@@ -227,7 +227,11 @@
       </div>
 
       <div class="booking-submit">
-        <button type="submit" class="btn-primary" data-i18n="booking.submit">ค้นหารถที่ว่าง</button>
+        <!-- .btn-no-arrow: every other CTA on the page now carries a trailing
+             arrow, and this one must not. It submits a search that renders its
+             results on the page it is already on — an arrow here would promise
+             a journey the button does not make. -->
+        <button type="submit" class="btn-primary btn-no-arrow" data-i18n="booking.submit">ค้นหารถที่ว่าง</button>
       </div>
     </div>
 
@@ -345,11 +349,20 @@
      half-band starting from nothing. -->
 <section class="section-y band-dark relative overflow-hidden" id="services">
   <div class="container-x relative">
-    <!-- One step wider than the mb-8 every other section heading takes. The
-         band's padding grew around it, so 32px left the heading reading as
-         part of the bento rather than as a title over it. -->
-    <h2 class="mb-8 lg:mb-12" data-i18n="services.title" data-reveal="rise">บริการของเรา</h2>
-    <div class="service-bento" id="service-grid" data-reveal="stagger"></div>
+    <!-- Centred heading, exit at the foot — the promotions pattern, which the
+         promotions band, the news list and now this one all share. This section
+         held the last of the head-as-a-row arrangements: heading left, "view
+         all" opposite it on the right. Three sections drawing one shape is worth
+         more than each drawing its own, and .section-title is where that shape
+         lives. -->
+    <h2 class="section-title" data-i18n="services.title" data-reveal="rise">บริการของเรา</h2>
+    <!-- Built by renderServices: one picture layer, one scrim, three columns.
+         data-reveal="rise" and not "stagger" — it is one banner now, not three
+         cards that can arrive one after another. -->
+    <div class="svc-banner" id="service-grid" data-reveal="rise"></div>
+    <div class="flex justify-center mt-10" data-reveal="rise">
+      <a href="#" class="btn-outline" data-i18n="services.viewAll">ดูบริการทั้งหมด</a>
+    </div>
   </div>
 </section>
 
@@ -379,6 +392,20 @@
         <h2 class="member-title" data-i18n="member.title">SIXT Thailand Membership</h2>
         <div class="member-body">
           <p class="lead" data-i18n="member.body"></p>
+
+          <!-- The four membership benefits were here and are gone, at the
+               client's direction on 2026-08-17 — the whole list, not only the
+               icons that went first.
+
+               Worth knowing what that cost, because it is not recoverable from
+               the page: they were EXCLUSIVE OFFERS, EARN POINTS, PRIORITY
+               BOOKING and VIP TREATMENT, printed at about 7px inside the old
+               artwork, lifted into real markup earlier the same day, and then
+               removed. The artwork that carried them has also been replaced, so
+               the site no longer states them anywhere. The strings are still in
+               i18n.js as member.perk1-4, unused, kept for exactly that reason.
+               -->
+
           <div class="member-actions">
             <a href="#" class="btn-primary" data-i18n="member.cta">สมัครสมาชิกเลย</a>
             <p class="member-have">
@@ -408,8 +435,8 @@
            and the desktop frame is wider than that, which takes the crop off
            the top and bottom — where this artwork has the least in it. -->
       <div class="member-art">
-        <img src="assets/img/member-ground.jpg"
-             width="1600" height="1067" loading="lazy" decoding="async"
+        <img src="assets/img/member-ground.webp"
+             width="1774" height="887" loading="lazy" decoding="async"
              data-i18n-attr="alt:member.artAlt" alt="">
       </div>
     </div>
@@ -419,14 +446,31 @@
 <!-- ══════════ SECTION: NEWS ══════════ -->
 <section class="section-y" id="news">
   <div class="container-x">
-    <div class="section-head" data-reveal="rise">
-      <div>
-        <h2 data-i18n="news.title">ข่าวสารและกิจกรรม</h2>
-        <p class="lead mt-2" data-i18n="news.lead"></p>
-      </div>
-      <a href="#" class="link-arrow flex-none" data-i18n="news.viewAll">ดูข่าวทั้งหมด</a>
+    <!-- Centred, on the promotions pattern, at the client's direction. It was
+         .section-head — a left-aligned heading that became a row at 1024 so a
+         "view all" link could sit opposite it. That link has been at the foot of
+         the section, centred, since the third session, so the row had nothing to
+         hold on its right and the class was doing half a job.
+
+         .section-title is the promotions heading's own class and carries the
+         centring and the margin; the lead needs the centring restated because it
+         is a sibling rather than a child. mx-auto with the lead's own 62ch
+         measure is what keeps a centred paragraph from running the full
+         container — centred text on a long measure is the harder thing to read,
+         not the easier one. -->
+    <div data-reveal="rise">
+      <h2 class="section-title" data-i18n="news.title">ข่าวสารและกิจกรรม</h2>
+      <p class="lead mx-auto text-center -mt-4 mb-8" data-i18n="news.lead"></p>
     </div>
     <div class="news-list" id="news-grid" data-reveal="stagger"></div>
+    <!-- The way out, centred under the list — the same button in the same
+         place as the promotions' and the fleet's. It was an arrow link in the
+         head row opposite the title, which put the section's exit above its
+         contents and made it the fourth different shape a "see everything"
+         control took on one page. -->
+    <div class="flex justify-center mt-10" data-reveal="rise">
+      <a href="#" class="btn-outline" data-i18n="news.viewAll">ดูข่าวทั้งหมด</a>
+    </div>
   </div>
 </section>
 
@@ -436,14 +480,84 @@
      at the other — the eye has to travel the whole measure to pair them. The
      heading takes the left third and the questions sit in a column narrow
      enough to read as a list. -->
-<section class="section-y" id="faq" style="background: var(--grey-50)">
+<!-- A light band with the orange spent rather than poured. The section was a
+     full-bleed --sixt-orange for one session and the reason it is not any more
+     is the page, not the band: the membership panel is already a full-width
+     orange, so two of them read as one recurring device rather than as one
+     accent used once. .band-tint gives the white cards a ground to sit on
+     without competing with them.
+
+     What the orange still does here, it does deliberately and three times: the
+     rule under the heading, the numeral and the plus mark on an open card, and
+     the escalation strip at the foot — which is now the one solid orange
+     object in the section, and is the only thing in it that is a call to
+     action rather than a question. -->
+<section class="section-y band-tint" id="faq">
   <div class="container-x faq-layout">
-    <div class="faq-head" data-reveal="rise">
-      <h2 data-i18n="faq.title">คำถามที่พบบ่อย</h2>
-      <p class="lead mt-2" data-i18n="faq.lead"></p>
-      <a href="#" class="link-arrow mt-6 self-start" data-i18n="faq.viewAll">ดู FAQ ทั้งหมด</a>
+    <!-- The left column is the section's title and its subject: what this part
+         of the page is called, then the car it is about. The heading column was
+         the emptiest thing on the page when it held only words — it ran out
+         about 240px before the questions did — and the picture is what it was
+         missing rather than something added beside it. -->
+    <div class="faq-aside">
+      <div class="faq-head" data-reveal="rise">
+        <h2 data-i18n="faq.title">คำถามที่พบบ่อย</h2>
+        <!-- No .rule-accent under this heading. It was here for one revision,
+             as the section's orange when the band went light; the car is the
+             section's subject now and a 56px dash above it was one accent too
+             many in a column that already has an outline button in it. The
+             primitive is still in app.css and still measured in
+             check-contrast.js, unused, on the same terms as .band-orange was
+             between its two adoptions. -->
+        <p class="lead mt-5" data-i18n="faq.lead"></p>
+        <!-- Left-aligned rather than centred: this head is a column a third of
+             the width, not a full-bleed foot, and a button centred in it would
+             sit under nothing. self-start keeps it at its own width. -->
+        <a href="#" class="btn-outline mt-6 self-start" data-i18n="faq.viewAll">ดู FAQ ทั้งหมด</a>
+      </div>
+
+      <!-- The picture, and the reason this column stopped being only words. It
+           is a cutout with no frame around it: it stands on the band, and it
+           hangs 4rem below the band so the wheels and her heels are on the key
+           visual below rather than stopping at the join.
+
+           There is nothing here holding the join together — no mask, no
+           gradient, no matched ground. faq-car.webp keeps the alpha channel its
+           source already had and is cropped to its own opaque bounds, so there
+           is no rectangle to hide.
+
+           The second subject in this slot, and the shape changed with it: the
+           rear-three-quarter car alone was 1.73 landscape, this is 1.04 and all
+           but square. Nothing in the CSS names either number. The image is
+           never cropped to a frame, so it sets its own height from its own
+           file, and the width/height attributes below are what reserve the
+           space before it loads. Swapping the asset is the whole edit. -->
+      <figure class="faq-media" data-reveal="rise">
+        <img src="assets/img/faq-car.webp" width="1023" height="981"
+             loading="lazy" decoding="async" data-i18n-attr="alt:faq.carAlt" alt="">
+      </figure>
     </div>
-    <div class="faq-list" id="faq-list" data-reveal="stagger"></div>
+
+    <div class="faq-content">
+      <div class="faq-list" id="faq-list" data-reveal="stagger"></div>
+      <!-- .band-orange on the strip itself, not on the section. It was a white
+           card on an orange band and was indistinguishable from a fifth
+           question — same white, same radius, same shadow, same gap. Inverting
+           the two makes it the one thing here that is not a question, and it
+           inherits the whole audited orange contract in the process: black ink,
+           a black focus ring, and black links. Two carve-outs that existed only
+           to undo that contract for this strip are gone from app.css. -->
+      <div class="faq-escalate band-orange" data-reveal="rise">
+        <p data-i18n="faq.escalate">ยังไม่เจอคำตอบที่ต้องการ?</p>
+        <a href="tel:1798" class="btn-hotline" data-i18n-attr="aria-label:top.hotlineAria">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4.5 5.5c0 8 6 14 14 14l1.5-3-4-2-1.8 1.8a12 12 0 01-6-6L10 8.5l-2-4z"/>
+          </svg>
+          <span data-i18n="faq.escalateCta">โทร 1798</span>
+        </a>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -454,34 +568,210 @@
      then the legal line. The wordmark used to sit underneath the links in the
      bottom bar, at the same 12px as the copyright, which made the brand the
      smallest thing in its own footer. -->
+<!-- ══════════ SECTION: CLOSING ══════════ -->
+<!-- The last thing before the footer: a line of thanks, the scene it ends on,
+     and the four figures that say who was driving.
+
+     Black, and it runs into the black footer without a seam — which took a
+     measurement to actually get: .band-dark grounds on --black-true and the
+     footer on --sixt-black, 26 levels apart, so "both are black" produced a
+     visible band change. See .closing in app.css.
+
+     The reference this was built from puts a white card straddling the join
+     between a coloured band and the page below it, which is a real move when
+     the two grounds differ. Here they are the same by design, so the card is
+     not pretending to straddle anything: it sits at the foot of the section,
+     48px above the join, with no negative margins to collide with the
+     footer's own padding.
+
+     The stats are not invented. 1912 and "over 100 countries" are the
+     footer's own operator line, 17 branches is in the page description and in
+     the news list, and 1798 is the number in the header. There is no 24-hour
+     figure here although the page description claims one: the KBank promotion
+     on this same page states the call centre runs 8.30-18.00, and two numbers
+     that disagree are worse than one that is missing. -->
+<section class="band-dark closing" id="closing">
+  <!-- The section's own words are gone. It carried a heading and a paragraph
+       of thanks beside a photograph of a chauffeur; it carries the brand's key
+       visual instead, and that artwork already says the same thing louder and
+       in the brand's own lettering. Two headlines in one band, one of them set
+       in type and one of them printed inside a JPEG, is the arrangement the
+       news section was rebuilt to get rid of.
+
+       Full bleed: it sits outside .container-x, so the picture runs edge to
+       edge and the container only comes back for the figures below it.
+
+       Never cropped. The words are baked into the artwork — the lockup, the
+       country line and the two-line tagline — so there is no object-fit here
+       and no fixed frame for one to work against. The image sets its own
+       height from its own 2:1, at every width. This is the same rule the
+       promotion cards carry and for the same reason: a crop takes a headline
+       off a picture that has no other copy of it.
+
+       Transcribed rather than described, for the same reason. -->
+  <!-- Wrapped, and the wrapper exists for the light. An image element cannot
+       carry a pseudo-element, and the orange rising off the foot of this
+       artwork is an ::after on the frame rather than a second image or a
+       filter — so it costs no bytes and the picture underneath is untouched.
+
+       "image element" spelled out rather than written as a tag: a bare one in
+       prose here reads as real markup to anything scanning this file, and it
+       was reported as a src-less image the first time it was written.
+
+       data-parallax is on the wash, not on the picture. The artwork is never
+       cropped, which means it has no room to travel inside a frame, which means
+       the only honest parallax available here is on something laid over it. The
+       light drifts; the cars do not. -->
+  <figure class="closing-hero">
+    <img src="assets/img/closing-hero.webp"
+         width="1774" height="887" loading="lazy" decoding="async"
+         data-i18n-attr="alt:closing.heroAlt" alt="">
+    <span class="closing-glow" data-parallax="34" aria-hidden="true"></span>
+  </figure>
+
+  <div class="container-x">
+    <dl class="closing-stats" data-reveal="rise">
+      <div>
+        <dt data-i18n="closing.stat1Label">ก่อตั้งเมื่อปี</dt>
+        <dd>1912</dd>
+      </div>
+      <div>
+        <dt data-i18n="closing.stat2Label">ประเทศที่ให้บริการ</dt>
+        <dd>100<span aria-hidden="true">+</span></dd>
+      </div>
+      <div>
+        <dt data-i18n="closing.stat3Label">สาขาทั่วไทย</dt>
+        <dd>17</dd>
+      </div>
+      <div>
+        <dt data-i18n="closing.stat4Label">ศูนย์บริการลูกค้า</dt>
+        <dd><a href="tel:1798">1798</a></dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
 <footer class="site-footer">
   <div class="container-x footer-inner">
 
+    <!-- Three things, not two. The wordmark and the hotline used to sit at the
+         two ends of a 1,345px row with nothing between them, and the hole was
+         the widest empty space on the page.
+
+         What fills it is not filler. The header comment above says the utility
+         strip's "social links already live in the footer" — they did not. They
+         were dropped with the strip and the sentence was left behind, so the
+         one place on the page that claimed to hold them held nothing. This is
+         that claim being made true rather than a decoration being added. -->
     <div class="footer-masthead" data-reveal="rise">
       <!-- self-start: without it the flex column stretches the image to the
            container width and the wordmark distorts. -->
       <img src="assets/img/logo.webp" alt="SIXT Rent a Car" width="112" height="64"
            class="footer-logo self-start">
+
+      <!-- A list, because four sibling destinations is what it is, and a
+           labelled nav so a screen reader can skip it as one thing. Each link
+           carries its own accessible name: the glyphs are aria-hidden, and
+           "Facebook" is "Facebook" in both languages, so the names are written
+           here rather than routed through i18n. -->
+      <nav class="footer-social" data-i18n-attr="aria-label:footer.socialLabel">
+        <ul>
+          <li><a href="#" aria-label="Facebook">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+              <path d="M14 8.5V7a1 1 0 011-1h1.5V3.5H14a3.5 3.5 0 00-3.5 3.5v1.5H8.5V11h2v9.5H14V11h2.2l.3-2.5H14z"/>
+            </svg></a></li>
+          <li><a href="#" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                 stroke-width="1.8" aria-hidden="true">
+              <rect x="3.5" y="3.5" width="17" height="17" rx="5"/>
+              <circle cx="12" cy="12" r="4"/>
+              <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/>
+            </svg></a></li>
+          <!-- A balloon with a tail, drawn as two plain shapes. The first
+               attempt was a one-path silhouette of the real mark and at 18px it
+               resolved to a lopsided blob — an outline that only reads at the
+               size it was traced from is not a logo, it is a smudge. The
+               brand's own mark is green-on-white lettering and does not survive
+               being made monochrome at all, so what carries the meaning here is
+               the aria-label; the glyph only has to say "messaging". -->
+          <li><a href="#" aria-label="LINE">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+              <rect x="3" y="4.5" width="18" height="13" rx="4.5"/>
+              <path d="M9.6 17.2L8.7 21l4.4-3.8z"/>
+            </svg></a></li>
+          <li><a href="#" aria-label="YouTube">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+              <path d="M21.3 8.2a2.4 2.4 0 00-1.7-1.7C18.1 6.1 12 6.1 12 6.1s-6.1 0-7.6.4A2.4 2.4 0 002.7 8.2 25 25 0 002.3 12c0 1.3.1 2.6.4 3.8a2.4 2.4 0 001.7 1.7c1.5.4 7.6.4 7.6.4s6.1 0 7.6-.4a2.4 2.4 0 001.7-1.7c.3-1.2.4-2.5.4-3.8s-.1-2.6-.4-3.8zM10.2 14.7V9.3l5 2.7-5 2.7z"/>
+            </svg></a></li>
+        </ul>
+      </nav>
+
       <a href="tel:1798" class="footer-hotline">
-        <span class="overline overline--accent" data-i18n="footer.hotlineLabel">บริการลูกค้า</span>
+        <span class="eyebrow eyebrow--accent" data-i18n="footer.hotlineLabel">บริการลูกค้า</span>
         <span class="footer-hotline__number">1798</span>
       </a>
     </div>
 
     <div class="footer-cols" id="footer-columns" data-reveal="stagger"></div>
 
+    <!-- The ISO line was a sentence in the same 13px/300 wash as the operator
+         line directly above it, which made a third-party certification the
+         least distinguishable thing in the footer. A certification is a mark:
+         it gets an outline, a glyph and the tracking a mark carries, and it
+         moves to the end of the row so it is not read as a continuation of the
+         paragraph it was sitting under. The words are unchanged. -->
     <div class="footer-bottom" data-reveal="rise">
       <div class="footer-legal">
         <p data-i18n="footer.operated"></p>
-        <p data-i18n="footer.iso">ได้รับการรับรอง ISO 9001 (SGS/UKAS)</p>
+        <p class="footer-office">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+               stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 21s7-5.6 7-11a7 7 0 10-14 0c0 5.4 7 11 7 11z"/>
+            <circle cx="12" cy="10" r="2.6"/>
+          </svg>
+          <span data-i18n="footer.office">สำนักงานใหญ่ กรุงเทพมหานคร · 17 สาขาทั่วไทย</span>
+        </p>
       </div>
       <!-- The language switcher lives in the header now, where it is reachable
            without scrolling the whole page. -->
-      <p class="footer-copyright" data-i18n="footer.copyright"></p>
+      <div class="footer-bottom-end">
+        <p class="footer-cert">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+               stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2.8l2.5 1.6 3-.3 1 2.8 2.4 1.8-1.3 2.7 1.3 2.7-2.4 1.8-1 2.8-3-.3L12 21.2 9.5 19.6l-3 .3-1-2.8L3.1 15.3l1.3-2.7-1.3-2.7 2.4-1.8 1-2.8 3 .3z"/>
+            <path d="M9 12.2l2.1 2.1 4-4.2"/>
+          </svg>
+          <span data-i18n="footer.iso">ได้รับการรับรอง ISO 9001 (SGS/UKAS)</span>
+        </p>
+        <p class="footer-copyright" data-i18n="footer.copyright"></p>
+      </div>
     </div>
 
   </div>
 </footer>
+
+<!-- ══════════ Back to top ══════════ -->
+<!-- An <a> and not a <button>, which is the only decision here with a
+     consequence. A button that scrolls is a button that does nothing at all if
+     ui.js fails to load or throws before it wires up; this is a real link to a
+     real id, so without any script it still takes you to the top of the page.
+     ui.js intercepts the click to make the jump smooth and to honour
+     prefers-reduced-motion — an enhancement over something that already works
+     rather than the only thing that does.
+
+     Fixed to the bottom right and visible at every scroll position, including
+     the top, at the client's direction. The usual treatment fades it in after a
+     screen or two of scrolling; if that is wanted later it is a class toggle on
+     one scroll listener and nothing else.
+
+     The glyph is aria-hidden and the name comes from aria-label, because an
+     arrow drawn in SVG says nothing to a screen reader. -->
+<a href="#hero" class="to-top" data-i18n-attr="aria-label:a11y.toTop">
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 19V6M6 12l6-6 6 6"/>
+  </svg>
+</a>
 
 <script src="assets/js/data.js"></script>
 <script src="assets/js/content.js"></script>

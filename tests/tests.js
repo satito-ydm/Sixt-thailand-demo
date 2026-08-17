@@ -415,6 +415,18 @@
     });
   });
 
+  /* A test guarding the membership perk list stood here and has been removed
+     with the list itself, at the client's direction on 2026-08-17. It asserted
+     that member.perk1-4 existed and that member.artAlt did not transcribe them —
+     both of which are still true and neither of which now means anything: the
+     list is not rendered, so the keys are unused and the alt describes an
+     artwork that never had a card in it.
+
+     A test that passes while proving nothing is worse than no test, because the
+     next person reads a green suite as coverage. The four strings are still in
+     i18n.js if the benefits are ever wanted back; if they are, this test comes
+     back with them. */
+
   T.test('value-prop bodies stay inside the one-line measure', function () {
     root.SIXT.content.VALUE_PROPS.forEach(function (p) {
       ['th', 'en'].forEach(function (lang) {
@@ -533,6 +545,64 @@
     if (!fs) { return; }
     root.SIXT.content.HERO_SLIDES.forEach(function (s) {
       T.ok(fs.existsSync(here + '/../' + s.image), 'missing slide asset: ' + s.image);
+    });
+  });
+
+  /* The width and height a slide declares must be the ones in the file, and
+     until now nothing checked it.
+
+     That is not a tidiness point. The crop-budget test above computes its ratio
+     from s.width / s.height — the declared numbers — so a slide whose file has
+     been re-supplied at a different size keeps passing on the shape of the
+     picture it used to have. The budget it clears is the old artwork's, and the
+     new one is cropped by however much the two ratios differ, silently, in the
+     first picture on the page.
+
+     It nearly happened: lionair-skyline was re-supplied at 1811x868 over a
+     2138x1029 file, and 2138/1029 and 1811/868 are close enough in ratio
+     (2.078 vs 2.086) that nothing would have looked wrong while the check was
+     measuring a file that no longer existed.
+
+     The dimensions are read out of the WebP header rather than by decoding the
+     image, so this needs no dependency: RIFF at 0, WEBP at 8, then either a
+     VP8X chunk carrying the canvas size, a lossy VP8 keyframe carrying it after
+     the 0x9d 0x01 0x2a start code, or a lossless VP8L bitstream packing two
+     14-bit values. Cross-checked against Pillow on all twelve WebP assets in
+     the tree before being trusted here. A header this reader cannot parse fails
+     rather than skips — a silent pass is what the test exists to stop. */
+  T.test('hero slide dimensions match the files they point at', function () {
+    if (!fs) { return; }
+
+    function webpSize(buf) {
+      if (buf.length < 30) { return null; }
+      if (buf.toString('ascii', 0, 4) !== 'RIFF' ||
+          buf.toString('ascii', 8, 12) !== 'WEBP') { return null; }
+      var tag = buf.toString('ascii', 12, 16);
+      if (tag === 'VP8X') {
+        return { w: (buf.readUIntLE(24, 3) & 0xffffff) + 1,
+                 h: (buf.readUIntLE(27, 3) & 0xffffff) + 1 };
+      }
+      if (tag === 'VP8 ') {
+        if (buf[23] !== 0x9d || buf[24] !== 0x01 || buf[25] !== 0x2a) { return null; }
+        return { w: buf.readUInt16LE(26) & 0x3fff, h: buf.readUInt16LE(28) & 0x3fff };
+      }
+      if (tag === 'VP8L') {
+        var bits = buf.readUInt32LE(21);
+        return { w: (bits & 0x3fff) + 1, h: ((bits >> 14) & 0x3fff) + 1 };
+      }
+      return null;
+    }
+
+    root.SIXT.content.HERO_SLIDES.forEach(function (s) {
+      var path = here + '/../' + s.image;
+      if (!fs.existsSync(path)) { return; }  /* the test above owns that failure */
+      var size = webpSize(fs.readFileSync(path));
+      T.ok(size, s.id + ': could not read the dimensions out of ' + s.image);
+      if (!size) { return; }
+      T.eq(size.w, s.width,
+        s.id + ' declares width ' + s.width + ' but ' + s.image + ' is ' + size.w);
+      T.eq(size.h, s.height,
+        s.id + ' declares height ' + s.height + ' but ' + s.image + ' is ' + size.h);
     });
   });
 
