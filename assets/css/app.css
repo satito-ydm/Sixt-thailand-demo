@@ -647,6 +647,29 @@ body h3 { font-size: var(--text-h3); }
 
 /* Location combobox ------------------------------------------------------------- */
 .combo { position: relative; }
+/* THE INK IS DECLARED WITH THE GROUND, and it has to be.
+   This list is a white surface that opens INSIDE .booking-card, which is
+   --sixt-black and sets `color: var(--on-dark)` on everything under it. Colour
+   inherits through an absolutely-positioned child exactly as it does through
+   any other, so without this line every option was white on white — 1.00:1,
+   the text present in the DOM and invisible on the screen. Reported from the
+   page on 2026-08-17, and it had been there for as long as the panel has been
+   dark.
+
+   What made it survive is that the list did NOT look empty. .combo-group and
+   .combo-empty each restate --grey-500 for their own reasons, so the group
+   headings and the no-match line rendered correctly above and below a band of
+   nothing; and the active option paints --grey-50, which showed its label as a
+   ghost rather than not at all. A component that renders its own chrome and
+   loses only its content reads as "no results", which is a state this list has.
+
+   The rule the panel's own comment states — "a ground this dark restates every
+   colour it needs instead of inheriting" — is the rule this broke. Any light
+   surface opened inside a dark one owes its ink at the same time as its
+   background: they are one decision, and splitting them across two rules is
+   what let one of the two be forgotten. Black on white here is 16.25:1, and on
+   the --grey-50 of the hovered row it is the pair already measured as "body
+   text on grey-50". */
 .combo-list {
   position: absolute;
   z-index: 40;
@@ -656,6 +679,7 @@ body h3 { font-size: var(--text-h3); }
   max-height: 280px;
   overflow-y: auto;
   background: var(--white);
+  color: var(--sixt-black);
   border: 1px solid var(--grey-200);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-card);
@@ -1496,6 +1520,15 @@ body.is-locked { overflow: hidden; }
 .footer-bottom {
   border-top: 1px solid rgba(255, 255, 255, 0.14);
 }
+/* UNREFERENCED AS OF 2026-08-17. The row lost its social links and its hotline
+   to the closing contact card, then its wordmark, and a block containing
+   nothing is a border and some padding pretending to be structure — so the
+   element went from the markup rather than being left to rule a line under an
+   empty row.
+
+   Kept here, with .footer-logo below it, because this is a shape the footer may
+   want back and because the hairline pair it shares with .footer-bottom is one
+   value used in two places. */
 .footer-masthead {
   border-top: 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.14);
@@ -1514,7 +1547,13 @@ body.is-locked { overflow: hidden; }
   width: auto;
 }
 
-/* The number people actually call, given the size that implies. It is in the
+/* UNREFERENCED AS OF 2026-08-17. The hotline came out of the footer masthead
+   when the closing card was rebuilt as contact details one section above it;
+   .contact-hotline is what carries the number now. Kept rather than deleted
+   because this is a shape the footer may want back, and because the note below
+   is the reason the number is 28px here and 19px in the header.
+
+   The number people actually call, given the size that implies. It is in the
    header too, but the header's is a 19px line in a crowded bar — this is the
    one on the page that can be read across a room. */
 .footer-hotline {
@@ -1534,7 +1573,16 @@ body.is-locked { overflow: hidden; }
 }
 .footer-hotline:hover .footer-hotline__number { color: var(--sixt-orange); }
 
-/* The middle of the masthead row, which was a 1,000px hole between the
+/* UNREFERENCED AS OF 2026-08-17, and kept for one specific sentence: the hover
+   pair below is the only written record of why these discs invert to BLACK on
+   orange rather than staying white, and .contact-social — the row that replaced
+   this one, at 56px in the closing card — was built from the same glyph paths
+   and inherits that reasoning without restating it.
+
+   The masthead is the wordmark alone now. What follows describes the row it
+   used to hold.
+
+   The middle of the masthead row, which was a 1,000px hole between the
    wordmark and the number. Three flex children under space-between put it
    here without a single rule about where "here" is.
 
@@ -1996,16 +2044,71 @@ body .booking-title {
 
 /* In-flow form, used below the breakpoint where the bar docks. The container
    already caps it to the 1280 grid, so no width of its own here. */
+/* GLASS, AND THE ALPHA IS 0.70 BECAUSE OF A NUMBER, NOT A LOOK.
+   Client direction, 17 August 2026: "give Drive Your Way some opacity, blur
+   the picture behind it like glass."
+
+   The card used to be flat --sixt-black, which put its white ink at 17.40:1
+   and its muted labels at 10.95 and made every pair on it a fixed colour pair.
+   Translucent, the ground becomes the hero photograph, and the worst thing a
+   photograph can put behind a word is a white pixel — the same worst case the
+   service scrim is measured against, and not hypothetical here either: this
+   card sits over a sunset, and below 1024 it sits on the page's own white.
+
+   So the ground to measure is black at alpha A composited over white, and the
+   binding pair is NOT the white copy. It is --on-dark-muted, which .booking-sub
+   and .field-label both use — white at 78%, so it loses contrast from both
+   ends at once as the card thins:
+
+     alpha   ground   white ink   muted labels (bar 4.5)
+     0.55    rgb(129)   3.90        3.04      <- the value glass "looks like"
+     0.62    rgb(113)   4.88        3.70      <- even the scrim's own alpha fails
+     0.70    rgb(95)    6.39        4.66      <- shipped
+     0.78    rgb(76)    8.59        6.02
+
+   0.70 is the first step where both clear 4.5, and 0.55 — where this would have
+   landed if it had been picked by eye — fails the labels by a point and a half
+   while looking entirely convincing. Glass is the one effect whose whole appeal
+   is letting the ground through, which is exactly what a contrast measurement
+   forbids; the two are in direct opposition and this is where they meet.
+
+   The blur does not help and must not be treated as if it does. It spreads the
+   backdrop, so a large bright area stays bright — the maximum luminance behind
+   a glyph barely moves. It is a look, not a mitigation, and the alpha is
+   carrying the whole guarantee.
+
+   The hairline is what stops it reading as a smudge: at 0.70 over a dark part
+   of the photograph the card's own edge can vanish, and the shadow alone does
+   not draw one on a busy backdrop. */
 .booking-card {
   position: relative;
   z-index: 2;
   width: 100%;
   margin-inline: auto;
-  background: var(--sixt-black);
+  background: rgba(26, 26, 26, 0.70);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  backdrop-filter: blur(20px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   color: var(--on-dark);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-widget);
   padding: var(--space-6);
+}
+/* No backdrop-filter, no glass — and a translucent card with nothing blurred
+   behind it is worse than an opaque one, because the alpha was chosen against
+   a white worst case and the look it buys is gone. Falls back to the flat
+   black this card shipped as, where the same ink is 17.40:1. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .booking-card { background: var(--sixt-black); }
+}
+/* Someone who has asked their system for less transparency is asking for this
+   exact effect to stop. Same fallback, same measured ground. */
+@media (prefers-reduced-transparency: reduce) {
+  .booking-card {
+    background: var(--sixt-black);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
 /* ── Colours on the dark panel ───────────────────────────────────────────
@@ -2024,9 +2127,24 @@ body .booking-title {
   color: var(--on-dark-muted);
 }
 .booking-card .link-toggle { color: var(--on-dark); }
-/* 5.30:1 on black, so the hover clears AA at this 14px bold — which is not
-   large text, whatever its weight suggests. */
-.booking-card .link-toggle:hover { color: var(--sixt-orange); }
+/* THE HOVER IS AN UNDERLINE NOW AND NOT A COLOUR, and the glass is why.
+   It was --sixt-orange, which measured 5.30:1 on the flat black card and
+   cleared the full 4.5 this 14px bold has to meet — bold is not large text
+   whatever its weight suggests. Against the translucent card over a white
+   pixel the same orange is 1.95:1. It is the only pair on this panel the glass
+   broke outright, and it broke it by a factor of nearly three.
+
+   There is no orange that recovers: --sixt-orange-deep is darker still against
+   a ground that is now a mid grey, which is the trap written up on the service
+   titles. So the state changes without changing colour, exactly as
+   .member-have does on the orange band and for the same reason — the ink stays
+   at 6.39 and the affordance moves to something contrast cannot take away. */
+.booking-card .link-toggle:hover {
+  color: var(--on-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 2px;
+}
 /* The orange focus ring is 1.9:1 on black; the dark band makes the same swap. */
 .booking-card :focus-visible { outline-color: var(--white); }
 /* Below the large breakpoint the picture is too short to give away 76px, and
@@ -2077,12 +2195,21 @@ body .booking-title {
     padding: 0;
   }
 
+  /* NO BACKGROUND HERE. It restated `background: var(--sixt-black)` — the same
+     value the base rule already set, which is exactly the kind of harmless
+     duplicate that stops being harmless: when the base rule became glass, this
+     one silently turned it back into a solid card at every width from 1024 up,
+     which is the only width range where the card is over the photograph and
+     the whole point of the effect. It measured `rgb(26, 26, 26)` at 1440 and
+     `rgba(26, 26, 26, 0.7)` at 390 — the effect shipped on phones only.
+
+     The shadow is deeper than --shadow-widget and stays: the card is over a
+     photograph up here rather than over the page. */
   .booking-card {
     position: static;
     width: 100%;
     margin-top: 0;
     padding: var(--space-6);
-    background: var(--sixt-black);
     border-radius: var(--radius-lg);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
   }
@@ -2294,67 +2421,84 @@ body .booking-title {
    above hands it both and the transparent background costs nothing. */
 .band-orange .eyebrow--accent { background: none; }
 
-/* The half-band, and it is a restoration rather than a new idea. The comment on
-   #services has claimed for several sessions that "the membership panel
-   straddles a black half-band whose whole argument is that it is this band
-   carrying on" — and it did not: the half-band was taken out when the panel
-   became full-bleed orange, and that sentence was left behind describing a page
-   that no longer existed. It exists again now, at the client's direction, and
-   the sentence is true again.
+/* THE HALF-BAND IS GONE, and this note is what is left of it — the third time
+   this particular sentence has had to be corrected, which is why it is being
+   written down rather than deleted.
 
-   inset: 0 0 50% 0 — the section's top half, flush with the services band above
-   it because adjacent sections share an edge. The panel lands across the join
-   for free rather than by being positioned: .section-y pays 48px top and bottom,
-   so the section's vertical middle is 48 + panelHeight/2, which is exactly the
-   panel's own middle. The panel straddles it half and half at every width, and
-   nothing has to be measured to keep it there.
+   It was `#membership::before { inset: 0 0 50% 0 }`, flat --black-true across
+   the section's top half, so the orange panel straddled the join with the
+   services band above. It existed because the panel was an INSET BOX: a box
+   floating on white needs something to stand on, and a half-band of the colour
+   above it is what made the panel read as continuing that band rather than
+   interrupting it.
 
-   Flat --black-true, not var(--surface-services). Using the same token was the
-   first attempt and it is the wrong instinct: that token is a studio sweep sized
-   `cover`, so a half-height box scales the same picture differently and the two
-   bands meet with the sweep's gradient at two different phases — a visible step
-   exactly where the join is supposed to disappear. What reads as continuous is a
-   flat colour matching what the services band actually presents at its bottom
-   edge, and under a 0.78 black wash the sweep is essentially black down there.
-   The one thing a flat ground cannot do is fail to line up.
+   The panel is the section now — full-bleed orange, edge to edge, at the
+   client's direction on 2026-08-17 — so there is no white left for a band to
+   cover and nothing to straddle. The services band ends and orange begins, on
+   one hard edge, which is the join the half-band was imitating.
 
-   z-index 0 against the panel's 1, so this stays behind the artwork rather than
-   over it. */
+   THE COMMENT ON #services HAS NOW BEEN WRONG ABOUT THIS TWICE. It claimed for
+   several sessions that "the membership panel straddles a black half-band"
+   after the half-band had been removed; the band came back and the sentence
+   became true again by accident; and it is false again as of this change. It
+   has been corrected there rather than left to be discovered a third time. The
+   lesson is not about this band — it is that a comment which names another
+   section's structure has no way of noticing when that structure changes. */
 #membership {
   position: relative;
 }
-#membership::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 50% 0;
-  background: var(--black-true);
-  z-index: 0;
-}
 /* ══ Membership ══════════════════════════════════════════════════════════
-   An inset panel: the artwork across the whole of it, an orange wash coming
+   A full-bleed band: the artwork across the right of it, an orange wash coming
    in from the left, and every word of the copy standing on the solid part of
    that wash.
 
-   The picture is on the right and only on the right — it covers 56% of the
-   panel, not all of it — and the wash is over the picture's own left edge
-   rather than across the panel. That is the difference from the arrangement
-   before this one, and it takes a whole class of problem off the page: the
-   copy now stands on the panel's flat --sixt-orange with no photograph under
-   it at any alpha, so its contrast is a colour pair rather than a measurement
+   The picture is on the right and only on the right — it covers 76% of the
+   band, not all of it — and the wash is over the picture's own left edge
+   rather than across the band. That takes a whole class of problem off the
+   page: the copy stands on flat --sixt-orange with no photograph under it at
+   any alpha, so its contrast is a colour pair rather than a measurement
    against artwork. The picture holds pure white in places, and a wash that
-   merely tinted could never have carried black type over that.
+   merely tinted could never have carried type over that.
 
-   What the wash does now is dissolve the picture's left edge. A photograph
-   cropped to a hard vertical line inside a coloured panel reads as two panels;
-   run the panel's own orange over the first fifth of it and the two become
-   one surface with a subject on one side. */
+   What the wash does is dissolve the picture's left edge. A photograph cropped
+   to a hard vertical line inside a coloured field reads as two panels; run the
+   field's own orange over the first fifth of it and the two become one surface
+   with a subject on one side.
+
+   THREE CUSTOM PROPERTIES BELOW ARE THE CONTRACT, not conveniences. The band
+   is edge-to-edge now, so nothing external bounds where the copy ends or where
+   the picture begins, and the rule that keeps type off the photograph has to
+   be expressed rather than assumed. --member-inline, --member-copy and
+   --member-guard are read by .member-copy and by .member-art's own width,
+   which is how one inequality is enforced in two places that would otherwise
+   drift apart. */
 .member-panel {
   position: relative;
-  /* Above #membership::before, the half-band behind it. */
   z-index: 1;
   isolation: isolate;
   overflow: hidden;
-  border-radius: 24px;
+  /* Edge to edge: no radius, no inset, no container. */
+  border-radius: 0;
+  /* The page's own gutter, reproduced rather than inherited: .container-x is
+     max-width 1536 with a gutter that steps 1rem / 1.5rem / 2.5rem, and this
+     is where its content edge lands. The copy therefore starts on the same
+     vertical as every other section's first letter while the orange runs past
+     both — which is the whole difference between a full-bleed band and a
+     section that has simply lost its container.
+
+     The three steps are not decoration. Written as a flat 2.5rem this held at
+     1440 and put the copy 24px to the right of everything above it at 390,
+     where the page's gutter is 1rem. A full-bleed band is the one place that
+     misalignment has nothing to hide behind: there is no panel edge for the
+     eye to measure from, so the copy is read against the section above it. */
+  --member-gutter: var(--space-4);
+  --member-inline: max(var(--member-gutter),
+                       calc((100% - var(--container)) / 2 + var(--member-gutter)));
+  /* The measure, and the picture reads it too. */
+  --member-copy: clamp(17.5rem, 100vw - 68rem, 29rem);
+  /* How much flat orange the last letter keeps to its right before the wash
+     starts to let the photograph through. */
+  --member-guard: 2.5rem;
   /* Orange, from .band-orange, restated here because it is now load-bearing
      rather than decorative: it is the ground the copy is measured against, and
      it is what the picture's left edge fades into. If the photograph never
@@ -2364,10 +2508,104 @@ body .booking-title {
   --member-pad: clamp(1.75rem, 4.5vw, 4rem);
   display: flex;
   align-items: center;
-  padding: var(--member-pad);
-  min-height: clamp(20rem, 30vw, 27rem);
+  /* Its own vertical space, since the section pays none: the band IS the
+     section. Horizontally it is the page's gutter, not the panel's padding —
+     an inset box pays both and a full-bleed one pays only the second. */
+  padding: var(--member-pad) var(--member-inline);
+  /* clamp(20rem, 30vw, 27rem), then 33vw when the artwork "read small", and
+     now 44vw as a full-bleed band — 432px at 1440, then 481, now 634.
+
+     THE CEILING IS THE ARTWORK, NOT TASTE. The picture is 2:1 and its box is
+     76% of the window, so at 1440 that box stops cropping sideways at
+     0.76 x 1440 / 2 = 547px of height; every pixel past that takes width off
+     the photograph instead. At 634 the box is 1.73:1 and cover keeps 86% of
+     the source, 7% off each side — and the couple stands at 62-90% of the
+     frame, so 93% is where the crop must not go past. A literal 100vh band at
+     this width would be 1.22:1 and keep 61%, cutting the woman in half. That
+     is the number to re-derive against if this is ever asked to grow again. */
+  min-height: clamp(26rem, 44vw, 42rem);
 }
-/* Right-hand 56%, full height. */
+
+/* FROM 1024 UP THE ARTWORK SETS THE HEIGHT, not a clamp — "use the picture
+   full", 2026-08-17, taken literally. `aspect-ratio` off the file's own
+   1553x1013 means `cover` has nothing to crop and the whole composition is on
+   the page: the orange arc in its top left, the couple's heads, the car's
+   wheels and the reflection under them. At 1440 that is 939px.
+
+   IT ALSO FIXES AN OVERLAP RATHER THAN CAUSING ONE, which is the part that is
+   not obvious. The car's roofline sits at about half the frame's height, so it
+   falls at a fixed FRACTION of the band however tall the band is — and the copy
+   is a fixed number of pixels. At the 634px the clamp gave, the car's top edge
+   landed at 405 and the copy ran to 417: the "already a member" line and its
+   link sat on black bodywork, in black ink. At 939 the car's top is at 470 and
+   the copy still ends at 417, so the two are 53px apart. A taller band is what
+   separates them.
+
+   align-items: flex-start for the same reason. Centred in a 939px band the copy
+   would be pushed straight down onto the car; the light part of this artwork is
+   its top left, so the words belong at the top left.
+
+   max-height: 86vh so the band can never be taller than the screen it is on. It
+   is the one lever that re-introduces a crop — at 1920 on a 1080 screen the
+   ratio wants 1252px and this gives 929 — and object-position takes that loss
+   off the bottom, which is floor and reflection, rather than off the heads. */
+@media (min-width: 1280px) {
+  .member-panel {
+    /* CENTRED, at the client's direction on 2026-08-17 — "put the copy and the
+       button in the middle of the picture."
+
+       It was flex-start, and that was not a preference either: top-aligned, the
+       copy ran 64 to 381 in a 600px band and stayed clear of the car, whose
+       body starts around 270 and reaches 558. Centred it runs 141 to 458, so
+       its lower half is now beside the car rather than above it, and the whole
+       question becomes horizontal — the copy has to end left of where the car's
+       bodywork reaches at that height. It does, and the measurements are on
+       .member-copy's gap and on object-position; both were re-swept after this
+       change rather than assumed to survive it. */
+    align-items: center;
+    /* 600px flat, at the client's direction on 2026-08-17, and it replaces
+       `aspect-ratio: 1553 / 1013` — which had made the band 939px at 1440 and
+       1252 at 1920 so that `cover` had nothing to crop and the whole artwork
+       was on the page.
+
+       AT 600 THE ARTWORK IS CROPPED HARD AND THE CROP HAS TO BE AIMED. The
+       file is 1.533:1; the band at 1440 is 2.4:1, so the picture is scaled to
+       939px of height inside a 600px box and 339px of it — 36% — is thrown
+       away. Centred, that takes 170px off each end, which cuts the couple at
+       the waist and the car below its wheels.
+
+       object-position on .member-art img is what aims it, and the number there
+       is not a preference: it is bounded on both sides. Too low and the car's
+       roofline rises into the copy, which is black ink on black bodywork; too
+       high and the standing man loses his head. See that rule. */
+    height: 600px;
+    min-height: 0;
+    /* THE TOP PADDING STAYS AT --member-pad's 4rem AND THIS IS WHY, because
+       6rem was tried and measured worse.
+
+       The argument for 6 was the sticky header: this band is taller than the
+       viewport at every width it applies to, so it arrives with its own top
+       edge at the top of the screen, and 85px of white header sits over the
+       heading's first line for as long as that scroll position lasts.
+
+       What 32px of extra padding actually did was walk the copy down into the
+       artwork's orange arc. The arc is the darkest thing anywhere near this
+       copy — around rgb(211,90,21) at its deepest — and the paragraph fell from
+       4.61:1 to 4.39 against a bar of 4.5. A failure, to fix a heading being
+       briefly half-covered while scrolling past, which is what a full-bleed band
+       taller than the window does to every element in it in turn.
+
+       Re-measured at 4rem: the worst ground under the paragraph is 4.61 and
+       under the 44px heading 4.35, which is large text at a bar of 3.0. Both
+       clear. The header overlap is transient; a contrast failure is not. */
+  }
+}
+
+/* The same two steps .container-x takes, so the copy stays on the page's
+   vertical at every width rather than only at the one it was checked on. */
+@media (min-width: 640px)  { .member-panel { --member-gutter: var(--space-6); } }
+@media (min-width: 1024px) { .member-panel { --member-gutter: 2.5rem; } }
+/* Right-hand 76%, full height. */
 /* overflow: hidden is load-bearing and it is not about the panel's corners —
    .member-panel already clips those. It is about the wash.
 
@@ -2385,7 +2623,37 @@ body .booking-title {
   top: 0;
   bottom: 0;
   inset-inline-end: 0;
-  width: 56%;
+  inset-inline-start: 0;
+  /* 76%, up from 56%, in three steps on the client's direction of 2026-08-17 —
+     "the picture looks small", "take it further left", "further left again and
+     less of the orange fade on it".
+
+     The limit is not the panel, it is the copy: the picture's BOX may start
+     well before the last letter, but the point where the wash stops being
+     opaque may not. Three numbers move together and none of them can be read
+     alone — this width, the two gradient stops on ::after, and the measure on
+     .member-copy, which is where the inequality tying them is written out.
+
+     100%, AND THE WHOLE APPARATUS THAT USED TO SIZE THIS IS GONE WITH THE
+     WASH. Client direction, 2026-08-17: "take the orange fade off, use the
+     picture full."
+
+     What stood here was `min(76%, calc(1.25 * (100% - inline - copy - guard)))`
+     — the picture claiming the right-hand share of the band, with the min()
+     solving the one inequality this section lived by: the last letter of the
+     copy had to fall inside the part of the orange wash that was still fully
+     opaque, so no photograph was ever under a word at any alpha. That
+     inequality does not exist any more, because the wash does not exist. The
+     copy is over the photograph now by design, and what protects it is no
+     longer arithmetic in a stylesheet — it is the artwork itself being near
+     white where the words fall, which is measured in check-contrast.js against
+     pixels read out of the file rather than derived from a rule.
+
+     That is a real trade and it is worth naming: the old arrangement could not
+     be broken by a new picture, and this one can. Supply an artwork with
+     anything dark in its top left and the copy stops being legible, with
+     nothing in the CSS to catch it. */
+  width: 100%;
   overflow: hidden;
 }
 .member-art img {
@@ -2393,29 +2661,102 @@ body .booking-title {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* WHERE THE CROP IS AIMED, and the axis it is aimed on has flipped.
+
+     The artwork supplied at 16:43 on 2026-08-17 is 1920x600 — 3.2:1, cut for a
+     1920 window, where the band is exactly its shape and NOTHING is discarded.
+     Every version before it was 2:1 or taller and lost height in this frame;
+     this one loses width. At 1440 the band is 2.4:1 and cover keeps 75% of the
+     file, 12.5% off each side if it is centred.
+
+     45%, AND IT MOVED WHEN THE COPY WAS CENTRED. It was 65% while the copy was
+     top-aligned and clear of the car entirely; centring it put the paragraph
+     and the "already a member" line level with the bodywork, so the crop had to
+     give them ground back. The two settings are not independent — this value
+     answers where the copy sits, and re-aiming without re-measuring is how this
+     section would ship black type on a black car.
+
+     What it costs is the man's outer shoulder at 1280–1440, which is the least
+     of the four things competing for that edge. The left of this file is empty
+     haze and a faint skyline; the right is the couple, and he stands hard
+     against the frame.
+
+     The bound is legibility, not framing. Swept at 0 / 15 / 30 / 45 / 60 across
+     1280, 1440, 1536, 1680 and 1920, measuring the worst ground under every
+     glyph: everything up to 45 clears its bar with margin, and 60% fails
+     outright at 1.00:1 at both 1536 and 1680 — pushed that far the bodywork
+     slides under the copy. 45 is the last safe stop, and it happens to measure
+     BETTER than 30 as well as showing more, which is why it is not a
+     compromise between the two.
+
+     At 1920 all five settings measure identically, because there is no crop to
+     aim. The sweep only says anything below the artwork's own width.
+
+     RE-SWEEP WHEN THE ARTWORK OR THE BAND HEIGHT CHANGES. Both bounds come from
+     where the subjects sit in this particular file. */
+  object-position: 45% 50%;
 }
 
-/* The wash, on the picture's own box rather than the panel's — so the ramp is
-   measured against the picture's width and stays put when the two stop being
-   proportional, which is exactly what happens below 1024.
+/* A ONE-PIXEL SEAM, and the fix is one pixel of nothing.
+   .member-art's width comes out of a min() over percentages, so its left edge
+   lands on a fraction of a pixel at most widths — 345.6 at 1440. The browser
+   antialiases that edge twice and not once: the clipped photograph blends into
+   the panel's orange at, say, 40% coverage, and then the wash on ::after
+   blends its own orange over the same partial pixel at the same 40%. Forty per
+   cent of a wash cannot hide sixty per cent of a picture, so about a quarter of
+   the photograph's edge column survives. Measured at 1440: rgb(251,94,21) in a
+   single column at x=345, against rgb(255,80,0) either side of it.
 
-   ::after rather than ::before, for the same reason the service tiles' hover
-   wash lives on .media: a pseudo-element inserted before an element's real
-   children paints before them, so ::before would sit under the photograph and
-   do nothing visible at all. That mistake has now been made twice in this
-   file; ::after paints last, above the image.
+   It is one pixel and it is a hairline down the full height of the band, which
+   is exactly the kind of edge the wash exists to destroy — the whole argument
+   of this arrangement is that the picture has no left edge.
 
-   Solid for the first fifth, gone by three fifths. The solid part is what
-   hides the crop; the rest is the picture. */
-.member-art::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(to right,
-                var(--sixt-orange) 0 20%,
-                rgba(var(--sixt-orange-rgb), 0) 62%);
+   Pulling the image one pixel clear of its own box means the box's fractional
+   edge is wash over panel, two identical oranges, and blends to nothing. The
+   pixel is bought back on the right, where the frame is a crop anyway. It is
+   scoped to the side-by-side layout: below 1024 the picture is in flow with its
+   own ratio and its left edge is the panel's, with no fraction and nothing to
+   hide. */
+@media (min-width: 1280px) {
+  .member-art img {
+    width: calc(100% + 1px);
+    margin-inline-start: 1px;
+  }
 }
+
+/* THE ORANGE WASH IS GONE. Client direction, 2026-08-17: "take the orange fade
+   off, use the picture full." This note is what it leaves behind, because the
+   wash was not decoration — it was the whole contract of this section for four
+   revisions, and the thing that replaced it is weaker in a way worth stating.
+
+   It was a left-to-right gradient on the picture's own box: fully opaque
+   --sixt-orange for the first stretch, transparent by the end of the ramp. The
+   opaque part was the ground the copy was measured against, which is why the
+   copy's contrast was a COLOUR PAIR — white on --sixt-orange, one number, true
+   at every width and immune to whatever artwork arrived. The ramp then
+   dissolved the picture's left edge, so a photograph cropped to a hard vertical
+   line inside a coloured field read as one surface with a subject on one side
+   instead of as two panels.
+
+   It moved four times in one afternoon and the arithmetic is kept here because
+   it is the record of what the trade cost each time — the stops are percentages
+   of the picture's own box, so widening the box with the stops unchanged makes
+   a LONGER ramp in pixels and pushes the visible edge of the photograph to the
+   right while its frame goes left. Measured at 1440:
+
+                       art box starts   opaque until   picture clear at
+     56% / 20% / 62%        592              743             1059
+     68% / 24% / 54%        430              650              924
+     76% / 20% / 34%        323              592              670
+
+   And now the picture is the band, at 100%, with nothing over it.
+
+   WHAT WAS GIVEN UP: the copy's ground is a photograph. Its contrast is no
+   longer a property of two colours in tokens.css, it is a property of the file
+   in assets/img, and a new artwork with anything dark in its top left breaks
+   the section with nothing in the CSS to catch it. The ink went dark for the
+   same reason — see the ink block further down, which is where the pixels
+   actually read out of this artwork are recorded. */
 
 /* Below 1024 the panel is too narrow to put a column of type beside a
    picture, so the picture goes underneath — and it goes there in normal flow,
@@ -2432,7 +2773,7 @@ body .booking-title {
    It bleeds to the panel's edges by cancelling the padding, and the panel
    stops paying padding underneath it, so the artwork reaches three sides of
    the box the way it reaches one on desktop. */
-@media (max-width: 1023px) {
+@media (max-width: 1279px) {
   .member-panel {
     flex-direction: column;
     align-items: stretch;
@@ -2441,23 +2782,40 @@ body .booking-title {
   }
   /* Underneath, and underneath in the markup too — the picture follows the
      copy in source order, which is the desktop reading order laid on its side
-     and the order a screen reader gets either way. The wash therefore runs
-     from the picture's top edge, dissolving it into the copy above; reversed,
-     it would hide the edge that has the panel's rounded corner already. */
+     and the order a screen reader gets either way.
+
+     THE COPY DOES NOT SIT ON THE PICTURE DOWN HERE, and that is a deliberate
+     split rather than an oversight. Above 1024 the artwork is the band and the
+     words are on it; a phone cannot do that, because the band would have to be
+     as tall as a screen to leave a light area big enough for four lines of Thai
+     and a button, and `cover` on a 390px-wide box picks whichever slice of the
+     artwork it likes. The copy keeps a flat --sixt-orange ground here — one
+     colour pair, no measurement against a crop that changes with the handset.
+
+     The negative margin is --member-inline and no longer --member-pad. Those
+     were the same number while the panel was an inset box paying one padding on
+     all four sides; full-bleed it pays --member-pad vertically and the page's
+     gutter horizontally, and cancelling the wrong one leaves the picture short
+     of the window's edge by the difference — 24px at 1024, which reads as a
+     misaligned crop rather than as a bug. */
   .member-art {
     position: relative;
     inset: auto;
     width: auto;
-    margin: var(--space-8) calc(-1 * var(--member-pad)) 0;
+    margin: var(--space-8) calc(-1 * var(--member-inline)) 0;
   }
+  /* The artwork's OWN ratio, so nothing is cropped down here at all — and it
+     has to be restated whenever the file changes shape, which it has: three
+     versions at 1774x887 (2:1), then this one at 1553x1013 (1.533:1). A frame
+     that names a ratio the file does not have crops silently and looks like a
+     composition choice. It was `3 / 2` for a long time against a 2:1 source and
+     cut the woman in half on every phone before anyone noticed. */
   .member-art img {
     height: auto;
-    aspect-ratio: 3 / 2;
-  }
-  .member-art::after {
-    background: linear-gradient(to bottom,
-                  var(--sixt-orange) 0 14%,
-                  rgba(var(--sixt-orange-rgb), 0) 56%);
+    aspect-ratio: 1920 / 600;
+    /* No crop here, so no bias either — the desktop object-position is for a
+       frame that throws height away, and this frame throws nothing away. */
+    object-position: 50% 50%;
   }
 }
 
@@ -2469,19 +2827,78 @@ body .booking-title {
   align-items: flex-start;
   text-align: start;
   gap: var(--space-8);
-  /* 32rem keeps the copy clear of the picture's edge rather than clear of a
-     gradient stop — a simpler thing to hold. At the 1536 container the panel
-     is 1456 wide, the padding starts the column at 64px and 32rem ends it at
-     576; the picture begins at 44% of the panel, which is 641. Sixty-five
-     pixels of orange between the last letter and the first pixel of
-     photograph. */
-  max-width: 32rem;
+  /* THIS IS THE OTHER HALF OF THE WASH, and a flat 32rem was hiding a real
+     failure at the bottom of this layout's range.
+
+     What has to hold is one inequality: the last letter of the copy must fall
+     inside the part of the wash that is still fully opaque. Everything in it
+     scales with the panel except the copy, which was a fixed 32rem — so the
+     narrower the panel, the further into the picture's box the paragraph
+     reached, and below about 1100 it reached past the opaque part. Measured at
+     1024 BEFORE the picture was widened at all: the last ink at 557px from the
+     panel's left, the wash opaque only to 513. Forty-four pixels of body copy
+     over a photograph that was already 40% visible under it — the one thing
+     this panel's whole arrangement exists to prevent, present since the layout
+     shipped and invisible because 1024 is not where anyone looks at it.
+
+     So the measure tapers with the viewport instead. THIS IS THE THIRD SET OF
+     NUMBERS FOR IT IN ONE AFTERNOON and it narrowed each time the picture was
+     asked to come further left, because the two share the panel: 32rem flat,
+     then clamp(22rem, 100vw - 50rem, 32rem) at 68%/24%, and now this, at
+     76%/20%. The paragraph is 464px wide at 1536 where it was 512, and 280 at
+     1024 where it was 511 — which is the price of the picture, paid in the
+     copy's measure, and it is a price worth naming rather than absorbing
+     silently.
+
+       1024   17.5rem   ink 319, opaque to 370   +51
+       1200   17.5rem   ink 327, opaque to 439  +112
+       1280   17.5rem   ink 330, opaque to 470  +140
+       1366   17.5rem   ink 334, opaque to 504  +170
+       1440   22rem     ink 409, opaque to 533  +124
+       1536   28rem     ink 507, opaque to 571   +64
+       1920   29rem     ink 524, opaque to 571   +46   <- tightest
+
+     The tightest width moves with the shape. At 56% it was 1024 and failing;
+     at 68% it was 1366; it is 1680-and-above now, where the container has
+     stopped growing at 1536px but the clamp is still opening the measure. That
+     is why this is a clamp swept across the whole range rather than a value
+     picked at one breakpoint — the binding width is not guessable from the
+     rule, it has to be measured, and it has been three different widths in one
+     afternoon.
+
+     THE INEQUALITY IS NO LONGER ONLY A COMMENT. The picture may be W wide
+     only while
+
+         pad + copy + guard  <=  panel - 0.8 x W
+
+     — "the last letter falls before the wash stops being opaque", with the 20%
+     opaque stop substituted in — and .member-art now solves it for W in its
+     own `width`, reading this measure through --member-copy. That is why the
+     value here is the variable and not a second copy of the clamp: two rules
+     spelling out the same number is how they come apart.
+
+     Below 1024 none of it applies: the picture is underneath the copy and the
+     wash runs top to bottom. */
+  max-width: var(--member-copy);
 }
 
 /* Bigger than the page's h2 and allowed to be, because this panel is the one
    place on the page asking for an account. Balanced wrapping over a bounded
    measure: `balance` is a hint the browser may decline, so the measure is what
    actually holds the shape and the property only improves on it. */
+/* One word of the heading in brand orange, at the client's direction on
+   2026-08-17. It is a <span> and not a ::first-line or a gradient because the
+   word is the second of two and neither of those can target it — and because
+   i18n writes textContent, so the split has to exist in the markup.
+
+   THE COLOUR IS ONLY LEGAL BECAUSE OF THE SIZE. Orange on this artwork's pale
+   ground measures around 3.4:1; the heading is 44px at weight 700, which is
+   large text several times over and entitled to 3.0. Drop this heading under
+   18.66px bold — a mobile size, a lighter weight, a redesign — and the same
+   orange needs 4.5 and does not have it. The black half of the heading is at
+   12.37 and carries no such condition; that asymmetry is the thing to remember
+   when this is next touched. */
+.member-title__accent { color: var(--sixt-orange); }
 .member-title {
   font-size: clamp(1.875rem, 3vw, 2.75rem);
   line-height: 1.12;
@@ -2562,9 +2979,33 @@ body .booking-title {
   align-items: flex-start;
   gap: var(--space-5);
 }
+/* A row from 640 up, AND ALLOWED TO STOP BEING ONE. Both halves of that matter
+   and the second was missing.
+
+   The row was written when the copy column was a flat 32rem, which is 512px
+   and fits the button, a --space-8 gap and the "already a member?" line beside
+   it at 479. The measure tapers now, down to 17.5rem at 1024 — see
+   .member-copy for why — and a row that cannot wrap does not degrade, it
+   crushes: flex shrinks the two items instead, the button loses the width its
+   label needs, and "สมัครสมาชิกเลย" breaks across two lines inside a pill that
+   was drawn for one. That is what it was doing at 1024, and the pill's radius
+   is 999px precisely so that a two-line box still reads as a capsule — so it
+   looked like a design choice rather than an overflow.
+
+   flex-wrap puts the sentence under the button instead, which is the layout
+   this same block already uses below 640. nowrap on the label is the other
+   half: without it the button is still free to break its own text before the
+   row decides to wrap, since a flex item's automatic minimum size is its
+   longest unbreakable run, and Thai gives the browser breaks almost anywhere. */
 @media (min-width: 640px) {
-  .member-actions { flex-direction: row; align-items: center; gap: var(--space-8); }
+  .member-actions {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-5) var(--space-8);
+  }
 }
+.member-actions .btn-primary { white-space: nowrap; }
 /* Solid ink, not a muted tone. It sits beside the button and reads as the
    second of two choices, which a wash would not — and on the orange ground
    there is no muted tone available anyway: black at 78% falls to 4.01:1 there.
@@ -2606,25 +3047,106 @@ body .booking-title {
 
    tokens.css has said for many sessions that "on the orange band every text
    colour is black". That is no longer true of this panel, and the note there now
-   says so rather than being left to contradict the page. */
-.member-panel .member-title,
-.member-panel .member-body .lead,
-.member-panel .member-have,
-.member-panel .member-have a {
-  color: var(--white);
+   says so rather than being left to contradict the page.
+
+   ALL OF THAT NOW APPLIES BELOW 1024 ONLY. From 1024 up the wash is gone and
+   the copy stands on the artwork itself, which is a different measurement
+   entirely and is in the block underneath. */
+@media (max-width: 1279px) {
+  .member-panel .member-title,
+  .member-panel .member-body .lead,
+  .member-panel .member-have,
+  .member-panel .member-have a {
+    color: var(--white);
+  }
+  /* The white button, on the promotions CTA's model as asked. Its own label is
+     black on white at 17.4:1 — the only thing on this panel that gained
+     contrast — and the fill against the orange is 3.28:1, which is the 1.4.11
+     boundary bar of 3.0 and not a text measurement. .band-orange inverts
+     .btn-primary to black-on-orange by default, so this has to out-specify
+     it. */
+  .member-panel .btn-primary {
+    background: var(--white);
+    color: var(--sixt-black);
+  }
+  .member-panel .btn-primary:hover {
+    background: var(--sixt-black);
+    color: var(--white);
+  }
 }
-/* The white button, on the promotions CTA's model as asked. Its own label is
-   black on white at 17.4:1 — the only thing on this panel that gained contrast
-   — and the fill against the orange is 3.28:1, which is the 1.4.11 boundary
-   bar of 3.0 and not a text measurement. .band-orange inverts .btn-primary to
-   black-on-orange by default, so this has to out-specify it. */
-.member-panel .btn-primary {
-  background: var(--white);
-  color: var(--sixt-black);
+
+/* ── The ink from 1024 up, where the copy is on the photograph ─────────────
+   THE INK IS BLACK BECAUSE THE GROUND STOPPED BEING ORANGE. With the wash
+   removed the words fall on the artwork's own top left, and in member44.png
+   that is a near-white studio wall: sampled from the file at 2%, 10% and 20%
+   of its width across the band the copy occupies, the darkest reading is
+   rgb(231,227,222) and most of it is rgb(250,246,241). White ink there is
+   between 1.05 and 1.15:1 — not "hard to read", invisible. --sixt-black is
+   15.9:1 against the darkest of those samples.
+
+   THIS TRADE IS WORTH BEING EXPLICIT ABOUT, because it is the second time the
+   ink on this panel has flipped in a day and the two flips are not symmetrical.
+   White on orange was a colour pair: 3.28:1, two failures shipped under WAIVED,
+   but true at every width and unbreakable by a new artwork. Black on the
+   photograph passes comfortably — and it passes because of a JPEG. Replace the
+   file with one that has a dark sky, a night shot, or a subject in its top
+   left, and this section becomes unreadable with nothing in the stylesheet to
+   catch it. The pairs in check-contrast.js are sampled from the artwork on disk
+   for exactly that reason; re-run it when the picture changes.
+
+   The button needs no override at all here. .band-orange already makes
+   .btn-primary a black fill with a white label, which was written for a black
+   button on orange and happens to be the right thing on a white wall too:
+   17.4:1 for the label, and the fill is its own boundary against the artwork.
+   The white-fill override below 1024 is the one that has to be scoped, not
+   this. Only the hover is restated — .band-orange fills it WHITE on hover,
+   which on a white studio wall makes the button disappear at the moment it is
+   being pointed at. */
+/* The copy block closes up where it stands on the artwork, and this is a
+   legibility change wearing the clothes of a spacing one.
+
+   --space-8 between the four blocks makes the copy 353px tall, so in a 600px
+   band it runs from 64 to 417 — and 417 is inside the car's reflection on the
+   polished floor, which is a mid grey the black "already a member" line
+   measured 3.76:1 against at 1536. --space-5 takes 36px out of the block
+   without touching a single type size: the copy ends at 381 instead, above the
+   reflection at every width in the sweep.
+
+   It only applies where the copy is over the picture. Below 1280 the block sits
+   on flat orange, nothing is competing with it, and the larger rhythm is the
+   better one. */
+@media (min-width: 1280px) {
+  .member-copy { gap: var(--space-5); }
 }
-.member-panel .btn-primary:hover {
-  background: var(--sixt-black);
-  color: var(--white);
+
+@media (min-width: 1280px) {
+  .member-panel .member-title,
+  .member-panel .member-body .lead,
+  .member-panel .member-have,
+  .member-panel .member-have a {
+    color: var(--sixt-black);
+  }
+  /* ORANGE FILL, WHITE LABEL, at the client's direction on 2026-08-17.
+     .band-orange makes .btn-primary black-on-orange, which was right when the
+     band was orange and is only inertia now that it is a photograph — so this
+     overrides both states rather than only the hover.
+
+     White on --sixt-orange is 3.28:1 and it is legal here for exactly one
+     reason: --text-cta is 19px at weight 700, which clears the 18.66px bold
+     threshold for large text and its 3.0 bar. That token's own comment in
+     tokens.css says so, and this is the fourth button on the page living on
+     it. Shrink this label and the button becomes illegal, not merely tight.
+
+     The fill against the artwork is the button's only boundary, and 1.4.11
+     asks 3.0 of it: orange on the pale plaza is about 3.4. */
+  .member-panel .btn-primary {
+    background: var(--sixt-orange);
+    color: var(--white);
+  }
+  .member-panel .btn-primary:hover {
+    background: var(--sixt-orange-deep);
+    color: var(--white);
+  }
 }
 
 /* ══ News ════════════════════════════════════════════════════════════════
@@ -2898,59 +3420,207 @@ body .booking-title {
    them. The join lands wherever the card's height puts it, and the only thing
    that has to be true — that it touches the picture above and the footer
    below — is true at all of them. */
-.closing-stats {
+/* THE CARD IS CONTACT DETAILS NOW, and its geometry is inherited unchanged
+   from the four figures it replaced — same white card, same straddle of the
+   join into the footer, same -4rem top and bottom. That was the one part of
+   this block that was never the problem, and the comment above it still holds:
+   the overlap is a fixed 4rem rather than half the card's height, because the
+   card is four different heights across the widths it has to work at.
+
+   Three blocks and not four. Stacked on a phone, three across from 768. */
+.closing-contact {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: var(--space-6);
-  margin: 0;
-  margin-top: -4rem;
-  margin-bottom: -4rem;
+  margin: -4rem 0;
   position: relative;
   z-index: 1;
-  padding: var(--space-8) var(--space-6);
+  /* --space-5 top and bottom, down from --space-8. The card was 208px at 1440
+     and this takes it to 184.
+
+     THAT IS ALL THE HEIGHT THERE IS TO GIVE without touching the QR, and the
+     arithmetic says why: the card is 2 x padding + its tallest block, and the
+     tallest block is the QR column at 144 — a 20px label, an 8px gap and a
+     116px code. The other two columns are shorter and stretch to meet it. So
+     padding is the only free variable; 32 to 20 is 24px off the card and the
+     next 12 would have to come out of the code itself.
+
+     116 is a scanning floor rather than a size, so it is not on offer. See
+     .contact-qr: below about 100 a 29-module code stops reading reliably from a
+     phone at arm's length, and this is the one element on the page whose job
+     fails silently — a code that will not scan looks exactly like one that
+     will. */
+  padding: var(--space-5) var(--space-6);
   background: var(--white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-rest);
   text-align: center;
 }
 @media (min-width: 768px) {
-  .closing-stats { grid-template-columns: repeat(4, 1fr); }
+  /* hotline + social packed together on the left, QR alone on the right.
+
+     `auto auto 1fr`: the first two tracks take exactly what they need so they
+     sit against each other and against the card's left edge, and the whole
+     remainder goes to the third, which the QR is pinned to the end of. The
+     arrangement before this centred the hotline between two 1fr tracks; that
+     is what the client asked for at 16:57 and this is what they asked for
+     after seeing it, so the note is kept short — the reason for the shape is
+     the direction, not a derivation. */
+  .closing-contact {
+    grid-template-columns: auto auto 1fr;
+    align-items: center;
+    /* 54px of side padding, up from --space-6's 24 — the client's "about 30px
+       more", added rather than rounded to the nearest step, because the scale
+       has nothing between 24 and 48 that lands where they asked.
+
+       ONLY FROM 768 UP, and that is a hard constraint rather than caution. At
+       390 the card is 358 wide; 54 a side leaves a 250px content box and the
+       social row alone is 260 — four 56px discs and three 12px gaps. The wider
+       padding would overflow the card at exactly the width where there is least
+       room to hide it. */
+    padding-inline: calc(var(--space-6) + 30px);
+    padding-block: var(--space-5);
+  }
+  /* Flush left, flush right. The label goes with its block: a centred "ติดตามเรา"
+     over a left-aligned row of discs reads as two separate things.
+
+     SCOPED THROUGH .closing-contact, and that is not decoration. These are
+     single-class selectors overriding .contact-block's own `align-items:
+     center`, which is also a single class and is written LATER in this file —
+     equal specificity, so source order was deciding and the base rule was
+     winning. The block rendered centred in its track and the measurement said
+     it was flush left, because the block stretches the full track either way
+     and only its contents move. Two classes settles it wherever either rule
+     ends up sitting. */
+  .closing-contact .contact-block--service,
+  .closing-contact .contact-block--social { align-items: flex-start; text-align: start; }
+  .closing-contact .contact-block--qr { align-items: flex-end; text-align: end; }
+
+  /* The rule between the two left-hand blocks. It is a border on the second
+     one rather than a third grid item, because a divider that is its own
+     element has to be told what to do at every breakpoint where the layout
+     changes — and this one has to disappear entirely below 768, where the
+     blocks stack and a vertical rule between them would be a rule across
+     nothing.
+
+     --grey-200 and 1px: the same hairline the footer's column edges use. On
+     white it is a seam rather than a line, which is what separates two things
+     that belong to each other. A --grey-500 rule here would read as a table. */
+  .closing-contact .contact-block--social {
+    border-inline-start: 1px solid var(--grey-200);
+    padding-inline-start: var(--space-8);
+    margin-inline-start: var(--space-2);
+    align-self: stretch;
+    justify-content: center;
+  }
 }
-/* column-reverse so the figure sits above its label while the markup keeps
-   <dt> before <dd>, which is the order a description list requires and the
-   order a screen reader should hear: "founded — 1912" is a sentence, "1912 —
-   founded" is a guess. Reversing two adjacent halves of one pair costs nothing
-   in reading order; reversing a list would. */
-.closing-stats > div {
+.contact-block {
   display: flex;
-  flex-direction: column-reverse;
-  gap: var(--space-1);
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
 }
-.closing-stats dt {
+.contact-label {
+  margin: 0;
   font-size: var(--text-label);
-  font-weight: 400;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--grey-500);
 }
-/* Orange at 2.5rem/700, which is large text several times over — the same
-   3.28:1 on white the vehicle prices sit on, and legal for the same reason. */
-.closing-stats dd {
-  margin: 0;
+/* The same 2.5rem/700 orange the figures used, and legal for the same reason:
+   3.28:1 on white is large text several times over — this is the number the
+   vehicle prices sit on too.
+
+   .band-dark hands every link on this band white ink and this one is inside a
+   white card, so both states are restated. That trap has been hit here before;
+   the FAQ escalation strip has the same note. */
+.contact-hotline {
   font-size: clamp(2rem, 4vw, 2.75rem);
   font-weight: 700;
   line-height: 1.05;
   letter-spacing: -0.03em;
   color: var(--sixt-orange);
   font-variant-numeric: tabular-nums;
-}
-/* .band-dark hands every link on the band its white ink, and one of these
-   figures is a tel: link inside a white card — white on white. Both states
-   restated, exactly as the FAQ escalation strip has to. */
-.closing-stats dd a {
-  color: var(--sixt-orange);
   text-decoration: none;
 }
-.closing-stats dd a:hover { color: var(--sixt-orange-deep); }
-.band-dark .closing-stats :focus-visible { outline-color: var(--sixt-orange); }
+.contact-hotline:hover { color: var(--sixt-orange-deep); }
+.contact-note {
+  margin: 0;
+  font-size: var(--text-small);
+  color: var(--grey-500);
+}
+.band-dark .closing-contact :focus-visible { outline-color: var(--sixt-orange); }
+
+/* 56px discs with a 26px glyph, up from 44 and 20 at the client's direction.
+
+   44 was the number to CLEAR, not the number to draw: it is the touch target
+   the footer's own social row had to be padded up to reach. Nothing about it
+   was ever a size decision, and this card has room the footer masthead did
+   not — it is the last thing on the page before the footer and the only place
+   these four destinations are offered as an action rather than listed.
+
+   --grey-50 fill and black glyph: 16.25:1, and the disc against the white card
+   is 1.09:1, which is fine because the disc is not the boundary of anything —
+   each link's own focus ring is, and .band-dark's white ring is overridden
+   above so it does not vanish into the card. */
+.contact-social ul {
+  display: flex;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.contact-social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: var(--grey-50);
+  color: var(--sixt-black);
+  transition: background var(--transition), color var(--transition);
+}
+.contact-social a:hover {
+  background: var(--sixt-orange);
+  color: var(--white);
+}
+/* The glyphs are 20px in the markup because that is what the footer's row
+   uses; scaled here rather than re-authored, so one set of paths serves both
+   and the two rows cannot drift apart in shape while differing in size. */
+.contact-social svg { width: 26px; height: 26px; }
+/* 116px square, and it is a floor rather than a composition choice: below about
+   100 a 29-module code stops scanning reliably from a phone held at arm's
+   length. The source is 360px, so this renders at 3.1x — more than the 2x the
+   rest of the page settles for, kept because a QR's whole job is to survive
+   being photographed at an angle in bad light.
+
+   THE ORANGE IS SAFE HERE AND WOULD NOT BE IN PRINT, which is the one thing to
+   know before this file is reused. A phone camera reads luminance, and orange
+   measures 3.28:1 against white where LINE's own green measures 2.26 — better
+   than what was supplied. A red-LED laser scanner reads the RED CHANNEL, and
+   --sixt-orange has R=255, exactly white's: measured at 0 apart, against 247
+   for the green. Under one of those this code is a blank square.
+
+   Nothing scans a web page with a laser, so it ships. If this ever goes on a
+   card, a counter or a poster, assets/img/line-qr-eyes.png is the version for
+   it — orange finder patterns and black data modules, which keeps the mark
+   orange and puts the data back at 218 apart in red. It is built by the same
+   recipe; see tools/prepare-images.py.
+
+   No border and no fill: the code brings its own quiet zone baked in, and a
+   frame drawn around that reads as a second, tighter quiet zone. */
+.contact-qr {
+  display: block;
+  width: 116px;
+  height: 116px;
+  border-radius: var(--radius-sm);
+}
+.contact-qr img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 
 /* ══ FAQ ═════════════════════════════════════════════════════════════════ */
 /* A picture and a column of type, in that order on screen and the other way
@@ -3411,14 +4081,34 @@ body .booking-title {
    is lost in the override.
 
    Full-bleed, not an inset box. It was inset for one revision, at
-   .promo-ground's 6% so the page's two dark panels would agree on a width,
-   and the thing that broke was two sections further down: the membership
-   panel straddles a black half-band whose whole argument is that it is this
-   band carrying on. Take this one off the window's edges and that half-band
-   begins out of nowhere. The two panels matching was worth less than the two
-   sections joining. */
+   .promo-ground's 6% so the page's two dark panels would agree on a width, and
+   the reason it came back out is two sections further down.
+
+   THAT REASON HAS NOW CHANGED TWICE AND THIS SENTENCE HAS BEEN WRONG BOTH
+   TIMES. It used to read "the membership panel straddles a black half-band
+   whose whole argument is that it is this band carrying on" — true when
+   written, false for several sessions after the half-band was removed, true
+   again when it was restored, and false again as of 2026-08-17: the membership
+   section is a full-bleed orange band now and there is no half-band at all.
+
+   What holds regardless of which shape that section takes is simpler, and is
+   the version worth keeping: this band and the one below it share an edge, so
+   this one has to reach the window's edges or the join between them starts
+   somewhere other than the window's edges too. The two dark panels agreeing on
+   a width was worth less than that. */
 #services {
-  padding-block: clamp(3.5rem, 6vw, 7rem);
+  /* Down from clamp(3.5rem, 6vw, 7rem) — 86px top and bottom at 1440, now 65.
+     This is the answer to "the service section looks too spread out" of
+     2026-08-17, and it took two attempts to find: the first was to shrink the
+     banner, and the client's next direction was to make the banner TALLER, at
+     500. Which settles what the spread actually was — not the room inside the
+     box, the black around it.
+
+     This is the one section that pays its own padding rather than .section-y's
+     48px, and it always has: it is full-bleed and its band is the only thing
+     separating the fleet above from the membership panel below, so it needs
+     more than a white section does. It needs less than 86. */
+  padding-block: clamp(3rem, 4.5vw, 5rem);
   /* Flat --black-true, at the client's direction, and it retires the whole
      apparatus the paragraphs above describe. --surface-services was a studio
      sweep under a 0.78 black wash — the third thing to sit behind this band — and every one of
@@ -3437,20 +4127,29 @@ body .booking-title {
   background: var(--black-true);
 }
 
-/* Orange, alone on the page among the section headings.
+/* WHITE, at the client's direction on 2026-08-17, and this rule is now a
+   deletion rather than an override: .band-dark already sets every h1, h2 and h3
+   in its section to --on-dark. The declaration is kept, explicitly, because
+   what it says is "this heading is deliberately not orange" — and this heading
+   was the one exception on the page for four revisions, so its absence would
+   read as an oversight rather than as a decision.
 
-   6.39:1 on this ground. That is comfortably clear of the 4.5 it would need
-   at body size, let alone the 3.0 a 40px bold heading is entitled to, and it
-   holds at every width because the ground behind it is one flat colour.
+   The number improves by a lot and stops being interesting: white on
+   --black-true is 21:1, against the 6.49 orange managed. What the orange was
+   worth was on the other axis — it was the only section heading on the page
+   carrying the brand colour, and the section's own titles are orange on hover
+   now, so the colour is spent inside the banner instead of above it.
 
-   It was not, for one revision: with a photograph back there the number
-   depended on which pixels the glyphs happened to land on, which had to be
-   measured at eight widths and re-measured whenever the string or the picture
-   changed. Orange is only 1.89:1 against the worst ground that arrangement
-   could produce. Any future attempt to put a picture behind this band has to
-   answer for the heading first — check-contrast.js keeps that pair listed as
-   forbidden so the number stays in view. */
-#services h2 { color: var(--sixt-orange); }
+   The caution the orange left behind still stands and is not about the colour.
+   With a photograph behind this band the ratio depended on which pixels the
+   glyphs landed on: eight widths to measure, re-measured whenever the string
+   or the picture changed, and orange fell to 1.89:1 against the worst ground
+   that arrangement could produce. White would survive there where orange did
+   not, which is exactly the argument that would be used to put the picture
+   back. check-contrast.js keeps the orange pair listed as FORBIDDEN so the
+   number stays in view; the band is flat for reasons the tile copy needs too,
+   not only the heading. */
+#services h2 { color: var(--on-dark); }
 /* ── The service banner ───────────────────────────────────────────────────
    Three columns of words over one photograph, and the photograph is what
    changes. Built to the pattern the client supplied from poscoflow.com's
@@ -3488,6 +4187,56 @@ body .booking-title {
    unlike .section-head, no reusable shape to keep: that class is the general
    version of the same idea and is the one worth leaving in place. Two dead
    copies of one arrangement is one too many. */
+/* The orange arc in the band's top-right corner, supplied as obj-line.png and
+   cropped here to its own opaque bounds — 714x334 of a 890x633 file, so
+   "flush to the corner" is flush to the mark and not to the file's empty
+   margin. 3 KB, alpha intact.
+
+   NOT .quarter. That class is the page's other accent, a solid 180px quarter
+   disc used twice, and this is a stroked arc rather than a filled corner —
+   different mark, and reproducing this one in CSS would mean two radii and a
+   mask for a shape the client supplied as a file.
+
+   It sits OUTSIDE .container-x on purpose, so it is measured against the band
+   and reaches the window's edge, while everything readable stays on the page
+   grid. Both are z-index auto and the container comes second in source order,
+   so the heading paints over the arc wherever the two meet without either
+   needing a stacking context.
+
+   THE LEFT CORNER, AND THE FILE WANTS TO BE THERE. Client direction moved it
+   from right to left, and it is the better fit for a reason worth writing
+   down: the arc's centre of curvature is at the top-LEFT of its own box — the
+   opaque stroke touches the top edge across the right of the file and the left
+   edge down its lower half. Pinned to a left corner the ring appears to turn
+   around that corner. Pinned to the right it had to be read as a fragment
+   drifting in from off-frame, which is a weaker mark and is why it was mirrored
+   nowhere: no transform is needed now.
+
+   It bleeds off two edges. Anchored at 0,0 the arc would end inside the band
+   and read as a sticker; -12% on each axis puts its cut ends past the corner
+   so the shape continues out of frame, which is what makes a fragment read as
+   a fragment. #services already clips it.
+
+   Decoration only — it is never measured for contrast, because contrast
+   applies to text and to UI boundaries and this is neither: it repeats
+   nothing, it bounds nothing, and the band reads identically with the file
+   missing. */
+.svc-accent {
+  position: absolute;
+  top: -12%;
+  inset-inline-start: -12%;
+  width: clamp(220px, 34vw, 560px);
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+@media (max-width: 767px) {
+  /* Smaller and pulled further out. At 390 the band is 358 wide, so a mark
+     sized against the viewport takes a third of it and stops being an accent —
+     it becomes the first thing in the section, above its own heading. */
+  .svc-accent { width: 160px; top: -8%; inset-inline-start: -18%; }
+}
+
 .svc-banner {
   position: relative;
   border-radius: var(--radius-lg);
@@ -3575,11 +4324,31 @@ body .booking-title {
    space-between is doing the composition — the two blocks are pushed to the
    two ends and whatever the photograph needs is what is left over.
 
-   min-height came down from clamp(24rem, 34vw, 32rem). At 34vw the banner ran
-   490px at 1440 with about 250px of nothing between two thin bands of content,
-   which is what "the text is placed at random" was describing. 26vw puts it
-   near 380px, where the gap reads as the picture being given room rather than
-   as a hole. */
+   min-height is a client number now: 500px, asked for directly on 2026-08-17
+   ("the service box, make it about 500 tall"). It reads through this clamp as
+   the cap, reached at 1429 and held above it.
+
+   IT WENT DOWN FIRST, IN THE SAME SESSION, AND THAT IS NOT A CONTRADICTION —
+   the two directions were about different space. The one before this was "the
+   service section looks too spread out", which was answered at 21vw, near 302,
+   and the answer was wrong: the room is not what was spread out. It is the
+   band around the banner. So the height came back up past where it started and
+   the section's own padding came down instead, on #services above — the box is
+   bigger and the section it sits in is 43px shorter.
+
+   What that costs, stated rather than discovered later: space-between opens the
+   whole surplus between the title and the copy. At 1440 the content is 246px —
+   64 of padding, a 43px title, a 139px body — so a 500px column carries a
+   254px void between its two blocks. That is more than the 244 the very first
+   version had, and the note that version left behind called it "the text is
+   placed at random". The difference is what fills it: the banner is one
+   photograph now rather than three tiles, and a tall column is what lets it be
+   seen. If it ever reads as a hole again, the lever is this number and the
+   history is here — 32rem, 26vw, 21vw, 500px.
+
+   The floor and the taper below the cap are ours, not the client's: 20rem
+   holds the shape at 768 where three columns are only 256 wide, and 35vw is
+   what carries it from there to 500 without a step. */
 .svc-col {
   position: relative;
   display: flex;
@@ -3590,7 +4359,7 @@ body .booking-title {
   min-height: 20rem;
 }
 @media (min-width: 768px) {
-  .svc-col { min-height: clamp(21rem, 26vw, 27rem); padding: var(--space-8); }
+  .svc-col { min-height: clamp(20rem, 35vw, 31.25rem); padding: var(--space-8); }
 }
 
 /* The head holds the title and nothing else. It is the first child, so the
@@ -3645,6 +4414,58 @@ body .booking-title {
   pointer-events: auto;
 }
 
+/* A black wash rising under the active column's foot, so the detail copy is
+   read off a darker ground than the photograph gives it. Client direction,
+   17 August 2026: "on hover, bring a bit of black up so the detail text is
+   easy to read."
+
+   THE SCRIM ITSELF IS NOT TOUCHED, and that is deliberate — its own comment
+   above says it does not lift on hover and the reason still holds. This is the
+   opposite direction anyway: the scrim can only be weakened by lifting it, and
+   what is wanted here is more black, not less. Adding it per column, under the
+   words, costs the section nothing and every measured pair in it improves:
+   white goes from 4.88 to 10.21 at the foot, against a bar of 4.5.
+
+   z-index: -1, AND IT IS THE WHOLE OF WHY THIS IS A PSEUDO-ELEMENT AND NOT AN
+   OVERLAY. .svc-cols is position: relative with z-index: 1, so it is a
+   stacking context; .svc-col is positioned but z-index: auto, so it is not.
+   A -1 layer therefore paints inside .svc-cols — above the scrim, which is a
+   sibling below it — and below every column's in-flow text. At z-index 0 or
+   auto it would paint above that text instead and hide the copy it is there
+   to help.
+
+   It could not be an overlay wrapped around the copy either: .svc-col__body
+   must not become a containing block, because .svc-col__cta::before is
+   absolutely positioned and has to resolve against .svc-col to cover the whole
+   column. See the note on that rule — this is the second time the same
+   constraint has decided the shape of a change here.
+
+   The stops answer the layout. space-between puts the copy in the bottom third
+   — 171px of a 500px column at 1440, padding included — so the wash is at full
+   strength through 45% and gone by 82%, which leaves it clear of the title
+   entirely.
+
+   WHICH MEANS THIS DOES NOT RESCUE THE ORANGE TITLE. Its waiver is measured at
+   the top of the column where this is fully transparent, so 1.49 is still
+   1.49. It is worth knowing that it COULD: orange over 0.55 of black over the
+   scrim is 3.11 and clears the 3.0 bar — the wash would have to run the full
+   height of the column at that strength, which is a much darker banner than
+   "a bit of black at the foot". The pair is measured in check-contrast.js so
+   the option is costed rather than rediscovered. */
+.svc-col::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(to top,
+                rgba(26, 26, 26, 0.55) 0 45%,
+                rgba(26, 26, 26, 0) 82%);
+  transition: opacity var(--dur-layout) var(--ease-out);
+}
+.svc-col.is-active::before { opacity: 1; }
+
 /* Solid white, and white-space: pre-line so the line breaks written into
    content.js are honoured while everything else collapses — the author decides
    where a line turns and a narrow column can still wrap past it.
@@ -3662,37 +4483,80 @@ body .booking-title {
   margin: 0 0 var(--space-5);
 }
 
-/* KNOWN AND ACCEPTED FAILURE — client decision, 17 August 2026.
-   An inactive title is white at opacity 0.2 over this scrim, which measures
-   1.47:1 against a bar of 4.5. It is not legible and it is not compliant.
+/* All three titles are solid white, and the active one is orange. Client
+   direction, 17 August 2026: "the heading in each box should be white, and
+   turn orange on hover."
 
-   1.47 and not the "about 1.2" first written here: 1.2 was the figure for white
-   at 0.2 over solid black, and the ground is the scrim, which is a mid grey.
-   The number is out of check-contrast.js rather than out of a head. It is here because the client asked for the reference's
-   treatment in full after the number was put to them, and it is recorded in
-   check-contrast.js under WAIVED — not FORBIDDEN, which means "never ship
-   this", but a third bucket meaning "fails, shipped anyway, on a decision".
-   The tool's summary no longer claims this page passes AA throughout.
+   THE OPACITY FADE IS GONE, AND THAT IS AN ACCESSIBILITY GAIN. What stood here
+   was an inactive title at white 0.2 over this scrim — 1.47:1 against a bar of
+   4.5, illegible, and carried in check-contrast.js under WAIVED as a shipped
+   failure. Two of the three titles were in that state at any moment. White is
+   4.88:1 on the same ground and simply passes, so that waiver is retired
+   rather than moved.
 
-   What keeps it from being worse than it reads: the state is recoverable and
-   it recovers on any attempt to use it. Hover restores full opacity, and so
-   does focus, via :focus-within on the column — so a keyboard user never
-   arrives at a 0.2 title, they arrive at a 1.0 one. The 1.2:1 state is only
-   ever seen by someone not interacting with that column.
+   THE ORANGE IS A NEW ONE, AND SMALLER. --sixt-orange on the scrim's worst
+   ground is 1.49:1 against a bar of 3.0 for large text. Two things bound what
+   that costs, and neither applied to the state it replaces:
 
-   If this is ever revisited, the fix is not a darker scrim: at 0.2 alpha the
-   text is 80% transparent and no ground makes it legible. The fix is raising
-   the opacity, and 0.62 is the lowest value that clears 4.5:1 here. */
+     — it is one column of three, not two of three, and it is the column the
+       pointer or the keyboard is already on. Nobody is trying to read a title
+       they are not pointing at, and every other title is at 4.88.
+     — 1.49 is the worst case and the worst case is a white pixel. The scrim's
+       ground is a photograph; 1.49 is orange over 62% black over WHITE, which
+       is what these three pictures hold in their brightest strip. Over their
+       dark half the same orange is 6.40.
+
+   Put to the client with the number. It is in check-contrast.js under WAIVED
+   with the date, and the FORBIDDEN entry below it is what stops the obvious
+   "fix" — lightening the scrim — from being tried, since that moves the white
+   titles too and they are the 4.88 this arrangement is built on.
+
+   color AND opacity, because a third direction the same afternoon put a fade
+   back on the two titles that are not being pointed at — see the rule under
+   this one, which is where the dimming and its number live now. */
 .svc-col__title {
   margin: 0;
   font-size: clamp(1.375rem, 2.2vw, 2rem);
   line-height: 1.25;
   letter-spacing: -0.01em;
   color: var(--white);
-  opacity: 0.2;
-  transition: opacity var(--dur-layout) var(--ease-out);
+  transition: color var(--dur-layout) var(--ease-out),
+              opacity var(--dur-layout) var(--ease-out);
 }
-.svc-col.is-active .svc-col__title { opacity: 1; }
+.svc-col.is-active .svc-col__title { color: var(--sixt-orange); }
+
+/* The other two fade WHILE THE POINTER IS ON THE BANNER, and only then.
+   Client direction, 17 August 2026: "when a service is hovered, the ones that
+   are not should go fainter."
+
+   0.65, AND THE NUMBER IS THE WHOLE POINT. This is the reference's dimming
+   coming back, and the first time it came back it was 0.2 — 1.47:1, illegible,
+   and it spent a session in WAIVED. White over this scrim at 0.65 composites
+   to rgb(205) on rgb(113) and measures 3.07:1, which passes: the title is
+   31.68px at 700 at 1440 and clamps no lower than 22px, and bold above 18.66px
+   is large text, whose bar is 3.0. 0.62 is 2.95 and fails. So 0.65 is not a
+   taste value, it is the floor with two points of margin on it, and anything
+   fainter is a waiver rather than a tweak.
+
+   :hover on the CONTAINER and not on the column, which is what makes this a
+   hover state rather than a resting one. .is-active is set by script and never
+   cleared — something is always active so the banner never shows three dim
+   columns — so `:not(.is-active)` alone would have dimmed two titles
+   permanently, which is the state that was just taken off this page. Gating it
+   on .svc-cols:hover means the pointer leaving restores all three to solid
+   white with no second listener to write.
+
+   :focus-within is the keyboard's half of the same rule, and it has to be
+   spelled out separately: a selector list is invalid in full if any part of it
+   is unsupported, so these cannot be folded into one :is(). Tabbing into a
+   column dims its neighbours exactly as pointing at it does.
+
+   Not below 768. Everything is expanded down there and there is no pointer to
+   answer — see the block at the foot of this section. */
+@media (min-width: 768px) {
+  .svc-cols:hover .svc-col:not(.is-active) .svc-col__title { opacity: 0.65; }
+  .svc-cols:focus-within .svc-col:not(.is-active) .svc-col__title { opacity: 0.65; }
+}
 
 /* The whole column is the target, and the CTA is what carries the link: an
    overlay stretched from the button out to the column's edges means a pointer
@@ -3770,7 +4634,17 @@ body .booking-title {
   .svc-bg.parallax-zoom { transform: none; }
 
   .svc-col__body { opacity: 1; pointer-events: auto; }
-  .svc-col__title { opacity: 1; }
+  /* And no foot wash. It marks the active column, and down here every column
+     is active in all but the class — three stacked columns with one of them
+     darkened at the foot is a highlight on whichever was tapped last. Same
+     decision as the orange title below. */
+  .svc-col.is-active::before { opacity: 0; }
+  /* And no orange title down here either. The colour marks the column being
+     pointed at, and there is no pointer: the class is still toggled by the tap
+     handler, so without this the last column tapped would keep an orange
+     heading that means nothing next to two white ones. All three white is the
+     same decision as all three bodies visible. */
+  .svc-col.is-active .svc-col__title { color: var(--white); }
   /* Stacked, the two-blocks-at-two-ends composition has nothing to compose
      around — there is no tall picture between them to give room to, only a third
      of one. Everything closes up to the top of its own column and the copy runs

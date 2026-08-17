@@ -233,6 +233,44 @@ JPEG_JOBS = [
 # Check bytes 8..12 of the output read "WEBP" — Chrome silently returns a PNG
 # from toDataURL when it cannot honour the format, and a PNG of a photograph
 # at this size is roughly six times the file.
+# assets/img/line-qr.png — the LINE official-account QR, RECOLOURED.
+#
+# Source: the client's export from the LINE Official Account Manager,
+# 360x360 RGBA, 29x29 modules, LINE green rgb(6,199,85) on white with the LINE
+# wordmark set through the middle rows. Asked to be orange on 2026-08-17.
+#
+# RECOLOURING A QR IS A LEGIBILITY CHANGE, NOT A STYLING ONE. Recipe:
+#   1. for each pixel, t = (255 - R) / (255 - 6)  -- the blend factor between
+#      white and the source green, read off the RED channel because that is
+#      where green swings furthest, so anti-aliased module edges keep their
+#      exact coverage
+#   2. out = white + t * (--sixt-orange - white)
+#   3. quantize to 16 colours before saving: a QR is two flat inks, and the
+#      palette takes the file from 23 KB to 7 KB while keeping module edges hard
+#
+# DO NOT resample it to "2x the render size". Tried, at 232px with LANCZOS: the
+# file went UP to 36 KB, because resampling invents intermediate colours that a
+# palette cannot compress, and it softens exactly the edges a scanner reads.
+# 360px stays; the card renders it at 116.
+#
+# THE NUMBERS, because the instinct is that orange must be worse than green:
+#   supplied green on white   2.26:1
+#   --sixt-orange on white    3.28:1   <- shipped, better than what LINE issued
+#   --sixt-orange-deep        4.20:1
+# A phone camera reads luminance, so this is a gain.
+#
+# WHERE IT WOULD FAIL: a red-LED laser scanner reads the red channel alone, and
+# --sixt-orange has R=255 — identical to white. Measured separation 0, against
+# 247 for the green. Under one of those the code is a blank square. Nothing
+# scans a web page with a laser, so it ships; if it ever goes to print, use
+# assets/img/line-qr-eyes.png instead — same recipe with the three finder
+# patterns and the wordmark orange and the DATA modules --sixt-black, which
+# keeps the mark orange and puts the data back at 218 apart in red.
+#
+# Also worth knowing: this recolours LINE's own wordmark inside the code. That
+# is a LINE brand-guideline question, not a technical one, and it is the
+# client's call — it has been made.
+
 NEWS_JOBS = [
     ("pic_img/content/2.jpg",                          "news-branch-event", 1000),
     ("pic_img/content/668552762_972624645451353_699289362102309240_n.jpg",

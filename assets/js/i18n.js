@@ -98,8 +98,26 @@
          to have to carry. The benefits became member.perk1-4 before the swap;
          the card's own words went out with the card. What is left is a
          description of a scene, which is all an alt was ever meant to be. */
-      'member.artAlt': 'คู่รักในชุดสีดำยืนคุยกันข้างรถ BMW ซีรีส์ 3 สีส้ม บนลานริมน้ำยามพระอาทิตย์ตก โดยมีเส้นขอบฟ้ากรุงเทพฯ และอาคารกระจกเป็นฉากหลัง',
-      'member.title': 'SIXT Thailand Membership',
+      /* FOUR VERSIONS OF THIS ARTWORK IN ONE AFTERNOON, and the alt was
+         rewritten for every one of them.
+
+         The first three — memeber.png, memeber-2.png, memeber-3.png — were all
+         1774x887 and all the same couple on the same waterfront forecourt at
+         sunset, and each moved one detail this sentence names: the woman's
+         dress went black to orange, then the car went orange to black. The
+         fourth, member44.png, is not that picture at all. Different place,
+         different car, different light: a black Mercedes E-Class on a white
+         architectural plaza in daylight, the couple standing apart from it
+         rather than leaning on it, and the SIXT plate readable on the front.
+
+         That is the hazard of a file swapped in place, and it does not
+         announce itself. Nothing breaks, nothing renders wrong, the page looks
+         finished — and the description handed to the people who cannot see the
+         artwork is of the picture before this one. Anyone replacing this file
+         again: read this sentence against the image, not against the filename. */
+      'member.artAlt': 'รถเมอร์เซเดส-เบนซ์ อี-คลาส สีดำ จอดอยู่บนลานอาคารสีขาว ป้ายทะเบียนหน้ารถเขียนว่า SIXT โดยมีหญิงในชุดยาวสีส้มและชายในชุดสูทสีดำยืนอยู่ทางขวาของรถ',
+      'member.titleLead': 'SIXT Thailand',
+      'member.titleAccent': 'Membership',
       'member.body': 'ปลดล็อกสิทธิพิเศษ ช่องทางรับรถแบบเร่งด่วน และบริการที่ออกแบบมาเพื่อการเดินทางของคุณทั้งในไทยและทั่วโลก',
       'member.perk1': 'ข้อเสนอพิเศษเฉพาะสมาชิก',
       'member.perk2': 'สะสมคะแนน',
@@ -124,10 +142,22 @@
          visual carries the section's words itself now, so the only string left
          here is the transcription of them. */
       'closing.heroAlt': 'ภาพหลักของ SIXT Rent a Car Thailand — รถสามคันจอดเรียงกันริมแม่น้ำโดยมีเส้นขอบฟ้ากรุงเทพฯ เป็นฉากหลัง ได้แก่ BMW ซีรีส์ 3 สีส้ม, Mercedes-Benz สีขาว และ Toyota Fortuner สีดำ ทุกคันติดป้าย SIXT บนภาพเขียนว่า SIXT RENT A CAR THAILAND — DRIVE YOUR JOURNEY, OWN YOUR EXPERIENCE',
-      'closing.stat1Label': 'ก่อตั้งเมื่อปี',
-      'closing.stat2Label': 'ประเทศที่ให้บริการ',
-      'closing.stat3Label': 'สาขาทั่วไทย',
-      'closing.stat4Label': 'ศูนย์บริการลูกค้า',
+      /* closing.stat1-4Label are gone with the four figures they labelled —
+         1912 founded, 100+ countries, 17 branches, 1798 customer service. The
+         card at the foot of the page is contact details now, at the client's
+         direction on 2026-08-17.
+
+         The three facts are NOT lost from the page: the operator line in the
+         footer still says "ก่อตั้งปี 1912 ให้บริการกว่า 100 ประเทศ" and
+         footer.office still says "17 สาขาทั่วไทย". That is why they could be
+         removed here rather than moved — this card was the second place each
+         of them appeared, not the only one. The hotline is in three places and
+         stays in all three. */
+      'contact.serviceLabel': 'ศูนย์บริการลูกค้า',
+      'contact.serviceNote': 'โทรได้ทุกวัน',
+      'contact.socialLabel': 'ติดตามเรา',
+      'contact.lineLabel': 'แอดไลน์',
+      'contact.qrAlt': 'คิวอาร์โค้ดสำหรับเพิ่ม SIXT Thailand เป็นเพื่อนใน LINE',
 
       'faq.carAlt': 'ผู้หญิงในชุดสีขาว สวมแว่นกันแดด ลากกระเป๋าเดินทางเดินออกจาก BMW X7 สีขาวที่เปิดประตูคนขับไว้ ป้ายทะเบียนเป็นโลโก้ SIXT Rent a Car',
 
@@ -223,8 +253,9 @@
       'services.title': 'Our Services',
       'services.viewAll': 'All services',
 
-      'member.artAlt': 'A couple in black standing by an orange BMW 3 Series on a waterfront forecourt at sunset, with the Bangkok skyline and a glass building behind.',
-      'member.title': 'SIXT Thailand Membership',
+      'member.artAlt': 'A man in a black suit and a woman in an orange dress standing by a black BMW 3 Series on a waterfront forecourt at sunset, with the Bangkok skyline and a glass building behind.',
+      'member.titleLead': 'SIXT Thailand',
+      'member.titleAccent': 'Membership',
       'member.body': 'Unlock exclusive status, priority counter service and benefits shaped around your journeys in Thailand and worldwide.',
       'member.perk1': 'Exclusive offers',
       'member.perk2': 'Earn points',
@@ -245,10 +276,11 @@
       'faq.escalateCta': 'Call 1798',
 
       'closing.heroAlt': 'The SIXT Rent a Car Thailand key visual — an orange BMW 3 Series, a white Mercedes-Benz and a black Toyota Fortuner parked on a riverside plaza against the Bangkok skyline, each carrying a SIXT plate. The artwork reads SIXT RENT A CAR THAILAND — DRIVE YOUR JOURNEY, OWN YOUR EXPERIENCE.',
-      'closing.stat1Label': 'Founded',
-      'closing.stat2Label': 'Countries served',
-      'closing.stat3Label': 'Branches in Thailand',
-      'closing.stat4Label': 'Customer service',
+      'contact.serviceLabel': 'Customer service',
+      'contact.serviceNote': 'Open every day',
+      'contact.socialLabel': 'Follow us',
+      'contact.lineLabel': 'Add us on LINE',
+      'contact.qrAlt': 'QR code to add SIXT Thailand as a friend on LINE',
 
       'faq.carAlt': 'A woman in white with sunglasses wheeling a suitcase away from a white BMW X7, its driver door open and its number plate replaced by the SIXT Rent a Car logo.',
 

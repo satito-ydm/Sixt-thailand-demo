@@ -1,0 +1,130 @@
+/* SIXT Thailand — the Tailwind layer, COMPILED AND CHECKED IN.
+   Generated 2026-08-17. Do not hand-edit; regenerate (recipe below).
+
+   WHY THIS FILE EXISTS. The page used to load Tailwind from
+   https://cdn.tailwindcss.com, which is the Play CDN: it does not serve a
+   stylesheet, it ships a compiler that reads the DOM in the browser and writes
+   the CSS at runtime. That is fine on a laptop with good wifi and it is the
+   wrong thing to demo on. If the CDN is blocked, throttled or simply slow, the
+   page does not lose a font or a shadow — it loses Preflight and every layout
+   utility at once, which is the whole grid, and it renders as a column of
+   unstyled blocks. A site that is fine 95% of the time and unrecognisable the
+   other 5% is not a site to put in front of a client.
+
+   HOW IT WAS MADE, because "which classes does this page use" is a question
+   worth not guessing at. The page was loaded with the CDN still attached and
+   then exercised until every branch of markup had existed at least once: all
+   six sections scrolled into view, all four fleet tabs clicked, the combobox
+   focused, the return-location toggle opened, the drawer opened and closed,
+   both languages switched through, every FAQ item toggled, and eight viewport
+   widths stepped through. The CDN's own generated <style> was then read back
+   out of document.styleSheets and written here verbatim.
+
+   So this is not an approximation of what Tailwind would emit. It is what
+   Tailwind DID emit for this page — Preflight and 78 rules, 6.5 KB, against a
+   CDN payload of roughly 400 KB of compiler.
+
+   Then checked rather than assumed: every class token in index.html and in the
+   four scripts that build markup was matched against either app.css or this
+   file. 199 tokens, 155 of them ours, 44 Tailwind's, none unaccounted for.
+   (The check itself needed one fix — Tailwind escapes the variant colon, so
+   `md:flex` lives here as `.md\:flex` and a naive search reports four false
+   negatives.)
+
+   TO REGENERATE, after adding or removing a Tailwind class in the markup:
+     1. put the CDN <script> and its config block back in index.html
+     2. exercise the page as above
+     3. read document.styleSheets, take the one <style> with no href
+     4. write it here under this header, take the CDN back out
+
+   The config that used to sit inline in index.html mapped Tailwind's colour
+   names onto the tokens in tokens.css and set the font stack. Both are baked
+   into the rules below now; tokens.css is still the single source of truth for
+   the values themselves, because what is baked in are the var() references and
+   not the colours. */
+
+*, ::before, ::after { --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; }
+::backdrop { --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; }
+*, ::after, ::before { box-sizing: border-box; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); }
+::after, ::before { --tw-content: ''; }
+:host, html { line-height: 1.5; text-size-adjust: 100%; tab-size: 4; font-family: Inter, "Noto Sans Thai", sans-serif; font-feature-settings: normal; font-variation-settings: normal; -webkit-tap-highlight-color: transparent; }
+body { margin: 0px; line-height: inherit; }
+hr { height: 0px; color: inherit; border-top-width: 1px; }
+abbr:where([title]) { text-decoration: underline dotted; }
+h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; }
+a { color: inherit; text-decoration: inherit; }
+b, strong { font-weight: bolder; }
+code, kbd, pre, samp { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-feature-settings: normal; font-variation-settings: normal; font-size: 1em; }
+small { font-size: 80%; }
+sub, sup { font-size: 75%; line-height: 0; position: relative; vertical-align: baseline; }
+sub { bottom: -0.25em; }
+sup { top: -0.5em; }
+table { text-indent: 0px; border-color: inherit; border-collapse: collapse; }
+button, input, optgroup, select, textarea { font-family: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-size: 100%; font-weight: inherit; line-height: inherit; letter-spacing: inherit; color: inherit; margin: 0px; padding: 0px; }
+button, select { text-transform: none; }
+button, input:where([type="button"]), input:where([type="reset"]), input:where([type="submit"]) { appearance: button; background-color: transparent; background-image: none; }
+progress { vertical-align: baseline; }
+::-webkit-inner-spin-button, ::-webkit-outer-spin-button { height: auto; }
+[type="search"] { appearance: textfield; outline-offset: -2px; }
+::-webkit-search-decoration { appearance: none; }
+::-webkit-file-upload-button { appearance: button; font: inherit; }
+summary { display: list-item; }
+blockquote, dd, dl, figure, h1, h2, h3, h4, h5, h6, hr, p, pre { margin: 0px; }
+fieldset { margin: 0px; padding: 0px; }
+legend { padding: 0px; }
+menu, ol, ul { list-style: none; margin: 0px; padding: 0px; }
+dialog { padding: 0px; }
+textarea { resize: vertical; }
+input::placeholder, textarea::placeholder { opacity: 1; color: rgb(156, 163, 175); }
+[role="button"], button { cursor: pointer; }
+:disabled { cursor: default; }
+audio, canvas, embed, iframe, img, object, svg, video { display: block; vertical-align: middle; }
+img, video { max-width: 100%; height: auto; }
+[hidden]:where(:not([hidden="until-found"])) { display: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; border-width: 0px; }
+.relative { position: relative; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.-ml-2 { margin-left: -0.5rem; }
+.-mt-4 { margin-top: -1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mb-8 { margin-bottom: 2rem; }
+.ml-4 { margin-left: 1rem; }
+.mr-auto { margin-right: auto; }
+.mt-10 { margin-top: 2.5rem; }
+.mt-5 { margin-top: 1.25rem; }
+.mt-6 { margin-top: 1.5rem; }
+.mt-auto { margin-top: auto; }
+.mb-2 { margin-bottom: 0.5rem; }
+.flex { display: flex; }
+.hidden { display: none; }
+.h-7 { height: 1.75rem; }
+.w-auto { width: auto; }
+.w-full { width: 100%; }
+.flex-none { flex: 0 0 auto; }
+.cursor-pointer { cursor: pointer; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.gap-1 { gap: 0.25rem; }
+.gap-7 { gap: 1.75rem; }
+.self-start { align-self: flex-start; }
+.overflow-hidden { overflow: hidden; }
+.border-0 { border-width: 0px; }
+.bg-transparent { background-color: transparent; }
+.p-0 { padding: 0px; }
+.p-2 { padding: 0.5rem; }
+.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.pb-12 { padding-bottom: 3rem; }
+.text-center { text-align: center; }
+.text-\[0\.9375rem\] { font-size: 0.9375rem; }
+@media (min-width: 768px) {
+  .md\:flex { display: flex; }
+}
+@media (min-width: 1024px) {
+  .lg\:flex { display: flex; }
+  .lg\:hidden { display: none; }
+}
+@media (min-width: 1280px) {
+  .xl\:inline-flex { display: inline-flex; }
+}

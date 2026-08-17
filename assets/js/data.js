@@ -52,9 +52,9 @@
   var FLEET = [
     /* Premium — two real photographs */
     v('bmw-3-series', 'premium', 'BMW 3 Series', 'ซีดานพรีเมียม', 'Premium Sedan', 5, 3, 'petrol', 5900,
-      'car-premium-bmw-3-series', 'assets/img/car-premium-bmw-3-series.jpg'),
+      'car-premium-bmw-3-series', 'assets/img/car-premium-bmw-3-series.webp'),
     v('mercedes-c-class', 'premium', 'Mercedes-Benz C-Class', 'ซีดานพรีเมียม', 'Premium Sedan', 5, 3, 'petrol', 6200,
-      'car-premium-mercedes-c-class', 'assets/img/car-premium-mercedes-c-class.jpg'),
+      'car-premium-mercedes-c-class', 'assets/img/car-premium-mercedes-c-class.webp'),
     v('bmw-5-series', 'premium', 'BMW 5 Series', 'ซีดานหรู', 'Luxury Sedan', 5, 3, 'petrol', 8500,
       'car-premium-bmw-5-series'),
     v('mini-cooper-s', 'premium', 'MINI Cooper S', 'แฮตช์แบ็กพรีเมียม', 'Premium Hatchback', 4, 2, 'petrol', 4800,
@@ -80,7 +80,7 @@
 
     /* MPV — one real photograph */
     v('toyota-veloz', 'mpv', 'Toyota Veloz', 'เอ็มพีวี 7 ที่นั่ง', 'Compact MPV', 7, 3, 'petrol', 2400,
-      'car-mpv-toyota-veloz', 'assets/img/car-mpv-toyota-veloz.jpg'),
+      'car-mpv-toyota-veloz', 'assets/img/car-mpv-toyota-veloz.webp'),
     v('toyota-alphard', 'mpv', 'Toyota Alphard', 'เอ็มพีวีหรู', 'Luxury MPV', 7, 4, 'petrol', 9500,
       'car-mpv-toyota-alphard'),
     v('toyota-commuter', 'mpv', 'Toyota Commuter', 'รถตู้', 'Passenger Van', 13, 8, 'diesel', 4200,

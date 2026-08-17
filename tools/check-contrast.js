@@ -68,6 +68,16 @@ var C = {
 /* Still used by the booking panel, which is the last black surface on the
    page now that the service cards have inverted. */
 C.onDarkMuted = over(C.white, 0.78, C.black);
+/* THE BOOKING PANEL IS GLASS AS OF 2026-08-17 and is no longer a fixed colour
+   pair. It is --sixt-black at 0.70 with a backdrop blur, so its ground is
+   whatever is behind it — the hero photograph above 1024, the page's own white
+   below it. Measured against a white pixel, which is the worst a photograph
+   can offer and is literally what the page offers below the breakpoint. */
+C.bookingGlass = over(C.black, 0.70, C.white);
+C.bookingGlassMuted = over(C.white, 0.78, C.bookingGlass);
+/* What the same card would be at the alpha glass is usually built at. Both of
+   these are in FORBIDDEN. */
+C.bookingGlassThin = over(C.black, 0.55, C.white);
 /* The language toggle on the dark header: a translucent track with
    translucent type on it, so both need compositing before measurement. */
 C.langTrackDark = over(C.white, 0.14, C.black);
@@ -123,6 +133,45 @@ C.hoverCaptionFoot = washedThenScrimmed(1.00, 0.45);
 C.unscrimmedTop  = over(C.orange, 0.55, C.white);
 C.unscrimmedFoot = C.orange;
 C.serviceScrimThin = over(C.black, 0.55, C.white);
+/* THE MEMBERSHIP COPY'S GROUND IS A PHOTOGRAPH FROM 1280 UP, so this value is
+   SAMPLED rather than derived — the orange wash it used to stand on is gone
+   (2026-08-17, "use the picture full") and there is no longer a token that says
+   what is behind those words.
+
+   #E9581C is the darkest pixel found under any glyph of the copy across
+   1280 / 1440 / 1920, read out of the rendered page with the copy hidden and
+   the header removed. It is not the artwork's white wall, which is where most
+   of the copy sits and measures around 15:1 — it is the orange brand arc in
+   the artwork's top left, which the heading and the first line of the
+   paragraph clip at some widths.
+
+   The thing this value is really guarding is the OTHER end of the crop. At a
+   600px band `object-position` decides which 36% of the picture is discarded,
+   and pushing it 8 points further down puts the car's black roofline under the
+   "already a member" line — 1.09:1, black on black, measured at 1280. That is
+   in FORBIDDEN below.
+
+   RE-SAMPLE THIS WHEN THE ARTWORK CHANGES. It is the one constant in this file
+   that is a property of a file in assets/img rather than of tokens.css, and an
+   artwork with a dark sky or a subject in its top left would break the section
+   with nothing here or in the CSS to catch it. */
+C.memberArt = '#E9581C';
+/* And the car's bodywork, which is what the crop must never bring up under the
+   copy. Sampled from the same renders at object-position 50% 28%. */
+C.memberArtCar = '#151412';
+/* The active column's foot wash, painted UNDER the scrim's own layer in
+   z-order but composited on top of it here, which is the same thing for a
+   ratio: the scrim's worst ground is white, and this is 0.55 of black laid
+   over that. rgb(65), against the scrim's rgb(113). It is at full strength
+   through the bottom 45% of the column, which is where the detail copy and
+   its button sit, and gone by 82% — so it does NOT apply to the title. */
+C.serviceFootWash = over(C.black, 0.55, C.serviceScrim);
+/* C.black and not C.blackTrue, and the difference is not academic: written
+   with pure black first, this pair reported 12.63 and its companion 3.85 —
+   both flattering, both for a wash the stylesheet does not paint. The CSS is
+   rgba(26, 26, 26, 0.55), which is --sixt-black, the same value .svc-scrim
+   uses two rules above it. A composite is only as true as the colour fed into
+   it, and #000 is the easiest wrong answer to reach for. */
 
 var PAIRS = [
   // where                                  fg            bg          min   note
@@ -164,17 +213,41 @@ var PAIRS = [
   ['input border on white',                 C.borderInput, C.white,   3.0,
     'WCAG 1.4.11 — an input boundary is a UI component, not decoration'],
 
-  // The booking panel, now a black card. Its fields stay white, so the field
-  // pairs above still hold; these are the ones the new ground changed.
-  ['booking title on the dark panel',       C.white,      C.black,    4.5, ''],
-  ['booking sub-line on the dark panel',    C.onDarkMuted, C.black,   4.5,
-    '--grey-500 would be 3.3:1 here, which is why the panel uses the wash'],
-  ['field labels on the dark panel',        C.onDarkMuted, C.black,   4.5, ''],
-  ['return-location toggle on the panel',   C.white,      C.black,    4.5, ''],
-  ['that toggle on hover',                  C.orange,     C.black,    4.5,
-    '14px bold is not large text, so this one has to clear the full bar'],
-  ['white field against the dark panel',    C.white,      C.black,    3.0,
+  // The booking panel, GLASS as of 2026-08-17: --sixt-black at 0.70 over a
+  // backdrop blur. Every pair below is measured against C.bookingGlass, the
+  // card composited over a WHITE pixel, because that is the worst ground the
+  // hero photograph can put behind it and it is exactly the ground the page
+  // puts behind it below 1024. Its fields stay white, so the field pairs above
+  // still hold — they bring their own surface and never touched this ground.
+  //
+  // The pairs that were here before measured against flat C.black and reported
+  // 17.40 and 10.95. Those numbers belong to a card that is no longer on the
+  // page; the two solid-black entries kept below are the no-backdrop-filter
+  // and reduced-transparency fallbacks, which are real states and not history.
+  ['booking title on the glass panel',      C.white,      C.bookingGlass, 4.5,
+    'the ink did not change and its ratio fell from 17.40 to 6.39 — which is ' +
+    'the whole cost of the effect, and is still comfortable'],
+  ['booking sub-line on the glass panel',   C.bookingGlassMuted, C.bookingGlass, 4.5,
+    'THE BINDING PAIR. --on-dark-muted is white at 78%, so a thinning card ' +
+    'costs it from both ends at once: the ink lightens as the ground does. ' +
+    '4.66 against 4.5 is what fixes the card\'s alpha at 0.70, and nothing ' +
+    'else on the panel comes close to that margin'],
+  ['field labels on the glass panel',       C.bookingGlassMuted, C.bookingGlass, 4.5,
+    'same colour, same ground, and the smallest type on the card'],
+  ['return-location toggle on the glass',   C.white,      C.bookingGlass, 4.5, ''],
+  ['that toggle on hover, which no longer recolours', C.white, C.bookingGlass, 4.5,
+    'the hover was --sixt-orange and had to stop being a colour at all. On ' +
+    'the flat black card it was 5.30 and legal; on the glass over a white ' +
+    'pixel the same orange is 1.95, which is the one pair the effect broke ' +
+    'outright and it broke it by nearly a factor of three. The state is an ' +
+    'underline now and the ink does not move, so this is the resting pair ' +
+    'measured twice. The orange is in FORBIDDEN below'],
+  ['white field against the glass panel',   C.white,      C.bookingGlass, 3.0,
     'the field edge is its own boundary here — 1.4.11 met by the card itself'],
+  ['booking title on the solid fallback',   C.white,      C.black,    4.5,
+    'what @supports-not and prefers-reduced-transparency both fall back to'],
+  ['booking sub-line on the solid fallback', C.onDarkMuted, C.black,   4.5,
+    '--grey-500 would be 3.3:1 here, which is why the panel uses the wash'],
   ['input border on grey-50',               C.borderInput, C.grey50,  3.0, ''],
 
   // the fleet section, back on --tint-warm. Its ground fades from white into
@@ -230,14 +303,20 @@ var PAIRS = [
      The tiles are photographs under a flat scrim and bring their own ground,
      so everything written inside one is measured against C.serviceScrim, not
      against the band. Only the heading sits on the black itself. */
-  ['services heading in orange on the black band', C.orange, C.blackTrue, 4.5,
-    'the one orange section heading on the page. The band is flat #000000 now, ' +
-    'and the heading is better off for it: against the brightest ground the old ' +
-    'studio sweep could present it measured 6.39:1, and on pure black it is ' +
-    '6.49. It clears the normal-text bar rather than the 3.0 a 40px bold heading ' +
-    'is entitled to, and it holds at every width because there is nothing behind ' +
-    'it that varies — which is what the flat wash was for and what a flat colour ' +
-    'gives outright'],
+  ['services heading in white on the black band', C.white, C.blackTrue, 4.5,
+    'WHITE AS OF 17 AUGUST 2026, on the client\'s direction, and 21:1 against ' +
+    'the 6.49 the orange managed. It was the one orange section heading on the ' +
+    'page for four revisions; the brand colour is spent inside the banner now ' +
+    'instead, where the hovered column title carries it. The pair below is the ' +
+    'orange it replaced, kept because it is still what a photograph behind ' +
+    'this band would have to answer for'],
+  ['services heading in orange, the colour it replaced', C.orange, C.blackTrue, 4.5,
+    'the number the flat band bought and the reason it is worth keeping ' +
+    'measured even though nothing renders it: against the brightest ground the ' +
+    'old studio sweep could present it was 6.39:1, on pure black 6.49, and it ' +
+    'held at every width because nothing behind it varied. If the heading ever ' +
+    'goes back to brand orange it does not need re-deriving — but only while ' +
+    'the ground stays flat, which is what the FORBIDDEN entry guards'],
   ['service tile copy at the far end of the orange hover', C.white, C.serviceHoverWash, 4.5,
     'the wash is under the scrim, so full orange composites to rgb(97,30,0) ' +
     'and the copy is better off than on the picture alone. Over the scrim the ' +
@@ -257,9 +336,42 @@ var PAIRS = [
     'the 62% scrim is flat across the whole tile now, so this holds wherever ' +
     'the words are placed rather than only where a gradient had darkened. ' +
     'Measured against pure white, which the three real photographs actually ' +
-    'reach inside their own text zones'],
+    'reach inside their own text zones. AS OF 17 AUGUST 2026 THIS IS THE ' +
+    'RESTING STATE OF EVERY COLUMN TITLE: the 0.2 dimming that used to hold ' +
+    'two of the three at 1.47 is gone, and its waiver with it. The one title ' +
+    'this does not describe is the active one, which is orange and is in ' +
+    'WAIVED'],
+  ['a service column title dimmed while a neighbour is hovered',
+    over(C.white, 0.65, C.serviceScrim), C.serviceScrim, 3.0,
+    'the reference\'s dimming, back for the second time and legal on the ' +
+    'second attempt. The first was 0.2 and measured 1.47 against 4.5; it ' +
+    'shipped in WAIVED for a session and is gone. 0.65 composites to rgb(205) ' +
+    'on rgb(113) and clears the large-text bar the title is entitled to — ' +
+    '31.68px at weight 700 at 1440, and 22px at the clamp\'s floor, which is ' +
+    'still bold above 18.66px. THE MARGIN IS TWO HUNDREDTHS: 0.62 measures ' +
+    '2.95 and fails. Nothing about this value is a matter of taste, and the ' +
+    'state is a hover rather than a rest, so a fainter one is a waiver'],
   ['service tile copy over the scrim',      C.white,      C.serviceScrim, 4.5,
-    'solid white — --on-dark-muted composites to 3.59:1 against this ground'],
+    'solid white — --on-dark-muted composites to 3.59:1 against this ground. ' +
+    'This is the pair at REST and at the start of the hover fade; the wash ' +
+    'below only ever improves on it, so 4.88 stays the number the copy is ' +
+    'guaranteed'],
+  ['service detail copy over the foot wash on the active column',
+    C.white, C.serviceFootWash, 4.5,
+    'the client asked for black to come up under the detail copy on hover, ' +
+    'and 0.55 of it under the existing scrim takes white from 4.88 to 10.21. ' +
+    'This is the one change to this section all afternoon that costs nothing ' +
+    'anywhere: the scrim is untouched — its own rule forbids lifting it — and ' +
+    'the wash is per column, under the words, so no other pair moves'],
+  ['the active title IF the foot wash ran the full column height',
+    C.orange, C.serviceFootWash, 3.0,
+    'MEASURED BUT NOT SHIPPED, and it is the priced escape from the waiver ' +
+    'below. The orange title fails at 1.49 because the wash is transparent at ' +
+    'the top of the column where the title sits; at full height and the same ' +
+    '0.55 the same orange is 3.11 and clears the large-text bar. What it ' +
+    'costs is the look — that is a uniformly dark active column rather than ' +
+    'a bit of black at its foot, which is what was asked for. Recorded so ' +
+    'the trade is a decision rather than a rediscovery'],
   ['service tile button on its own fill',   C.white,      C.black,    4.5,
     '.btn-secondary brings its own ground, so it does not depend on the ' +
     'picture at all'],
@@ -285,6 +397,25 @@ var PAIRS = [
   // short of a fully opaque wash under the copy would put type over white
   // photograph. The FORBIDDEN list carries what happens where the wash has
   // started to go.
+  // FROM 1280 UP the copy is black on the artwork itself — no wash, no orange
+  // field. These three are measured against C.memberArt, the darkest pixel
+  // found under any glyph across a width sweep, which is the brand arc in the
+  // artwork's top left rather than the white wall the rest of the copy sits on.
+  ['membership heading, black on the artwork', C.black, C.memberArt, 3.0,
+    '44px/700, so its bar is 3.0 and it holds 4.77 at its worst. The white ink ' +
+    'this replaced was 3.28 on flat orange — better on paper, and it was ' +
+    'invisible the moment the wash came off: white on this artwork\'s wall is ' +
+    'about 1.1:1'],
+  ['membership paragraph, black on the artwork', C.black, C.memberArt, 4.5,
+    'THE BINDING PAIR OF THE WHOLE SECTION. 17px/300 is normal text, so this ' +
+    'one needs the full 4.5, and at the shipped crop it holds 5.06 at its ' +
+    'worst across 1280/1440/1920. It is also what fixes object-position at ' +
+    '20%: eight points lower and the car comes up under the copy'],
+  ['membership "already a member" line, black on the artwork', C.black, C.memberArt, 4.5,
+    '15px, the smallest type in the section. Same ground, same measurement — ' +
+    'it sits lowest in the copy block, so it is the line the car reaches first'],
+  // Below 1280 the copy is still white on the flat orange band, which is the
+  // pair below and the two entries in WAIVED.
   ['membership heading in white on the panel', C.white,    C.orange,   3.0,
     '40px/700, so 3.0 is its bar and 3.28 clears it. This is the one piece of ' +
     'white ink on this panel that is legal, and it is legal only because of the ' +
@@ -575,6 +706,56 @@ var FORBIDDEN = [
   ['the value-prop glyph as a white word on the tile', C.white, C.orange, 4.5,
     'it passes at 3.28:1 as decoration and fails as text — nothing in this ' +
     'tile may ever become a letter or a number'],
+  ['the active service title in the darker orange', C.orangeDeep, C.serviceScrim, 3.0,
+    'the first thing anyone will try on the 1.49 in WAIVED, and it goes the ' +
+    'wrong way: --sixt-orange-deep is 1.16 on this ground against the 1.49 ' +
+    'the brighter orange manages. Orange is being measured against a MID GREY ' +
+    'here, not against white — the scrim over a white pixel lands on rgb(113), ' +
+    'which is DARKER than both oranges, so the ink is the light half of this ' +
+    'pair and darkening it walks it into the ground. Every other ' +
+    'orange-on-light pair in this file rewards going darker, because on white ' +
+    'the orange is the dark half; this one is the exception and that is ' +
+    'exactly why it is written down'],
+  ['the active service title at 16px, still orange', C.orange, C.serviceScrim, 4.5,
+    'the same colour with the large-text exemption taken away. The waived ' +
+    '1.49 is measured against 3.0 because the title clamps between 22 and ' +
+    '32px; shrink it under 18.66px and the bar becomes 4.5 and a shipped ' +
+    'compromise silently becomes twice the failure it was signed off as'],
+  ['a service column title dimmed to the 0.62 that reads the same',
+    over(C.white, 0.62, C.serviceScrim), C.serviceScrim, 3.0,
+    'three hundredths of opacity below the shipped 0.65 and on the wrong side ' +
+    'of the bar at 2.95. It is here because nobody adjusting a dimming by eye ' +
+    'would believe this is a boundary — the two are indistinguishable on ' +
+    'screen — and because the value it guards is the second attempt at this ' +
+    'state, the first having been 0.2'],
+  ['the booking glass at the 0.55 it looks right at',
+    over(C.white, 0.78, C.bookingGlassThin), C.bookingGlassThin, 4.5,
+    'measured as its labels rather than as itself: --on-dark-muted over a ' +
+    '0.55 card over a white pixel is 3.04 against a bar of 4.5. This is the ' +
+    'alpha anyone building glass reaches for and it fails by a point and a ' +
+    'half while looking completely convincing. 0.70 is the first step where ' +
+    'the muted labels clear 4.5, and even the service scrim\'s own 0.62 is ' +
+    'not enough here — the difference being that the scrim carries solid ' +
+    'white and this card carries white at 78%'],
+  ['the booking toggle hover left orange on the glass', C.orange, C.bookingGlass, 4.5,
+    '1.95:1. Recolouring on a translucent card is the trap: the ground stops ' +
+    'being a colour you chose and becomes whatever is behind the page, and ' +
+    'orange is the light half of the pair there rather than the dark one. No ' +
+    'orange in the palette recovers it — --sixt-orange-deep is worse. The ' +
+    'recovery is an underline, which is what shipped'],
+  ['the membership crop aimed 8 points lower', C.black, C.memberArtCar, 4.5,
+    '1.09:1 — black ink on the car\'s black bodywork, which is what ' +
+    'object-position: 50% 28% puts under the "already a member" line at 1280. ' +
+    'The band is 600px against an artwork 939px tall at that width, so a third ' +
+    'of the picture is discarded and this property decides which third. It ' +
+    'looks like a framing preference and it is a legibility bound: 20% is the ' +
+    'lowest aim that still clears every bar, and it was found by sweeping, not ' +
+    'by eye'],
+  ['the membership copy left white after the wash came off', C.white, C.memberArt, 4.5,
+    'the failure this section would have shipped with if only the wash had ' +
+    'been deleted. White was correct for four revisions because the ground was ' +
+    'flat --sixt-orange; on the artwork it is 1.10:1 on the wall and 3.5 on ' +
+    'the arc. Removing a background is never only removing a background'],
   ['the value-prop icon tile as text-weight orange', C.orange, C.white,  4.5,
     'the tile clears 1.4.11 at 3.28:1 and nothing more — it may never be ' +
     'asked to carry a word, a number or a meaning the title does not repeat']
@@ -592,25 +773,42 @@ var FORBIDDEN = [
    Nothing is added here without a date and a name for the decision. If that
    cannot be written down, the pair is not waived — it is just broken. */
 var WAIVED = [
-  /* The foreground is white COMPOSITED AT 0.2 over the scrim, not solid white.
-     Written as C.white on first pass, which reported 4.88:1 — the number for a
-     title that is fully opaque, i.e. the number for the thing that is not on the
-     page. A waiver carrying a figure the page does not produce is worse than no
-     waiver at all: it reads as a small compromise instead of the real one. */
-  ['an inactive service column title', over(C.white, 0.2, C.serviceScrim), C.serviceScrim, 4.5,
+  /* RETIRED, 17 August 2026 — 'an inactive service column title', white at 0.2
+     over the scrim, 1.47:1 against a bar of 4.5. The dimming is gone: all
+     three titles are solid white now and the active one is orange, at the same
+     client's direction that put the dim state here in the first place. The
+     white measurement moved up into PAIRS as a pass at 4.88 and the state that
+     replaced it is the entry below.
+
+     Kept as a note rather than deleted, because it is the only record of how
+     the number was got wrong the first time: the foreground was written as
+     C.white, which reported 4.88 — the figure for a title that is fully
+     opaque, i.e. for the thing that was not on the page. It had to be
+     composited at 0.2 first. A waiver carrying a figure the page does not
+     produce is worse than no waiver: it reads as a small compromise instead of
+     the real one. */
+  ['an active service column title in orange', C.orange, C.serviceScrim, 3.0,
    'client decision, 17 August 2026',
-   'white at opacity 0.2 over the 0.62 scrim, against a ' +
-   'bar of 4.5. The client asked for poscoflow.com\'s FLOWer treatment in full ' +
-   'after this number was put to them. What limits the damage is that the state ' +
-   'is recoverable and recovers on any attempt to use it: hover restores full ' +
-   'opacity and so does keyboard focus, through :focus-within on the column, so ' +
-   'nobody navigating the section ever arrives at a dimmed title. It is seen ' +
-   'only by someone not interacting with that column. The fix, if it is ever ' +
-   'revisited, is raising the opacity — 0.62 is the lowest value that clears ' +
-   '4.5 on this ground. A darker scrim cannot help: at 0.2 the text is 80% ' +
-   'transparent and no ground makes it legible.'],
-  ['the membership paragraph in white', C.white, C.orange, 4.5,
+   '--sixt-orange over the 0.62 scrim, against the 3.0 a title at 22–32px is ' +
+   'entitled to. The client asked for the heading in each column to be white ' +
+   'and to turn orange on hover, and this is the second half of that. It is a ' +
+   'smaller failure than the dimmed title it replaced and it replaced it ' +
+   'outright, so the section is better off: two of three titles used to be ' +
+   'illegible at rest, and now every title not being pointed at is solid white ' +
+   'at 4.88. What is left fails only on the ONE column the pointer or the ' +
+   'keyboard is already on. 1.49 is also the worst case rather than the usual ' +
+   'one — the ground is a photograph and this is orange over 62% black over ' +
+   'WHITE, the brightest strip these three pictures hold. Over their dark half ' +
+   'the same orange reaches 6.40. The fix, if it is revisited, is not a ' +
+   'lighter scrim: that moves the white titles too, and they are the 4.88 the ' +
+   'whole arrangement now rests on. It is a darker one, or black ink.'],
+  ['the membership paragraph in white, BELOW 1280 ONLY', C.white, C.orange, 4.5,
    'client decision, 17 August 2026',
+   'SCOPED TO UNDER 1280 as of the same day: from 1280 up the wash is gone, ' +
+   'the copy is black on the artwork and measures 5.06, and these two waivers ' +
+   'do not describe it. What is left below that width is the stacked layout, ' +
+   'where the copy keeps a flat orange ground because a phone-sized crop of a ' +
+   'photograph cannot be measured in advance. ' +
    '17px at weight 300 on the brand orange. White on --sixt-orange is 3.28:1 ' +
    'and clears the 3.0 bar only as large text, which body copy is not. The ' +
    'panel title at 40px/700 does pass on that exemption and is not waived; ' +
@@ -618,8 +816,9 @@ var WAIVED = [
    'belongs to the two colours — so the only lever is a darker ground under ' +
    'the copy, and the panel does not have one: its left half is brand orange ' +
    'by design and the artwork\'s own field is lighter still at 3.02'],
-  ['the membership "already a member?" line in white', C.white, C.orange, 4.5,
+  ['the membership "already a member?" line in white, BELOW 1280 ONLY', C.white, C.orange, 4.5,
    'client decision, 17 August 2026',
+   'same scoping as the entry above. ' +
    '15px, the smallest type on the panel, on the same ground and at the same ' +
    '3.28. Its link half carries an underline as well as colour, so the link is ' +
    'still distinguishable from the sentence around it — that part does not ' +

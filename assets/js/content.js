@@ -167,10 +167,20 @@
       image: 'assets/img/service-self-drive.webp',
       imageSlot: 'service-self-drive',
       variant: 'primary',
+      /* RESUPPLIED as sv1.jpg on 2026-08-17, and the alt is a different
+         sentence rather than an edited one — the picture is not a variation of
+         what it replaced, it is a different shot. What was there was a woman
+         at a coastal viewpoint seen from outside the car; this is the driver's
+         own view from behind the wheel. The subject moved from the scenery to
+         the driving, which is what the column is selling, and the English body
+         copy already said "with the wheel in your hands".
+
+         1920x660, which is 2.909:1 — the banner's own ratio at its widest, so
+         nothing is cropped horizontally for the first time in this section. */
       th: { title: 'ขับเอง', body: 'เช่าสั้น ยืดหยุ่นตามแผนของคุณ\nควบคุมการเดินทางได้เอง', cta: 'เช่ารถ',
-            alt: 'มองผ่านหน้าต่างรถออกไปเห็นผู้หญิงยืนอยู่ริมจุดชมวิวชายทะเล มีอ่าว เรือใบ และต้นมะพร้าวยามพระอาทิตย์ตก' },
+            alt: 'มุมมองจากที่นั่งคนขับ มือทั้งสองจับพวงมาลัย มองผ่านกระจกหน้าออกไปเห็นถนนเลียบชายทะเลทอดโค้งไปตามหน้าผา และพระอาทิตย์ตกเหนือผืนน้ำ' },
       en: { title: 'Self-Drive', body: 'Short rentals that flex around your plans,\nwith the wheel in your hands.', cta: 'Rent a Car',
-            alt: 'Seen through the open car window: a woman standing at a coastal viewpoint, with a bay, moored boats and palm trees at sunset' }
+            alt: 'The view from the driver\'s seat, both hands on the wheel, looking out along a coastal road curving around a headland into the sunset' }
     },
     {
       id: 'limousine',

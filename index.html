@@ -15,37 +15,35 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Noto+Sans+Thai:wght@300;400;700&display=swap" rel="stylesheet">
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  /* Tailwind reads the CSS custom properties from tokens.css, so colour keeps
-     exactly one source of truth. Note: opacity modifiers such as
-     bg-sixt-orange/50 cannot work against var() values — add a dedicated
-     token if a translucent variant is ever needed. */
-  tailwind.config = {
-    corePlugins: { preflight: true },
-    theme: {
-      extend: {
-        colors: {
-          sixt: {
-            orange: 'var(--sixt-orange)',
-            'orange-deep': 'var(--sixt-orange-deep)',
-            black: 'var(--sixt-black)'
-          },
-          grey: {
-            50: 'var(--grey-50)',
-            100: 'var(--grey-100)',
-            200: 'var(--grey-200)',
-            500: 'var(--grey-500)'
-          }
-        },
-        fontFamily: { sans: ['Inter', 'Noto Sans Thai', 'sans-serif'] }
-      }
-    }
-  };
-</script>
+<!-- Tailwind is a checked-in stylesheet, not a CDN compiler. What stood here
+     was <script src="https://cdn.tailwindcss.com"> plus a config block that
+     mapped Tailwind's colour names onto tokens.css and set the font stack.
+
+     The Play CDN does not serve CSS — it ships a compiler that reads the DOM
+     and writes the styles in the browser. Lose it and the page does not lose a
+     shadow, it loses Preflight and every layout utility at once and renders as
+     a column of unstyled blocks. That is a bad thing to find out during a
+     demo, so the output is generated, checked in and read as a file.
+
+     assets/css/tailwind-build.css holds it, with the recipe for regenerating it
+     the next time a Tailwind class is added to the markup. It is 6.5 KB of
+     rules against roughly 400 KB of compiler, and the page no longer depends on
+     a third-party host to have a layout. -->
 
 <link rel="stylesheet" href="assets/css/tokens.css">
 <link rel="stylesheet" href="assets/css/app.css">
+<!-- LAST, AND THAT IS LOAD-BEARING. The Play CDN injected its <style> after
+     everything else on the page, so Tailwind's utilities won every
+     equal-specificity tie against app.css. Linked before app.css instead, one
+     of those ties flips and it is not a subtle one: the header's login button
+     is `btn-outline hidden xl:inline-flex`, and .btn-outline's own
+     `display: inline-flex` beats .hidden — the button reappears below 1280 and
+     pushes 99px of horizontal overflow onto every phone.
+
+     Found by diffing full-page screenshots against the CDN build before and
+     after the swap, which is also why this file is loaded here rather than
+     wherever looked tidiest. -->
+<link rel="stylesheet" href="assets/css/tailwind-build.css">
 </head>
 <body>
 
@@ -53,8 +51,15 @@
 
 <!-- ══════════ SECTION: HEADER ══════════ -->
 <!-- One row: mark, menu, language, account, hotline. The separate black
-     utility strip is gone; its hotline is now the loudest thing in the bar and
-     its social links already live in the footer. -->
+     utility strip is gone; its hotline is now the loudest thing in the bar.
+
+     This comment used to end "and its social links already live in the footer".
+     That sentence has been wrong twice: once when the footer had no social row
+     at all, and again as of 2026-08-17, when the row moved out of the footer
+     masthead into the closing contact card. It says where they are now, which
+     is one section above the footer — and the rule this keeps re-teaching is
+     that a comment naming another section's contents has no way of noticing
+     when that section changes. -->
 <header class="site-header" id="site-header">
   <div class="container-x header-row">
     <button type="button" id="menu-open" class="lg:hidden p-2 -ml-2 bg-transparent border-0 cursor-pointer"
@@ -340,14 +345,28 @@
 </section>
 
 <!-- ══════════ SECTION: SERVICES ══════════ -->
-<!-- No quarter-circle accent here: the orange Membership band starts directly
-     below, and an orange shape bleeding into it reads as a smear rather than a
-     deliberate mark. -->
+<!-- THERE IS AN ACCENT HERE NOW, and the comment that used to sit here said
+     there could not be: "the orange Membership band starts directly below, and
+     an orange shape bleeding into it reads as a smear rather than a deliberate
+     mark." That was true of a full-bleed orange membership band. That band is a
+     photograph on a near-white plaza as of 2026-08-17, so an orange mark at
+     this band's top-right no longer runs into anything — it is the last orange
+     on the page before the picture takes over.
+     Client direction: "try this object flush in the right corner." -->
 <!-- Full-bleed again. It was an inset box for one revision, matched to
      .promo-ground's 6%, and it went back: the band above and below it is what
      carries the membership panel's black half, and an inset box leaves that
      half-band starting from nothing. -->
 <section class="section-y band-dark relative overflow-hidden" id="services">
+  <!-- Decoration, and marked as decoration twice over: empty alt and
+       aria-hidden. It carries no meaning the heading below it does not, and a
+       screen reader announcing "orange arc" between a section boundary and its
+       heading is noise. It is a real <img> rather than a background so it
+       inherits the page's own lazy-loading and sizing, and because the file is
+       a cutout whose alpha is the shape — a background-image would need the
+       same file anyway. -->
+  <img class="svc-accent" src="assets/img/accent-arc.webp" alt="" aria-hidden="true"
+       width="714" height="334" loading="lazy" decoding="async">
   <div class="container-x relative">
     <!-- Centred heading, exit at the foot — the promotions pattern, which the
          promotions band, the news list and now this one all share. This section
@@ -379,9 +398,16 @@
      work by giving it an edge to stop at. What the band was actually missing
      is a subject. It has one now, and full-bleed is the right shape for it. -->
 
-<section class="section-y" id="membership">
-  <div class="container-x">
-    <div class="member-panel band-orange" data-reveal="settle">
+<!-- FULL-BLEED, and neither .section-y nor .container-x is here by oversight.
+     Client direction, 17 August 2026: "not a box — lay it out full, as one big
+     section." The band IS the section now: it pays its own vertical space
+     through --member-pad and puts its copy back on the page's grid through
+     --member-inline, which reproduces .container-x's gutter arithmetic rather
+     than nesting inside it. Wrapping it in a container again would inset the
+     orange; wrapping it and cancelling the inset would be two rules
+     disagreeing about the same edge. -->
+<section id="membership">
+  <div class="member-panel band-orange" data-reveal="settle">
 
 
       <!-- Everything on the left, over the part of the wash that is solid.
@@ -389,7 +415,16 @@
            starts fading after it, which is not a stylistic choice — the
            picture holds pure white behind here. -->
       <div class="member-copy">
-        <h2 class="member-title" data-i18n="member.title">SIXT Thailand Membership</h2>
+        <!-- Two spans, because one word of this heading is a different colour
+             and i18n writes textContent — it cannot carry markup, by design, so
+             a coloured word has to be its own element. Split into two keys
+             rather than one key with a tag in it: the dictionary stays plain
+             text and the two halves can wrap independently, which .member-title
+             already relies on for its balanced two-line shape. -->
+        <h2 class="member-title">
+          <span data-i18n="member.titleLead">SIXT Thailand</span>
+          <span class="member-title__accent" data-i18n="member.titleAccent">Membership</span>
+        </h2>
         <div class="member-body">
           <p class="lead" data-i18n="member.body"></p>
 
@@ -416,30 +451,36 @@
         </div>
       </div>
 
-      <!-- A real img element, not a CSS background, and the reason is the artwork's
-           own lettering. It carries a membership card reading MEMBER,
-           EXPERIENCE MORE EXPERIENCE SIXT and four named benefits — exclusive
-           offers, earn points, priority booking, VIP treatment — none of which
-           appears anywhere else on the page. As a background those four claims
-           would exist only for people who can see them. As an image they are
-           in the alt, transcribed rather than described.
+      <!-- A real img element, not a CSS background. The reason USED TO BE the
+           artwork's own lettering — it carried a membership card printed with
+           MEMBER, EXPERIENCE MORE EXPERIENCE SIXT and four named benefits, and
+           as a background those claims would have existed only for people who
+           can see them. Two replacements later there is no lettering in the
+           file at all and that argument has expired. What keeps it an img is
+           the second reason, which is structural and is below.
 
            It is wrapped, and the wrapper is the point. On a wide panel the
-           picture is absolutely positioned in the right-hand 56%; on a narrow
+           picture is absolutely positioned in the right-hand 68%; on a narrow
            one it drops into normal flow underneath the copy. A bare img
            could do the first but not the second, because the wash has to be a
            pseudo-element on the picture's own box and a bare img has no box for
            a pseudo-element to attach to.
 
-           object-fit: cover, so the frame decides the crop. The picture is 3:2
-           and the desktop frame is wider than that, which takes the crop off
-           the top and bottom — where this artwork has the least in it. -->
+           object-fit: cover, so the frame decides the crop, and WHICH WAY IT
+           CROPS HAS FLIPPED with the artwork supplied on 2026-08-17. Four
+           versions were 2:1 or taller and lost height in a wider frame; this
+           one is 1920x600 — 3.2:1 — and the band is 2.4:1 at 1440, so it is
+           width that goes now. It is cut for a 1920 window: there the band and
+           the file are the same shape and nothing is discarded at all.
+
+           See object-position in app.css for where the loss is taken below
+           that, and why the left of this file is the part that can afford
+           it. -->
       <div class="member-art">
         <img src="assets/img/member-ground.webp"
-             width="1774" height="887" loading="lazy" decoding="async"
+             width="1920" height="600" loading="lazy" decoding="async"
              data-i18n-attr="alt:member.artAlt" alt="">
       </div>
-    </div>
   </div>
 </section>
 
@@ -629,88 +670,131 @@
     <span class="closing-glow" data-parallax="34" aria-hidden="true"></span>
   </figure>
 
+  <!-- CONTACT, NOT STATISTICS. Client direction, 2026-08-17: "make this contact
+       details instead — customer service, social, and the LINE QR."
+
+       What was here was four figures: 1912 founded, 100+ countries, 17
+       branches, 1798 customer service. Three of the four were facts about the
+       company and one was a phone number, and the card sat at the foot of the
+       page where a visitor who has read everything is deciding whether to get
+       in touch. It is a contact card now, and the only figure that survives is
+       the one that was already a link.
+
+       Not a <dl> any more. A description list was right for label/figure pairs
+       and is wrong for three unrelated blocks — a phone number, a set of
+       destinations and a code to scan. Plain sections with their own headings,
+       which is also what lets each be read on its own. -->
   <div class="container-x">
-    <dl class="closing-stats" data-reveal="rise">
-      <div>
-        <dt data-i18n="closing.stat1Label">ก่อตั้งเมื่อปี</dt>
-        <dd>1912</dd>
+    <div class="closing-contact" data-reveal="rise">
+
+      <!-- The hotline, and it is the same number and the same tel: as the
+           header and the footer carry. Three places, one string. -->
+      <div class="contact-block contact-block--service">
+        <p class="contact-label" data-i18n="contact.serviceLabel">ศูนย์บริการลูกค้า</p>
+        <a href="tel:1798" class="contact-hotline">1798</a>
+        <p class="contact-note" data-i18n="contact.serviceNote">โทรได้ทุกวัน</p>
       </div>
-      <div>
-        <dt data-i18n="closing.stat2Label">ประเทศที่ให้บริการ</dt>
-        <dd>100<span aria-hidden="true">+</span></dd>
+
+      <!-- SECOND, and the order in this file has been changed twice to keep
+           matching the order on screen — social-then-hotline, now
+           hotline-then-social. It is done here rather than with CSS `order`
+           every time, because the tab sequence has to follow what the eye sees.
+           The header row's login button follows the same rule.
+
+           The same four destinations as the footer, at the same aria-labels.
+           They are duplicated deliberately rather than moved: the footer's row
+           is a masthead and this is a call to act, and a visitor who stops at
+           the closing card should not have to scroll past it to find a channel.
+           Every href is "#" here exactly as it is there — see the note in the
+           footer; none of the four has a real destination yet in this build. -->
+      <div class="contact-block contact-block--social">
+        <p class="contact-label" data-i18n="contact.socialLabel">ติดตามเรา</p>
+        <nav class="contact-social" data-i18n-attr="aria-label:footer.socialLabel">
+          <ul>
+            <li><a href="#" aria-label="Facebook">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+                <path d="M14 8.5V7a1 1 0 011-1h1.5V3.5H14a3.5 3.5 0 00-3.5 3.5v1.5H8.5V11h2v9.5H14V11h2.2l.3-2.5H14z"/>
+              </svg></a></li>
+            <li><a href="#" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                   stroke-width="1.8" aria-hidden="true">
+                <rect x="3.5" y="3.5" width="17" height="17" rx="5"/>
+                <circle cx="12" cy="12" r="4"/>
+                <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/>
+              </svg></a></li>
+            <li><a href="#" aria-label="LINE">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+                <rect x="3" y="4.5" width="18" height="13" rx="4.5"/>
+                <path d="M9.6 17.2L8.7 21l4.4-3.8z"/>
+              </svg></a></li>
+            <li><a href="#" aria-label="YouTube">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+                <path d="M21.3 8.2a2.4 2.4 0 00-1.7-1.7C18.1 6.1 12 6.1 12 6.1s-6.1 0-7.6.4A2.4 2.4 0 002.7 8.2 25 25 0 002.3 12c0 1.3.1 2.6.4 3.8a2.4 2.4 0 001.7 1.7c1.5.4 7.6.4 7.6.4s6.1 0 7.6-.4a2.4 2.4 0 001.7-1.7c.3-1.2.4-2.5.4-3.8s-.1-2.6-.4-3.8zM10.2 14.7V9.3l5 2.7-5 2.7z"/>
+              </svg></a></li>
+          </ul>
+        </nav>
       </div>
-      <div>
-        <dt data-i18n="closing.stat3Label">สาขาทั่วไทย</dt>
-        <dd>17</dd>
+
+      <!-- THE REAL CODE, AND IT IS RECOLOURED RATHER THAN REDRAWN. Supplied by
+           the client as LINE's own export — 360x360, 29x29 modules, LINE green
+           on white with the LINE wordmark through its middle — and asked to be
+           orange.
+
+           Recolouring a QR is a legibility question, not a styling one, so the
+           swap was measured rather than eyeballed. Each pixel keeps its exact
+           coverage: the blend factor is read off the source's red channel, where
+           green swings furthest from white, and re-applied toward --sixt-orange.
+           Anti-aliased module edges survive intact; a threshold-and-refill would
+           have thickened every module by a subpixel.
+
+           WHAT THE NUMBERS SAID, because the instinct here is that orange must
+           be worse than green and it is not: the file as supplied measures
+           2.26:1 against its white ground, and orange measures 3.28. The code
+           this page ships is a full point MORE contrasty than the one LINE
+           issued. See the note on .contact-qr for the one case where that is not
+           the whole story, and for line-qr-eyes.png, which exists for it. -->
+      <div class="contact-block contact-block--qr">
+        <p class="contact-label" data-i18n="contact.lineLabel">แอดไลน์</p>
+        <a class="contact-qr" href="#">
+          <img src="assets/img/line-qr.png" width="360" height="360"
+               loading="lazy" decoding="async"
+               data-i18n-attr="alt:contact.qrAlt" alt="">
+        </a>
       </div>
-      <div>
-        <dt data-i18n="closing.stat4Label">ศูนย์บริการลูกค้า</dt>
-        <dd><a href="tel:1798">1798</a></dd>
-      </div>
-    </dl>
+
+    </div>
   </div>
 </section>
 
 <footer class="site-footer">
   <div class="container-x footer-inner">
 
-    <!-- Three things, not two. The wordmark and the hotline used to sit at the
-         two ends of a 1,345px row with nothing between them, and the hole was
-         the widest empty space on the page.
+    <!-- THE MASTHEAD IS GONE. It held three things, then one, then nothing:
+         the social row and the hotline came out on 2026-08-17 when the closing
+         card was rebuilt as contact details one section above, and the wordmark
+         followed on the same direction.
 
-         What fills it is not filler. The header comment above says the utility
-         strip's "social links already live in the footer" — they did not. They
-         were dropped with the strip and the sentence was left behind, so the
-         one place on the page that claimed to hold them held nothing. This is
-         that claim being made true rather than a decoration being added. -->
-    <div class="footer-masthead" data-reveal="rise">
-      <!-- self-start: without it the flex column stretches the image to the
-           container width and the wordmark distorts. -->
-      <img src="assets/img/logo.webp" alt="SIXT Rent a Car" width="112" height="64"
-           class="footer-logo self-start">
+         A block that survives as a container for one element is worth keeping.
+         A block that survives as a container for nothing is a border and some
+         padding pretending to be structure, so it went with its last child
+         rather than being left to draw a line under an empty row.
 
-      <!-- A list, because four sibling destinations is what it is, and a
-           labelled nav so a screen reader can skip it as one thing. Each link
-           carries its own accessible name: the glyphs are aria-hidden, and
-           "Facebook" is "Facebook" in both languages, so the names are written
-           here rather than routed through i18n. -->
-      <nav class="footer-social" data-i18n-attr="aria-label:footer.socialLabel">
-        <ul>
-          <li><a href="#" aria-label="Facebook">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
-              <path d="M14 8.5V7a1 1 0 011-1h1.5V3.5H14a3.5 3.5 0 00-3.5 3.5v1.5H8.5V11h2v9.5H14V11h2.2l.3-2.5H14z"/>
-            </svg></a></li>
-          <li><a href="#" aria-label="Instagram">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-                 stroke-width="1.8" aria-hidden="true">
-              <rect x="3.5" y="3.5" width="17" height="17" rx="5"/>
-              <circle cx="12" cy="12" r="4"/>
-              <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/>
-            </svg></a></li>
-          <!-- A balloon with a tail, drawn as two plain shapes. The first
-               attempt was a one-path silhouette of the real mark and at 18px it
-               resolved to a lopsided blob — an outline that only reads at the
-               size it was traced from is not a logo, it is a smudge. The
-               brand's own mark is green-on-white lettering and does not survive
-               being made monochrome at all, so what carries the meaning here is
-               the aria-label; the glyph only has to say "messaging". -->
-          <li><a href="#" aria-label="LINE">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
-              <rect x="3" y="4.5" width="18" height="13" rx="4.5"/>
-              <path d="M9.6 17.2L8.7 21l4.4-3.8z"/>
-            </svg></a></li>
-          <li><a href="#" aria-label="YouTube">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
-              <path d="M21.3 8.2a2.4 2.4 0 00-1.7-1.7C18.1 6.1 12 6.1 12 6.1s-6.1 0-7.6.4A2.4 2.4 0 002.7 8.2 25 25 0 002.3 12c0 1.3.1 2.6.4 3.8a2.4 2.4 0 001.7 1.7c1.5.4 7.6.4 7.6.4s6.1 0 7.6-.4a2.4 2.4 0 001.7-1.7c.3-1.2.4-2.5.4-3.8s-.1-2.6-.4-3.8zM10.2 14.7V9.3l5 2.7-5 2.7z"/>
-            </svg></a></li>
-        </ul>
-      </nav>
+         The footer opens on its columns now. They bring their own top edge
+         through .site-footer's padding, so nothing had to be re-spaced.
 
-      <a href="tel:1798" class="footer-hotline">
-        <span class="eyebrow eyebrow--accent" data-i18n="footer.hotlineLabel">บริการลูกค้า</span>
-        <span class="footer-hotline__number">1798</span>
-      </a>
-    </div>
+         Where the three went, so nothing is lost by accident:
+           social ×4  -> .contact-social in the closing card, at 56px
+           hotline    -> .contact-hotline in the closing card, same tel:
+           wordmark   -> the header carries it, in both grounds, at the top of
+                         every screen; the footer's was the page's second copy
+                         and it sat 200px above a copyright line that names the
+                         company in words.
+
+         .footer-masthead, .footer-logo, .footer-social and .footer-hotline are
+         all unreferenced now. They stay in app.css with notes — see the one on
+         .footer-social in particular, which is the only written record of why
+         those discs invert to black on orange rather than staying white, and
+         the closing card's row was built from the same glyph paths. -->
 
     <div class="footer-cols" id="footer-columns" data-reveal="stagger"></div>
 
