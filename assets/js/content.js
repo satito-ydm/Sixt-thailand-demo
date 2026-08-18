@@ -126,37 +126,88 @@
     {
       /* Replaced the KBank domestic banner on 2026-08-17 at the client's
          direction, then re-supplied within the hour as the full campaign
-         artwork: the first version carried the lockup, the headline and the
-         coupon bar, this one adds the LINE QR, the ADD LINE call, the run
-         dates, the excluded-models line and the 1798 / master lockups.
+         artwork, and REPLACED AGAIN ON 2026-08-18 with a new photograph of the
+         same campaign: the friends in the open boot of an orange MINI at a
+         viewpoint are gone, and it is now a couple at a clifftop villa beside
+         an orange Toyota Yaris Cross. Every printed claim is unchanged — the
+         same headline, the same 1,000-baht coupon, the same LINE QR, the same
+         1–31 August run, the same four excluded models, the same 1798 / master
+         lockups — so only the scene half of the two alts moved. The outgoing
+         file is `hero-mobilife.webp` and it is left in the tree, unreferenced,
+         on the same terms as the other retired artwork.
 
-         1717x916 is 1.875:1 in a 2:1 frame, so cover trims 58 rows — the TOP
-         AND BOTTOM, because this slide is squarer than the frame rather than
-         wider. 3.14% per edge, inside the 6% budget.
+         WORTH A HUMAN EYE: the car in this picture is a Toyota Yaris Cross and
+         the artwork's own legal line excludes the Toyota Yaris. Different
+         models, and the exclusion is presumably meant literally — but the hero
+         car of a promotion and the first name on its exclusion list now read as
+         the same word to anyone skimming. That is a claim inside a JPEG again,
+         not a bug in this file.
 
-         AND THE BUDGET IS NOT WHAT DECIDES THIS ONE. The ratio test passes at
-         3.14% while a centred crop cuts the bottom lockup by 27 rows: the
-         "1798 / www.sixthailand.com / master" strip is hard against the
-         artwork's bottom edge, ink to row 915 of 916. A budget measures the
-         SHAPE of a slide, not what its author put at the edges, and this is the
-         first slide on this page where the two answers differ.
+         1717x916 is 1.875:1 in a 2:1 frame — the same shape as the artwork it
+         replaces — so cover trims 58 rows, the TOP AND BOTTOM, because this
+         slide is squarer than the frame rather than wider. 3.14% per edge,
+         inside the 6% budget.
 
-         Measured before choosing, by counting dark pixels in the 58 rows at
-         each end:
+         THE BUDGET STILL IS NOT WHAT DECIDES THIS ONE, and it was re-measured
+         rather than assumed to carry over. Counting dark pixels in the new
+         file:
 
-           top 58 rows     0.0% ink across the left three quarters,
-                           43.6% in the far right — the tree, which already
-                           bleeds off the frame on purpose
-           bottom 58 rows  97.8% ink in the left quarter — solid type
+           top 58 rows      0.0% ink across the left three quarters,
+                            28.8% in the far right — the tree, which bleeds
+                            off the frame on purpose
+           bottom, left ¼   lowest ink at row 876 of 916, so the
+                            "1798 / www.sixthailand.com / master" strip has
+                            39 rows of floor under it
+           top, left ¼      first ink at row 88 — the SIXT | MOBILIFE lockup
 
-         So the crop is biased to the bottom and the whole loss is taken off the
-         top. It costs foliage that was already running out of frame and saves
-         every piece of type, including the legal line. */
+         This artwork is kinder than the last one: its bottom lockup is no
+         longer hard against the edge, so a centred 29-row crop would clear it
+         with 10 rows to spare rather than cutting 27 off it. `focus: 50% 100%`
+         is kept anyway, and now by preference instead of necessity — it takes
+         the whole 58 off the top, where the left three quarters are empty sky
+         and the only thing paid for is foliage already running out of frame,
+         and it leaves the legal strip its full clearance. */
       id: 'mobilife-coupon',
-      image: 'assets/img/hero-mobilife.webp',
+      image: 'assets/img/hero-mobilife-villa.webp',
       width: 1717,
       height: 916,
       focus: '50% 100%',
+      /* THE PHONE CUT, supplied 2026-08-18 with the artwork above, and it
+         closes the last open item on this page: this slide had none, so the
+         landscape file was being served into the 4:3 mobile frame and losing
+         14.4% off EACH side — which took "ยิ่งเช่า" down to "ช่า", cut the
+         lockup to "MOBI life", and put half the LINE QR and most of the 1798
+         strip off the frame. Every printed claim on this slide lives in that
+         left column, so the phone was the one place a visitor could not read
+         any of them.
+
+         1448x1086 is 1.3333:1 against the mobile frame's 1.3333 — the file IS
+         the frame, so nothing is cropped at any width where it is used, and
+         `focus` does not apply to it. Same spec as slide 1's phone cut, which
+         is not a coincidence: it is the spec this project asked for.
+
+         It is a RE-LAYOUT, not a re-crop. The headline has been reset two lines
+         over a taller sky, the couple and the car have come down and in, and
+         the QR, the dates and the legal line are stacked under the coupon copy
+         rather than beside it. A 1.875:1 composition cannot be made to work at
+         4:3 by any amount of cropping; the proof is what cropping it was
+         already doing.
+
+         Measured, since the edges are what a supplied file gets wrong: no ink
+         in the top 120 rows, first ink at column 85 on the left, 88 rows of
+         floor under the 1798 / master strip, and the villa deliberately bleeds
+         off the right edge to the last column.
+
+         The declared numbers are the ENCODED file's, not the PNG's — lossy
+         WebP rounds odd dimensions down to even, and the test that checks these
+         against the header would fail on the source's. Read back from the
+         .webp: 1448x1086, unchanged from the source this time because it was
+         already even on both axes. */
+      mobile: {
+        image: 'assets/img/hero-mobilife-villa-m.webp',
+        width: 1448,
+        height: 1086
+      },
       /* THE ALT CARRIES THE TERMS, because they exist nowhere else on the page.
          This artwork prints its own run dates, its own exclusions and its own
          hotline, and the alt is the only route any of that has to a reader who
@@ -168,8 +219,8 @@
          of which — Yaris, City, Altis — are cars this site's own fleet tab
          offers. Neither is a bug in the markup. Both are claims inside a JPEG,
          which is the thing this project keeps finding. */
-      th: { alt: 'แคมเปญ SIXT ร่วมกับ MOBILIFE — ยิ่งเช่า ยิ่งได้คืน รับ E-Coupon สูงสุด 1,000 บาท สำหรับสมาชิก MOBILIFE สมัครสมาชิกผ่าน LINE ด้วยคิวอาร์โค้ดบนภาพ ระยะเวลา 1–31 สิงหาคม 2569 ไม่ร่วมรายการ Toyota Yaris, Honda City, Toyota Altis และ Honda Civic สอบถาม 1798 ภาพกลุ่มเพื่อนนั่งท้ายรถ MINI Countryman สีส้มที่เปิดฝาท้าย จอดอยู่จุดชมวิวริมทะเล' },
-      en: { alt: 'SIXT with MOBILIFE — the more you rent, the more you get back: an e-coupon worth up to ฿1,000 for MOBILIFE members. Join MOBILIFE through the LINE QR code shown. Runs 1–31 August 2026. Excludes the Toyota Yaris, Honda City, Toyota Altis and Honda Civic. Enquiries on 1798. Three friends sit in the open boot of an orange MINI Countryman at a coastal viewpoint' }
+      th: { alt: 'แคมเปญ SIXT ร่วมกับ MOBILIFE — ยิ่งเช่า ยิ่งได้คืน รับ E-Coupon สูงสุด 1,000 บาท สำหรับสมาชิก MOBILIFE สมัครสมาชิกผ่าน LINE ด้วยคิวอาร์โค้ดบนภาพ ระยะเวลา 1–31 สิงหาคม 2569 ไม่ร่วมรายการ Toyota Yaris, Honda City, Toyota Altis และ Honda Civic สอบถาม 1798 ภาพคู่รักยืนมองวิวทะเล ข้างรถ Toyota Yaris Cross สีส้ม จอดอยู่หน้าบ้านพักริมหน้าผา' },
+      en: { alt: 'SIXT with MOBILIFE — the more you rent, the more you get back: an e-coupon worth up to ฿1,000 for MOBILIFE members. Join MOBILIFE through the LINE QR code shown. Runs 1–31 August 2026. Excludes the Toyota Yaris, Honda City, Toyota Altis and Honda Civic. Enquiries on 1798. A couple stand looking out to sea beside an orange Toyota Yaris Cross parked at a clifftop villa' }
     }
   ];
 
