@@ -650,24 +650,24 @@
        off a picture that has no other copy of it.
 
        Transcribed rather than described, for the same reason. -->
-  <!-- Wrapped, and the wrapper exists for the light. An image element cannot
-       carry a pseudo-element, and the orange rising off the foot of this
-       artwork is an ::after on the frame rather than a second image or a
-       filter — so it costs no bytes and the picture underneath is untouched.
+  <!-- THE ORANGE WASH IS GONE, at the client's direction on 2026-08-18. A
+       .closing-glow span used to sit over the foot of this artwork carrying a
+       multiply gradient, and it was the only parallaxed thing in this section:
+       the picture has words printed into it so it can never be cropped, which
+       means it has no slack to travel, which is why the drift was put on
+       something laid over it instead. Removing the wash removes the drift with
+       it — there is nothing left here that can move.
+
+       The figure keeps its wrapper. It is a figure round an image and it reads
+       as one; unwrapping it now would be a second change nobody asked for.
 
        "image element" spelled out rather than written as a tag: a bare one in
        prose here reads as real markup to anything scanning this file, and it
-       was reported as a src-less image the first time it was written.
-
-       data-parallax is on the wash, not on the picture. The artwork is never
-       cropped, which means it has no room to travel inside a frame, which means
-       the only honest parallax available here is on something laid over it. The
-       light drifts; the cars do not. -->
+       was reported as a src-less image the first time it was written. -->
   <figure class="closing-hero">
     <img src="assets/img/closing-hero.webp"
          width="1774" height="887" loading="lazy" decoding="async"
          data-i18n-attr="alt:closing.heroAlt" alt="">
-    <span class="closing-glow" data-parallax="34" aria-hidden="true"></span>
   </figure>
 
   <!-- CONTACT, NOT STATISTICS. Client direction, 2026-08-17: "make this contact

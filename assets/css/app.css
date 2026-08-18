@@ -1448,8 +1448,9 @@ body.is-locked { overflow: hidden; }
        parallax on an image is a crop: it needs slack inside the frame to
        travel through, and the slack has to come off the edges. This page has
        said four times now that artwork with words in it is never cropped.
-     — the closing key visual, for the same reason. The wash laid over it moves
-       instead; see .closing-glow.
+     — the closing key visual, for the same reason, and now nothing in that
+       section is parallaxed at all: the wash that used to drift over it was
+       removed on 2026-08-18 and it was the only moving thing there.
      — everything in the FAQ. The car's overhang and the stats card's straddle
        are positions that were measured against section edges, and an effect
        whose whole job is to move things relative to the scroll would undo both
@@ -3492,13 +3493,8 @@ body .booking-title {
    the last revision of this block went out with them, since the grid it broke
    no longer exists. */
 .closing-hero {
-  position: relative;
   display: block;
   margin: 0;
-  /* The glow is drawn to the frame's edges and the frame has to stop it there.
-     Without this the parallax drift would show it sliding past the bottom of
-     the picture and onto the footer's black. */
-  overflow: hidden;
 }
 .closing-hero img {
   display: block;
@@ -3506,33 +3502,24 @@ body .booking-title {
   height: auto;
 }
 
-/* Brand light off the foot of the artwork. A wash, not a filter and not a
-   second picture: one gradient on an empty span, so the photograph underneath
-   keeps every pixel it shipped with.
+/* THE BRAND WASH THAT USED TO LIE OVER THE FOOT OF THIS ARTWORK IS GONE, at
+   the client's direction on 2026-08-18. .closing-glow was an empty span at
+   inset 0 carrying an orange gradient at mix-blend-mode: multiply, fading out
+   by 40% of the frame's height, and .closing-hero's `position: relative` and
+   `overflow: hidden` existed only to hold and clip it. All four are removed
+   together; the artwork now ships exactly as exported.
 
-   It stops at 40% and that number is measured rather than chosen. The tagline
-   printed into the artwork — DRIVE YOUR / JOURNEY / OWN YOUR / EXPERIENCE —
-   ends about 41% up from the bottom edge, and the word EXPERIENCE is set in
-   the same brand orange this wash is made of. Run the gradient any further and
-   it starts subtracting from the one piece of type on the page that cannot be
-   restyled, only re-exported. The cars, the plaza and the river are what it is
-   allowed to touch.
+   Two measurements are worth keeping, because they are what a replacement
+   would have to respect and neither is recoverable from the picture:
 
-   Multiply rather than a flat overlay: the artwork's lower third is a pale
-   grey plaza and a bright river, and a plain alpha wash over that comes out
-   chalky. Multiply keeps the stone reading as stone and puts the colour into
-   it rather than in front of it. */
-.closing-glow {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  mix-blend-mode: multiply;
-  background: linear-gradient(to top,
-    rgba(var(--sixt-orange-rgb), 0.78) 0%,
-    rgba(var(--sixt-orange-rgb), 0.44) 14%,
-    rgba(var(--sixt-orange-rgb), 0.16) 28%,
-    rgba(var(--sixt-orange-rgb), 0) 40%);
-}
+     — 40%, not higher. The tagline printed into the artwork — DRIVE YOUR /
+       JOURNEY / OWN YOUR / EXPERIENCE — ends about 41% up from the bottom
+       edge, and EXPERIENCE is set in the same brand orange any wash here would
+       be made of. Past 40% the gradient starts subtracting from the one piece
+       of type on this page that cannot be restyled, only re-exported.
+     — multiply, not a flat alpha overlay. The lower third is a pale grey plaza
+       and a bright river; a plain wash over that comes out chalky, and
+       multiply puts the colour into the stone rather than in front of it. */
 
 /* The figures, in a white card on the black. Same --radius-lg and the same
    --shadow-rest every other surface on this page takes; on black the shadow
