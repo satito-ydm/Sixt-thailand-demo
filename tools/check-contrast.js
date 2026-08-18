@@ -99,15 +99,20 @@ C.serviceScrim = over(C.black, 0.62, C.white);
    0.78 of black over rgb(163). Everything written on the band is measured
    against it, and because the wash is flat the number does not depend on
    where on the band the words fall. See --surface-services. */
-/* NO LONGER THE LIVE GROUND. The band is flat #000000 as of 2026-08-17; this
-   value is what the sweep-under-a-wash presented and is kept because the two
-   FORBIDDEN entries below are the written record of why a picture behind this
-   band is a trap, and they need a ground to be measured against. */
-C.servicesGround = over('#A3A3A3', 0.22, C.blackTrue);
-/* What the same picture would present unwashed — the pair that sets the 0.78.
-   Kept for the FORBIDDEN list, because "soften the wash" is the first thing
-   anyone will reach for if the band ever looks too dark. */
-C.servicesUnwashed = '#A3A3A3';
+/* THE LIVE GROUND AGAIN as of 2026-08-18: a new studio sweep under the same
+   flat 0.78 black wash, after a day of flat --black-true.
+
+   #E7F4FD is the brightest pixel of the ENCODED .webp, read back from the file
+   rather than from the PNG that went in, and it is nearly white — the sweep
+   this replaces peaked at rgb(163), so the wash was re-derived rather than
+   carried over. Because the wash is flat, this one value is the worst ground
+   the band can present anywhere and nothing on it depends on where the words
+   fall. */
+C.servicesGround = over(C.blackTrue, 0.78, '#E7F4FD');
+/* What the same picture presents unwashed — the pair that sets the 0.78.
+   "Soften the wash" is the first thing anyone reaches for when a band looks
+   too dark, so this stays measured in FORBIDDEN. */
+C.servicesUnwashed = '#E7F4FD';
 /* An earlier version of the band was a photograph under a gradient that ran
    0.62 at its weakest, so the worst ground it could leave under a word was
    pure white at 62% black. Kept as the bar any subject photograph put behind
@@ -320,21 +325,32 @@ var PAIRS = [
 
      The tiles are photographs under a flat scrim and bring their own ground,
      so everything written inside one is measured against C.serviceScrim, not
-     against the band. Only the heading sits on the black itself. */
-  ['services heading in white on the black band', C.white, C.blackTrue, 4.5,
-    'WHITE AS OF 17 AUGUST 2026, on the client\'s direction, and 21:1 against ' +
-    'the 6.49 the orange managed. It was the one orange section heading on the ' +
-    'page for four revisions; the brand colour is spent inside the banner now ' +
-    'instead, where the hovered column title carries it. The pair below is the ' +
-    'orange it replaced, kept because it is still what a photograph behind ' +
-    'this band would have to answer for'],
-  ['services heading in orange, the colour it replaced', C.orange, C.blackTrue, 4.5,
-    'the number the flat band bought and the reason it is worth keeping ' +
-    'measured even though nothing renders it: against the brightest ground the ' +
-    'old studio sweep could present it was 6.39:1, on pure black 6.49, and it ' +
-    'held at every width because nothing behind it varied. If the heading ever ' +
-    'goes back to brand orange it does not need re-deriving — but only while ' +
-    'the ground stays flat, which is what the FORBIDDEN entry guards'],
+     against the band. What sits on the band itself is the heading, the outline
+     button at the foot, and the focus ring — four pairs, all against
+     C.servicesGround now that the sweep is back. */
+  ['services heading in white on the band', C.white, C.servicesGround, 4.5,
+    'WHITE AS OF 17 AUGUST 2026, on the client\'s direction, and it is the ' +
+    'reason the sweep could come back a day later without a re-think: 12.17:1 ' +
+    'against the worst ground this band can present. Orange in the same place ' +
+    'would be 3.29, which is legal for a 40px heading and has no margin left ' +
+    'in it. The brand colour is spent inside the banner now, where the hovered ' +
+    'column title carries it'],
+  ['services heading in orange, the colour it replaced', C.orange, C.servicesGround, 3.0,
+    'measured at 3.0 rather than 4.5 because that heading is 40px bold and ' +
+    'entitled to the large-text bar. Kept because it is the pair that would ' +
+    'decide the question if the heading ever goes back to brand orange: on ' +
+    'flat black it was 6.49 and there was nothing to think about, on this ' +
+    'ground it is 3.29 and there is'],
+  ['the outline button\'s ring on the band (non-text)', C.white, C.servicesGround, 3.0,
+    'the 1px inset ring is the whole of that button\'s boundary on this ' +
+    'ground — .band-dark sets --outline-ink to white for exactly this'],
+  ['the CTA disc on the band (non-text)', C.orange, C.servicesGround, 3.0,
+    'THE TIGHTEST THING ON THIS BAND, at 3.71:1, and the pair the 0.78 wash is ' +
+    'actually protecting. The floor is 0.724: below it the disc drops under ' +
+    '3.0 and the button loses the only mark its arrow has here. Everything ' +
+    'else on the band is white and still looks fine long after this has ' +
+    'failed, which is what makes it the one to check when someone lightens ' +
+    'the wash'],
   ['service tile copy at the far end of the orange hover', C.white, C.serviceHoverWash, 4.5,
     'the wash is under the scrim, so full orange composites to rgb(97,30,0) ' +
     'and the copy is better off than on the picture alone. Over the scrim the ' +
@@ -346,9 +362,9 @@ var PAIRS = [
   ['tile caption, bottom edge, hovered', C.white, C.hoverCaptionFoot, 4.5,
     'the same measurement at the foot of the block, where the wash is fully ' +
     'opaque and the picture no longer contributes at all'],
-  ['focus ring on the black band',          C.white,      C.blackTrue, 3.0,
+  ['focus ring on the services band',       C.white,      C.servicesGround, 3.0,
     'the orange ring is 1.9:1 on black — .band-dark swaps it to white'],
-  ['service card against the black band',   C.white,      C.blackTrue, 3.0,
+  ['service card against the services band', C.white,     C.servicesGround, 3.0,
     'the card is its own edge here; nothing else separates it from the band'],
   ['service tile heading over the scrim',   C.white,      C.serviceScrim, 4.5,
     'the 62% scrim is flat across the whole tile now, so this holds wherever ' +
@@ -689,12 +705,14 @@ var FORBIDDEN = [
     'tile for as long as the pointer rests there. ::before and ::after is the ' +
     'whole of the difference'],
   ['the orange services heading if a subject photograph goes back behind it', C.orange, C.servicesWash, 3.0,
-    'the reason that band is a flat colour. Against the worst ground a washed ' +
+    'the reason the band behind it has no subject in it. Against the worst ground a washed ' +
     'photograph can leave, orange fails even the large-text bar — and a ' +
     'picture has no one value, so the real number depends on which pixels the ' +
     'glyphs land on and has to be re-measured at every width whenever the ' +
     'string or the picture changes. It was, once, and it passed at 6.23:1; ' +
-    'this is what was being balanced on, and what a flat ground buys'],
+    'this is what was being balanced on. The live sweep is not this: it has no ' +
+    'subject, so a band of it is the same picture as the whole of it and one ' +
+    'measurement covers every width'],
   ['service copy if the scrim were lightened to 55%', C.white, C.serviceScrimThin, 4.5,
     'what a genuinely faint wash costs: seven points of alpha is the whole ' +
     'margin, and these photographs have no dark corner to hide in'],

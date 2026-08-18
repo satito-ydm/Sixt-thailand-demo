@@ -3862,6 +3862,20 @@ body .booking-title {
    margin only pays for clearing it and the 4rem on top is what actually
    crosses the join. Written as the token plus a number so that changing
    .section-y's padding does not silently change how far the car hangs. */
+/* CLIP, NOT HIDDEN, and the distinction is the car's overhang.
+
+   The `drive` entrance starts the car 56px to the left of where it rests, and
+   at 390 the container's gutter is nowhere near 56px — so for the length of
+   that animation the page would gain horizontal scroll, which is the one thing
+   this layout is checked for at every width. Something has to clip it.
+
+   `overflow: hidden` cannot: it would clip the car's BOTTOM overhang too, and
+   that overhang crossing onto the band below is the whole point of the
+   arrangement. `overflow-x: clip` leaves overflow-y visible — which `hidden`
+   is not allowed to do, the pair being forced to auto — and creates no scroll
+   container of its own. It is the only value that clips one axis and lets the
+   other bleed. */
+#faq { overflow-x: clip; }
 .faq-media {
   position: relative;
   margin: 0;
@@ -4262,22 +4276,32 @@ body .booking-title {
      separating the fleet above from the membership panel below, so it needs
      more than a white section does. It needs less than 86. */
   padding-block: clamp(3rem, 4.5vw, 5rem);
-  /* Flat --black-true, at the client's direction, and it retires the whole
-     apparatus the paragraphs above describe. --surface-services was a studio
-     sweep under a 0.78 black wash — the third thing to sit behind this band — and every one of
-     its cautions goes with it: the shorthand-versus-longhand trap that made its
-     predecessor silently never render, the eight-width re-measuring a gradient
-     ground demanded, the arithmetic that fixed the wash at 0.78.
+  /* THE SWEEP IS BACK, at the client's direction on 2026-08-18, on a new file
+     and after a day of flat --black-true. So every caution in the paragraphs
+     above is live again, and the first one is the one that bites:
 
-     The section heading is better off. Orange measured 6.39:1 against the
-     brightest ground that wash could present; on pure black it is 6.49:1, so the
-     one number the sweep existed to protect improved by losing it.
+     ASSIGN IT TO THE `background` SHORTHAND, WHICH IS WHAT THIS LINE DOES.
+     --surface-services carries a position, a size, a repeat and a colour, none
+     of which `background-image` accepts — fed to that longhand the whole
+     declaration is invalid at computed-value time and is dropped in silence.
+     A predecessor of this token never once rendered while three worklogs
+     described it, and the only place that shows is the computed style, as
+     `none`. If this band ever looks flat black again, check that before
+     anything else.
 
-     --surface-services and assets/img/service-ground.jpg are now unreferenced.
-     Both are left in place rather than deleted — the token still carries the only
-     written account of why a picture behind this band is a trap, and
-     check-contrast.js keeps the pair that proves it. */
-  background: var(--black-true);
+     WHAT CHANGED, AND WHAT DID NOT. The heading stays white — it is 12.17:1
+     against the worst ground this band can present, so nothing about it turns
+     on the picture. The number that does is the CTA disc on the section's
+     outline button: orange, non-text, 3.0, and 3.71:1 at this wash. The old
+     sweep never had to answer for it because the disc did not exist yet.
+
+     What this does NOT reinstate is a subject. This file is a lit studio sweep
+     with nothing in it, which is the whole reason it can sit here: the banner
+     covers the middle of the section edge to edge at every width, so a subject
+     could only ever be hidden, and what showed in the padding would be an
+     arbitrary slice of someone's crop. The two FORBIDDEN entries in
+     check-contrast.js are about a subject photograph and they still stand. */
+  background: var(--surface-services);
 }
 
 /* WHITE, at the client's direction on 2026-08-17, and this rule is now a
@@ -4340,55 +4364,27 @@ body .booking-title {
    unlike .section-head, no reusable shape to keep: that class is the general
    version of the same idea and is the one worth leaving in place. Two dead
    copies of one arrangement is one too many. */
-/* The orange arc in the band's top-right corner, supplied as obj-line.png and
-   cropped here to its own opaque bounds — 714x334 of a 890x633 file, so
-   "flush to the corner" is flush to the mark and not to the file's empty
-   margin. 3 KB, alpha intact.
+/* THE ORANGE ARC IS REMOVED, at the client's direction on 2026-08-18, and the
+   whole of .svc-accent goes with it: the rule, its phone override, and the
+   <img> in the markup. assets/img/accent-arc.webp is unreferenced now and is
+   left in the tree with the other retired artwork.
 
-   NOT .quarter. That class is the page's other accent, a solid 180px quarter
-   disc used twice, and this is a stroked arc rather than a filled corner —
-   different mark, and reproducing this one in CSS would mean two radii and a
-   mask for a shape the client supplied as a file.
+   Two things are worth keeping from what it taught, because an accent has been
+   tried in this corner more than once and will be again:
 
-   It sits OUTSIDE .container-x on purpose, so it is measured against the band
-   and reaches the window's edge, while everything readable stays on the page
-   grid. Both are z-index auto and the container comes second in source order,
-   so the heading paints over the arc wherever the two meet without either
-   needing a stacking context.
+     — it was NOT .quarter. That class is the page's other accent, a solid
+       180px quarter disc used twice; this was a stroked arc, a different mark,
+       and reproducing it in CSS would have meant two radii and a mask for a
+       shape the client supplied as a file.
+     — it sat OUTSIDE .container-x on purpose, so it measured against the band
+       and reached the window's edge while everything readable stayed on the
+       page grid, and it was anchored at -12% on both axes rather than at 0,0
+       so its cut ends ran past the corner. An accent anchored flush ends
+       inside the band and reads as a sticker rather than as a fragment.
 
-   THE LEFT CORNER, AND THE FILE WANTS TO BE THERE. Client direction moved it
-   from right to left, and it is the better fit for a reason worth writing
-   down: the arc's centre of curvature is at the top-LEFT of its own box — the
-   opaque stroke touches the top edge across the right of the file and the left
-   edge down its lower half. Pinned to a left corner the ring appears to turn
-   around that corner. Pinned to the right it had to be read as a fragment
-   drifting in from off-frame, which is a weaker mark and is why it was mirrored
-   nowhere: no transform is needed now.
-
-   It bleeds off two edges. Anchored at 0,0 the arc would end inside the band
-   and read as a sticker; -12% on each axis puts its cut ends past the corner
-   so the shape continues out of frame, which is what makes a fragment read as
-   a fragment. #services already clips it.
-
-   Decoration only — it is never measured for contrast, because contrast
-   applies to text and to UI boundaries and this is neither: it repeats
-   nothing, it bounds nothing, and the band reads identically with the file
-   missing. */
-.svc-accent {
-  position: absolute;
-  top: -12%;
-  inset-inline-start: -12%;
-  width: clamp(220px, 34vw, 560px);
-  height: auto;
-  pointer-events: none;
-  user-select: none;
-}
-@media (max-width: 767px) {
-  /* Smaller and pulled further out. At 390 the band is 358 wide, so a mark
-     sized against the viewport takes a third of it and stops being an accent —
-     it becomes the first thing in the section, above its own heading. */
-  .svc-accent { width: 160px; top: -8%; inset-inline-start: -18%; }
-}
+   It was never measured for contrast and did not need to be: contrast applies
+   to text and to UI boundaries, and it was neither. Nothing in
+   check-contrast.js changes by its going. */
 
 .svc-banner {
   position: relative;
@@ -5309,8 +5305,10 @@ body .booking-title {
 
    The risk this whole system runs is that it becomes one fade-and-rise
    repeated eleven times, which is the single most templated thing a page can
-   do and reads as a theme rather than as a design. So there are five kinds,
-   not one, and each is drawn from what its block is actually made of:
+   do and reads as a theme rather than as a design. So there are NINE kinds,
+   not one — five here and four more at the foot of this block, added on
+   2026-08-18 when the client asked for a different effect per section — and
+   every one of them is drawn from what its block is actually made of:
 
      rise      a block arrives.  For headings, section heads and the two
                "view all" links — things that are one object and have no
@@ -5438,6 +5436,155 @@ body .booking-title {
 [data-reveal="settle"].is-revealed .member-copy > * {
   animation: reveal-rise var(--dur-enter) var(--ease-out) backwards;
   animation-delay: calc(140ms + var(--i, 0) * var(--stagger-reveal));
+}
+
+/* ── Four more kinds, one per section that was still arriving generically ──
+   Client direction, 2026-08-18: "make each section's effect different." Four
+   blocks were still on plain `rise` — the services banner, the news list, the
+   FAQ's car and the closing contact card — which is exactly the failure the
+   doctrine at the top of this block names: one fade-and-rise repeated until it
+   reads as a theme rather than as a design.
+
+   Each of these is drawn from what its block is made of, on the same rule the
+   first five follow. None of them is a new idea applied to a section; each is
+   the section's own existing shape, animated.
+
+   AND THE DISTANCE DOCTRINE NOW HAS TWO NUMBERS, NOT ONE. The note above
+   `rise` says every block travels the same 14px, because eleven blocks each
+   travelling their own distance is eleven arrivals rather than one page. That
+   still holds and 14px is still the page's default. What the client asked for
+   on the same day — "a bit stronger" — is spent in ONE place: reveal-lift's
+   28px, used by the three new kinds that lift. So a reader sees two distances
+   across the whole page, and the difference between them means something —
+   14px is a block settling into position, 28px is a block that arrives with a
+   gesture. A third distance would put us back where the doctrine started. */
+
+/* BOTH ENDS ARE inset(), and the `to` is not redundant. clip-path interpolates
+   only between compatible basic shapes: written with the end state left
+   implicit it would animate from inset() to the element's own `none`, which is
+   not a shape and cannot be interpolated — so the whole thing snaps open on
+   frame one and the wipe silently does not happen. It ran `reveal-wipe`, it
+   reported the right animation-name, and it did nothing. */
+@keyframes reveal-wipe     { from { clip-path: inset(0 100% 0 0); opacity: 1; }
+                             to   { clip-path: inset(0 0 0 0); } }
+@keyframes reveal-lift     { from { opacity: 0; transform: translateY(28px); } }
+@keyframes reveal-poster   { from { transform: scale(1.04); } }
+@keyframes reveal-drive    { from { opacity: 0; transform: translate(-56px, 22px); } }
+
+/* SERVICES — the banner opens left to right.
+
+   The block is one continuous photograph read across three columns, and the
+   only interaction it has is a crossfade between those columns' pictures. A
+   wipe is that sentence as an entrance: the picture arrives the way the eye
+   already reads it, and the three service titles are uncovered in order by the
+   edge passing over them rather than by three animations of their own. That is
+   why there is no stagger here — the wipe IS the stagger, and a second one
+   underneath it would be two clocks disagreeing.
+
+   --ease-wipe, NOT --ease-out, and the difference is measurable. --ease-out is
+   cubic-bezier(0.16, 1, 0.3, 1), an exponential decel built for something being
+   placed: sampled through this animation it clears 59% of the band in the first
+   150ms and then spends the remaining second crawling the last 3%. On an
+   opacity that reads as a settle; on a moving edge it reads as a wipe that
+   stalled. --ease-wipe is the token already written for this — "the curtain's
+   curve, the only one here that accelerates at all" — and it is the one this
+   should have used from the start.
+
+   clip-path and not a mask or a width: the banner is a grid with three
+   absolutely-positioned picture layers inside it, so anything that changes its
+   BOX relayouts its contents mid-animation. A clip changes nothing about the
+   layout; it only decides how much of it is painted.
+
+   THE ARMED STATE IS OPACITY, NOT THE CLIP, AND IT HAS TO BE. This was written
+   the obvious way first — arm with `clip-path: inset(0 100% 0 0)`, animate it
+   open — and the banner then never appeared at all unless the reader scrolled
+   to the very bottom of the page.
+
+   IntersectionObserver intersects the target's box AS CLIPPED, including by
+   its own clip-path. An element clipped to zero width has an intersectionRatio
+   of exactly 0, so the 0.01 threshold in ui.js is never met, the observer never
+   fires, and the thing that would remove the clip is the very thing the clip is
+   preventing. A deadlock, and a silent one: `isIntersecting` still reports true,
+   so it does not even look wrong from the console. What rescued it in testing
+   was revealTail() at the foot of the document, which is a backstop for a
+   different bug and made this one look like it worked.
+
+   opacity is invisible to IntersectionObserver, which is why every other kind
+   on this page arms with it. So: arm with opacity, and let the keyframe carry
+   the clip. `backwards` fill applies the from-state on the frame the animation
+   starts, which is the same frame ui.js removes .is-armed on — so there is no
+   gap where the banner is painted unclipped.
+
+   ANY FUTURE KIND THAT WANTS TO ARM WITH clip-path, transform: scale(0),
+   visibility or display HAS THE SAME PROBLEM. Arm with opacity; animate the
+   rest. */
+[data-reveal="wipe"].is-armed { opacity: 0; }
+[data-reveal="wipe"].is-revealed {
+  animation: reveal-wipe var(--dur-enter) var(--ease-wipe) backwards;
+}
+
+/* NEWS — three posters landing.
+
+   The block is three dated pictures with a headline under each, which is what
+   a poster is. So each item seats its picture out of a 1.04 overscale while
+   the item itself lifts — the same gesture the membership panel makes, applied
+   to three things in sequence instead of one.
+
+   1.04 and not the membership's 1.05: these frames are much smaller, and the
+   same proportion on a smaller box is a larger movement in pixels than the eye
+   expects from a photograph settling.
+
+   The picture and the item share one --i, which the generic nth-child block
+   above sets on the article. The img inherits it — custom properties inherit,
+   which is the whole reason that block can be written once for the page. Both
+   animations therefore start on the same frame for a given item, and the
+   picture is still settling while the headline under it has already arrived. */
+[data-reveal="poster"].is-armed > * { opacity: 0; }
+[data-reveal="poster"].is-armed > * .news-media img { transform: scale(1.04); }
+[data-reveal="poster"].is-revealed > * {
+  animation: reveal-lift var(--dur-enter) var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * var(--stagger-reveal));
+}
+[data-reveal="poster"].is-revealed > * .news-media img {
+  animation: reveal-poster calc(var(--dur-enter) + var(--dur-layout))
+             var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * var(--stagger-reveal));
+}
+
+/* FAQ — the car pulls up.
+
+   This section has one thing no other section has: a cutout car that hangs off
+   its bottom edge onto the band below. So it arrives by driving in.
+
+   THE DIRECTION IS THE CAR'S, NOT THE LAYOUT'S. It is shot from behind and
+   angled away to the upper right, so its own axis of travel runs from the
+   lower left. Coming in from the left and slightly below is the car moving
+   FORWARD; the same distance from the right would be it reversing into the
+   page, which is a different sentence and not the one this picture tells.
+
+   #faq needs `overflow-x: clip` for this and it is the one line here that is
+   not decoration — see the rule further down for why it is `clip` and not
+   `hidden`. */
+[data-reveal="drive"].is-armed { opacity: 0; }
+[data-reveal="drive"].is-revealed {
+  animation: reveal-drive calc(var(--dur-enter) + var(--dur-layout))
+             var(--ease-out) backwards;
+}
+
+/* CLOSING — the card rises into the join.
+
+   The contact card is the one element on this page that belongs to two grounds
+   at once: it rides up onto the key visual and hangs down into the footer's
+   black, and that straddle is the whole reason the section is shaped the way
+   it is. So it arrives by making the straddle rather than by being found
+   already in it — 28px up from below, so the movement ends at the join instead
+   of starting there.
+
+   A transform and not a margin: the margins ARE the straddle, and animating
+   them would move the footer twice on every reveal. */
+[data-reveal="straddle"].is-armed { opacity: 0; }
+[data-reveal="straddle"].is-revealed {
+  animation: reveal-lift var(--dur-enter) var(--ease-out) backwards;
 }
 
 /* ══ Reduced motion ══════════════════════════════════════════════════════

@@ -358,15 +358,16 @@
      carries the membership panel's black half, and an inset box leaves that
      half-band starting from nothing. -->
 <section class="section-y band-dark relative overflow-hidden" id="services">
-  <!-- Decoration, and marked as decoration twice over: empty alt and
-       aria-hidden. It carries no meaning the heading below it does not, and a
-       screen reader announcing "orange arc" between a section boundary and its
-       heading is noise. It is a real <img> rather than a background so it
-       inherits the page's own lazy-loading and sizing, and because the file is
-       a cutout whose alpha is the shape — a background-image would need the
-       same file anyway. -->
-  <img class="svc-accent" src="assets/img/accent-arc.webp" alt="" aria-hidden="true"
-       width="714" height="334" loading="lazy" decoding="async">
+  <!-- THE ORANGE ARC IS GONE, at the client's direction on 2026-08-18, one
+       turn after the studio sweep went in behind this band. It was an image
+       element carrying .svc-accent, pinned to the top-left corner and bleeding
+       off two edges — spelled out rather than written as a tag, on the same
+       rule the closing key visual's comment states: a bare one in prose here
+       reads as real markup to anything scanning this file. `relative overflow-hidden` stay on the section: they predate the
+       arc by several revisions — an accent shape has been tried in this corner
+       more than once — and nothing else here is positioned against the section
+       or overflows it, so they are neither load-bearing now nor worth removing
+       on a guess. -->
   <div class="container-x relative">
     <!-- Centred heading, exit at the foot — the promotions pattern, which the
          promotions band, the news list and now this one all share. This section
@@ -378,7 +379,7 @@
     <!-- Built by renderServices: one picture layer, one scrim, three columns.
          data-reveal="rise" and not "stagger" — it is one banner now, not three
          cards that can arrive one after another. -->
-    <div class="svc-banner" id="service-grid" data-reveal="rise"></div>
+    <div class="svc-banner" id="service-grid" data-reveal="wipe"></div>
     <div class="flex justify-center mt-10" data-reveal="rise">
       <a href="#" class="btn-outline" data-i18n="services.viewAll">ดูบริการทั้งหมด</a>
     </div>
@@ -503,7 +504,7 @@
       <h2 class="section-title" data-i18n="news.title">ข่าวสารและกิจกรรม</h2>
       <p class="lead mx-auto text-center -mt-4 mb-8" data-i18n="news.lead"></p>
     </div>
-    <div class="news-list" id="news-grid" data-reveal="stagger"></div>
+    <div class="news-list" id="news-grid" data-reveal="poster"></div>
     <!-- The way out, centred under the list — the same button in the same
          place as the promotions' and the fleet's. It was an arrow link in the
          head row opposite the title, which put the section's exit above its
@@ -573,7 +574,7 @@
            never cropped to a frame, so it sets its own height from its own
            file, and the width/height attributes below are what reserve the
            space before it loads. Swapping the asset is the whole edit. -->
-      <figure class="faq-media" data-reveal="rise">
+      <figure class="faq-media" data-reveal="drive">
         <img src="assets/img/faq-car.webp" width="1023" height="981"
              loading="lazy" decoding="async" data-i18n-attr="alt:faq.carAlt" alt="">
       </figure>
@@ -685,7 +686,7 @@
        destinations and a code to scan. Plain sections with their own headings,
        which is also what lets each be read on its own. -->
   <div class="container-x">
-    <div class="closing-contact" data-reveal="rise">
+    <div class="closing-contact" data-reveal="straddle">
 
       <!-- The hotline, and it is the same number and the same tel: as the
            header and the footer carry. Three places, one string. -->

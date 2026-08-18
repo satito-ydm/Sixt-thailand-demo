@@ -29,12 +29,25 @@
      lit sweep, brightest in the upper middle and falling to near-black at the
      corners, and a band of it is the same picture as the whole of it.
 
-     The wash is flat at 0.78 and that number is measured, not chosen for
-     looks. The section heading is orange, the brightest pixel in the source
-     is rgb(163), and it reaches the left half where the heading sits — orange
-     on rgb(163) is 1.30:1. At 0.78 the brightest ground the picture can
-     present becomes rgb(36) and orange reads 4.73:1 there, which clears the
-     normal-text bar rather than the 3.0 a 40px bold heading is entitled to.
+     LIVE AGAIN AS OF 2026-08-18, on a new file and at the client's direction.
+     The band had been flat --black-true since 17 August; the sweep it is going
+     back to is a different picture from the one that left, so the 0.78 was
+     RE-DERIVED rather than inherited — the old number was set against a source
+     whose brightest pixel was rgb(163), and this one's is rgb(231,244,253),
+     which is nearly white.
+
+     What the wash now has to protect is not the heading. That is white and
+     reads 12.17:1 against the worst ground this band can present, which is a
+     margin nothing is going to eat. It is the CTA DISC on the section's outline
+     button: orange, non-text, entitled to 3.0, and the tightest thing on the
+     band by a distance. At 0.78 the brightest washed pixel is rgb(51,54,56)
+     and the disc reads 3.71:1 there.
+
+     THE FLOOR IS 0.724. Below it the disc drops under 3.0 and the button loses
+     the only mark its arrow has on this ground. "Soften the wash" is the first
+     thing anyone reaches for when a band looks too dark, so the number to
+     check afterwards is the disc, not the words — the words will still look
+     fine at 0.5 while the disc has already failed.
 
      Flat rather than a gradient anchored to one side, which is what the last
      one was. A wash that varies across the band makes the heading's contrast
@@ -56,7 +69,7 @@
      cleared to transparent and the white page shows through a section whose
      every word is white. */
   --surface-services: linear-gradient(rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.78)),
-                      url('../img/service-ground.jpg') center / cover no-repeat
+                      url('../img/service-ground.webp') center / cover no-repeat
                       #000000;
   --white:            #FFFFFF;
 

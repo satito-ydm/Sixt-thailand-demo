@@ -142,6 +142,64 @@
       'this test measured ' + checked + ' of them and expects at least 3');
   });
 
+  /* ARMING MUST BE INVISIBLE TO IntersectionObserver, AND ONLY OPACITY IS.
+
+     ui.js hides a block with .is-armed and reveals it when the observer fires
+     at a 0.01 threshold. If the armed state clips the element to nothing —
+     clip-path, transform: scale(0), visibility, display — its intersectionRatio
+     is 0, the threshold is never met, the observer never fires, and the class
+     that would remove the clip is the one thing the clip prevents. Deadlock,
+     and a silent one: isIntersecting still reports true, so nothing looks
+     wrong from the console, and revealTail() at the foot of the document
+     rescues it just often enough in testing to look like it works.
+
+     This shipped for one revision as the services banner's `wipe`, which is
+     why the test exists. The fix is always the same: arm with opacity, put the
+     clip or the transform in the keyframe. */
+  T.test('no reveal kind arms itself with something IntersectionObserver cannot see', function () {
+    if (!fs) { return; }
+    var css = readProjectFile('assets/css/app.css').replace(/\/\*[\s\S]*?\*\//g, '');
+    var BLINDING = ['clip-path', 'visibility', 'display', '-webkit-clip-path'];
+    var rule = /([^{}]*\[data-reveal[^{}]*\.is-armed[^{}]*)\{([^{}]*)\}/g;
+    var m;
+    var checked = 0;
+    while ((m = rule.exec(css)) !== null) {
+      var selector = m[1].replace(/\s+/g, ' ').trim();
+      var body = m[2];
+      /* ONLY THE OBSERVED ELEMENT COUNTS. ui.js observes the element carrying
+         data-reveal, so it is that element's own intersection area that has to
+         survive the armed state. A rule like
+         `[data-reveal="panel"].is-armed .promo-ground` sets scaleY(0) on a
+         DESCENDANT and is fine — the observed box is untouched and the
+         observer fires normally. Checking those too would have flagged the
+         promotions panel, which has worked since the day it was written. */
+      var targetsObserved = selector.split(',').some(function (one) {
+        var parts = one.trim().split(/\s+|>/).filter(Boolean);
+        return parts[parts.length - 1].indexOf('.is-armed') !== -1;
+      });
+      if (!targetsObserved) { continue; }
+      checked++;
+      BLINDING.forEach(function (prop) {
+        T.ok(!new RegExp('(^|[;{\\s])' + prop + '\\s*:').test(body),
+          selector + ' arms with ' + prop + ', which zeroes the element\'s ' +
+          'intersection area — the observer will never fire and the block ' +
+          'never appears. Arm with opacity and animate ' + prop + ' instead');
+      });
+      /* scale(0) and scaleX(0) only. A translate or a 1.05 overscale leaves a
+         full-size box and the observer is fine with both. */
+      T.ok(!/transform:[^;]*scale[XY]?\(\s*0\s*[,)]/.test(body),
+        selector + ' arms with a zero scale, which has the same effect as a clip');
+    }
+    /* Four, and the number is worth pinning: rise, wipe, drive and straddle are
+       the kinds that arm the observed element itself. The other five —
+       stagger, poster, panel, settle, fleet — arm descendants and are skipped
+       above by design. If this count drops, either a kind was removed or the
+       selector parse stopped matching, and a silent zero would make this whole
+       test pass by finding nothing. */
+    T.ok(checked >= 4, 'the armed rules must still be found — this test ' +
+      'measured ' + checked + ' of them and expects at least 4');
+  });
+
   T.test('.price-total holds the size its orange depends on', function () {
     if (!fs) { return; }
     var css = readProjectFile('assets/css/app.css');
@@ -353,13 +411,15 @@
       .concat(root.SIXT.content.SERVICES
         .filter(function (s) { return s.image; })
         .map(function (s) { return s.image; }))
-      /* promo-ground.jpg is referenced from tokens.css rather than from any
-         data file, so nothing else here would notice it going missing.
-         services-ground.jpg was in this list too — the services band is a
-         flat colour again and the file is no longer referenced from anywhere,
-         so a test asserting it exists would only be pinning an orphan. */
+      /* Both grounds are referenced from tokens.css rather than from any data
+         file, so nothing else in this suite would notice one going missing —
+         the band would simply fall back to the shorthand's colour layer and
+         look like a deliberate flat black. service-ground.webp is back in this
+         list as of 2026-08-18: the services band was flat for a day and the
+         file was an orphan, and it is the live ground again. The retired
+         service-ground.jpg is NOT listed — that one really is an orphan now. */
       .concat(['assets/img/hero-banner.webp', 'assets/img/logo.webp',
-               'assets/img/promo-ground.jpg']);
+               'assets/img/promo-ground.jpg', 'assets/img/service-ground.webp']);
     refs.forEach(function (rel) {
       T.ok(fs.existsSync(here + '/../' + rel), 'missing asset: ' + rel);
     });
