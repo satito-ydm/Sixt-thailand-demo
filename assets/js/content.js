@@ -64,7 +64,15 @@
      it defeats the check.
 
      Adding a slide: convert it in tools/prepare-images.py and append it here. */
-  var HERO_FRAME_RATIO = 2 / 1;
+  /* 2.5:1 AS OF 2026-08-18, up from 2:1, and it is the artwork that moved
+     rather than a preference. All three banners were re-cut to 1920x768 for
+     the fixed hero height, which is exactly 2.5:1 — so a 2:1 frame was
+     cropping 10% off each side of every one of them for no reason at all.
+     At 2.5 the crop below HERO_FIXED_FROM is nil.
+
+     Keep in step with .hero-slider's aspect-ratio; a test measures the two
+     against each other, and a second test measures every slide against this. */
+  var HERO_FRAME_RATIO = 2.5 / 1;
   /* The frame is not 2:1 on a phone — .hero-slider goes 4/3 under 768 so the
      artwork has some height. A landscape banner in that frame loses a third of
      its width, which on this campaign set means the wordmark and the price: the
@@ -76,12 +84,76 @@
      file and against this frame rather than the desktop one. */
   var HERO_MOBILE_FRAME_RATIO = 4 / 3;
 
+  /* ── The fixed desktop height, and what it costs ────────────────────────
+     Client direction, 2026-08-18: the hero is 768px tall. Taken with the
+     numbers below in front of them, and they are the reason this block exists
+     rather than a bare declaration in the stylesheet.
+
+     A FIXED HEIGHT ON A FULL-BLEED BANNER RETIRES THE FRAME RATIO. Above
+     HERO_FIXED_FROM the frame is no longer 2:1 — it is viewport-width over 768,
+     which is 1.67:1 at 1280 and 2.50:1 at 1920. HERO_FRAME_RATIO and the 6%
+     budget it guards still describe the frame BELOW that breakpoint and
+     nowhere else, so the crop has to be declared here per width instead of
+     derived once.
+
+     THE ARTWORK ANSWERED THIS, LATER THE SAME DAY. The note here used to end
+     "what would fix it is artwork, not CSS — anything at or above 2.5:1 sits in
+     this height with nothing lost", and both banners were re-cut to exactly
+     that: 1920x768, 2.5:1, which IS the frame at a 1920 window. The 25%
+     top-crop that took the MOBILIFE lockup off the picture is gone, and so is
+     every vertical crop — a 2.5:1 file in a frame that is never taller than
+     2.5:1 is only ever cropped left and right.
+
+     WORST PER-EDGE LOSS, NOW ALL HORIZONTAL AND THE SAME FOR BOTH SLIDES:
+
+         1280   16.7%   off each side   = 320px of the 1920 source
+         1440   12.5%                   = 240px
+         1536   10.0%                   = 192px
+         1680    6.2%                   = 120px
+         1920    0.0%                   — the file is the frame
+
+     WHICH MOVES THE PROBLEM RATHER THAN ENDING IT, and the number that decides
+     it is in the artwork: mobilife-coupon's SIXT | MOBILIFE lockup starts at
+     column 263 of 1920, 13.7% in. So it clears 1440's 12.5% by 23 pixels and
+     is cut 57 pixels deep at 1280. lionair-skyline is comfortable — its lockup
+     starts about 24% in and the 10% edge is sky and glass.
+
+     Read plainly: this pair of banners is correct at 1920, tight at 1536, on
+     the line at 1440 and clipped below it. The page is checked at 1440 and 390
+     and passes both. A third cut, or a hero that keeps 2.5:1 instead of a flat
+     768 below 1536, is what closes the last of it.
+
+     The test that reads this asserts the measured numbers still match. Change
+     the height, the breakpoint or a slide's artwork and it fails with the new
+     figure, so this table cannot quietly go stale. */
+  var HERO_FIXED_HEIGHT = 768;
+  var HERO_FIXED_FROM = 1280;
+  var HERO_FIXED_CROP = {
+    1280: 0.167,
+    1440: 0.125,
+    1536: 0.100,
+    1680: 0.062,
+    1920: 0.000
+  };
+
   var HERO_SLIDES = [
     {
       id: 'lionair-skyline',
       image: 'assets/img/hero-lionair-skyline.webp',
-      width: 1811,
-      height: 868,
+      /* RE-CUT FOR THE 768px HERO, supplied 2026-08-18 under the same filename.
+         1920x768 is exactly 2.5:1, which is exactly the frame at a 1920 window
+         — nothing is cropped there at all. It was 1811x868 at 2.09:1, drawn
+         for the 2:1 frame this banner had before the height was fixed.
+
+         safeEdge 0.10, and it is declared rather than assumed. Below 1280 the
+         frame is still 2:1, and a 2.5:1 file in it loses 10% off each side.
+         That is over the strict 6% default and it is safe HERE because of
+         where this artwork puts its type: the SIXT | Thai Lion Air lockup
+         starts about 24% in, so a 10% crop takes sky, the terminal's glass and
+         the leading edge of the orange arc — which is drawn bleeding off that
+         edge anyway. */
+      width: 1920,
+      height: 768,
       /* 2.086:1, drawn all but on the frame: cover trims 37.5px off each side,
          2.07%, comfortably inside the default 6% budget — so no safeEdge
          override, and no focus bias either, since nothing is cropped
@@ -122,6 +194,78 @@
       },
       th: { alt: 'แคมเปญ SIXT ร่วมกับ Thai Lion Air — เช่ารถพร้อมคนขับ รับ-ส่งสนามบิน สิทธิพิเศษสำหรับผู้โดยสาร Thai Lion Air เพียงแสดงบัตรโดยสารหรือ E-Ticket ภาพ Mercedes-Benz E-Class สีขาวหน้าอาคารผู้โดยสาร มีเครื่องบิน Thai Lion Air และสกายไลน์กรุงเทพฯ เป็นฉากหลัง' },
       en: { alt: 'SIXT with Thai Lion Air — chauffeured airport transfers, a perk for Thai Lion Air passengers on showing a boarding pass or e-ticket; a white Mercedes-Benz E-Class outside the terminal, a Thai Lion Air aircraft and the Bangkok skyline behind' }
+    },
+    {
+      /* THE BRAND KEY VISUAL, SECOND IN THE ROTATION, at the client's direction
+         on 2026-08-18 — added as the first slide and moved to second within
+         the hour. It is the same artwork that stood at the foot of the page
+         until earlier the same day — three cars, a couple and the Bangkok
+         skyline, with the SIXT Thailand lockup and DRIVE YOUR / JOURNEY / OWN
+         YOUR / EXPERIENCE printed into it — re-cut from the closing section's
+         2:1 to the hero's 1920x768.
+
+         THE ONE THING TO KNOW ABOUT THIS FILE, and it is the tightest artwork
+         on the page: its type starts 3.3% in from the left edge — the headline
+         at column 64 of 1920, the lockup at 119. Every other banner keeps its
+         words well inside; this one does not.
+
+         What that means in practice, against HERO_FIXED_CROP: at 1920 nothing
+         is cropped and the slide is perfect. At 1536 the side crop is 10% and
+         eats 6.7 points into the headline. At 1440 it is 12.5% and the words
+         "DRIVE YOUR" lose their left third. It is correct at 1920 and degrades
+         from about 1500 down, which is the opposite of every other slide here.
+
+         Two things fix it and neither is CSS: a re-cut with the type inside the
+         middle 70% the way mobilife-coupon has it at 13.7%, or a hero that
+         keeps 2.5:1 instead of a flat 768 below 1536. Recorded rather than
+         quietly cropped.
+
+         No `mobile` cut was supplied. Below 768 the frame is 4:3 and this file
+         loses 23.3% off each side there — the whole left column. It is the one
+         slide of the three without a phone variant and it is the one that
+         needs it most. */
+      id: 'brand-skyline',
+      image: 'assets/img/hero-brand-skyline.webp',
+      width: 1920,
+      height: 768,
+      /* PINNED TO THE LEFT EDGE, and this is the fix for the paragraph above
+         rather than a composition choice. Centred, the 12.5% side crop at 1440
+         takes 240px off a left edge whose first type sits at column 64: the
+         lockup came out as "XT | CAR | D" and the headline as "E YOUR /
+         URNEY", which is what the screenshot showed. Pinned, the left edge is
+         never cropped at all and the whole 25% comes off the RIGHT — sky,
+         skyline and the sunset over the water, no words, and the composition
+         still reads because the cars sit left of centre.
+
+         It is the only slide that needs this. The other two keep their type
+         13.7% and about 24% in, and a centred crop never reaches either. */
+      focus: '0% 50%',
+      /* THE PHONE CUT, supplied 2026-08-18 an hour after the landscape one and
+         the reason the paragraph above no longer ends badly. Without it this
+         slide was losing 23.3% off each side in the 4:3 frame — the entire
+         left column, which on this artwork is the lockup and the whole
+         headline.
+
+         1448x1086 is 1.3333:1 against the mobile frame's 1.3333, so the file
+         IS the frame and nothing is cropped at any width where it is used;
+         `focus` does not apply to it. Third slide of three to get one, and the
+         same spec as the other two, which is not a coincidence — it is the
+         spec this project asks for.
+
+         A RE-LAYOUT, not a re-crop: the lockup and the headline have moved up
+         and in, the three cars have come down and the Fortuner runs off the
+         right edge instead of being centred. Cropping the landscape file to
+         4:3 is exactly what was happening before this arrived.
+
+         Dimensions read back from the encoded .webp, not from the source —
+         1448x1086 held because the source was already even on both axes. */
+      mobile: {
+        image: 'assets/img/hero-brand-skyline-m.webp',
+        width: 1448,
+        height: 1086
+      },
+      th: { alt: 'SIXT Thailand — Drive Your Journey, Own Your Experience ภาพคู่รักลากกระเป๋าเดินทางผ่านรถ BMW สีส้ม Mercedes-Benz สีขาว และ Toyota Fortuner สีดำ ที่จอดเรียงกันริมแม่น้ำ โดยมีสกายไลน์กรุงเทพฯ และตึกมหานครเป็นฉากหลัง' },
+      en: { alt: 'SIXT Thailand — Drive Your Journey, Own Your Experience. A couple walk with their luggage past an orange BMW, a white Mercedes-Benz and a black Toyota Fortuner parked by the river, with the Bangkok skyline and the Mahanakhon tower behind' }
     },
     {
       /* Replaced the KBank domestic banner on 2026-08-17 at the client's
@@ -169,8 +313,30 @@
          and it leaves the legal strip its full clearance. */
       id: 'mobilife-coupon',
       image: 'assets/img/hero-mobilife-villa.webp',
-      width: 1717,
-      height: 916,
+      /* RE-CUT FOR THE 768px HERO, supplied 2026-08-18 under the same filename,
+         same campaign and same photograph — 1920x768, exactly 2.5:1, so the
+         1920 window crops nothing. It was 1717x916 at 1.87:1.
+
+         safeEdge 0.10 on the same terms as the slide above, and this one is
+         the tighter of the two by a distance. Its SIXT | MOBILIFE lockup
+         starts at column 263 of 1920 — 13.7% in — so a 10% crop clears it with
+         3.7 points to spare and the 2:1 frame below 1280 is fine.
+
+         WHAT IS NOT FINE IS THE MIDDLE OF THE DESKTOP RANGE, and it is not
+         this budget that governs there. From 1280 up the frame is
+         viewport/768, so the side crop is 16.7% at 1280 and 12.5% at 1440
+         against type at 13.7%: the lockup survives at 1440 by 23px and is cut
+         by 57px at 1280. See HERO_FIXED_CROP — that table is where the fixed
+         height's cost is recorded, and this artwork moved the whole cost onto
+         the horizontal axis.
+
+         `focus` is kept and now does nothing: it pins the vertical axis, and
+         a 2.5:1 file in a frame that is never taller than 2.5:1 is only ever
+         cropped left and right. It stays because the phone frame is 4:3 and
+         the desktop file is what a browser falls back to if the mobile source
+         is ever removed. */
+      width: 1920,
+      height: 768,
       focus: '50% 100%',
       /* THE PHONE CUT, supplied 2026-08-18 with the artwork above, and it
          closes the last open item on this page: this slide had none, so the
@@ -498,6 +664,9 @@
   root.SIXT.content = {
     HERO_SLIDES: HERO_SLIDES,
     HERO_FRAME_RATIO: HERO_FRAME_RATIO,
+    HERO_FIXED_HEIGHT: HERO_FIXED_HEIGHT,
+    HERO_FIXED_FROM: HERO_FIXED_FROM,
+    HERO_FIXED_CROP: HERO_FIXED_CROP,
     HERO_MOBILE_FRAME_RATIO: HERO_MOBILE_FRAME_RATIO,
     VALUE_PROPS: VALUE_PROPS,
     FLEET_INCLUDES: FLEET_INCLUDES,

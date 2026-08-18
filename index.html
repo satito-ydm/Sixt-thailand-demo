@@ -62,7 +62,19 @@
      when that section changes. -->
 <header class="site-header" id="site-header">
   <div class="container-x header-row">
-    <button type="button" id="menu-open" class="lg:hidden p-2 -ml-2 bg-transparent border-0 cursor-pointer"
+    <!-- AT EVERY WIDTH AS OF 2026-08-18, at the client's direction: a menu
+         icon ahead of the logo, "as a mock for now, in case there are other
+         menus". It was `lg:hidden` and existed only below 1024, where it is the
+         drawer's only way in.
+
+         It is wired rather than drawn. A dead icon in a header is a control
+         that answers nothing, and this button already had a real destination —
+         so on desktop it opens the same drawer, which currently repeats the
+         nav beside it. That repetition is the placeholder: when the fuller
+         menu arrives it goes in the drawer and this button is already its
+         handle. The drawer takes a width on desktop rather than covering the
+         window; see .drawer. -->
+    <button type="button" id="menu-open" class="p-2 -ml-2 bg-transparent border-0 cursor-pointer"
             aria-expanded="false" aria-controls="drawer" data-i18n-attr="aria-label:a11y.openMenu">
       <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
            stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
@@ -295,15 +307,23 @@
     <div class="promo-stage" id="promo-stage"
          aria-roledescription="carousel" data-i18n-attr="aria-label:promo.carousel"></div>
 
-    <!-- The detail for whichever banner is centred, sitting on the strip of
-         orange the banners leave uncovered. A live region: the picture
-         changing is a visual event, and these words are the only version of
-         that event a screen reader gets. -->
-    <div class="promo-detail" id="promo-detail" aria-live="polite"></div>
-  </div>
+    <!-- The strip of orange the banners leave uncovered. It held the centred
+         banner's title and body and was a live region for exactly that reason
+         — the picture changing is a visual event and those words were the only
+         version of it a screen reader got. Both are gone at the client's
+         direction on 2026-08-18, and the aria-live with them: a live region
+         with nothing written into it announces nothing and only makes the
+         markup claim otherwise. Each slide keeps its own alt and its "slide n
+         of N" label. What is left on the strip is the one CTA. -->
+    <!-- "ดูโปรโมชันทั้งหมด" LIVES HERE NOW, at the client's direction on
+         2026-08-18. It was the section's own exit, in a centred row under the
+         showcase on the page's white; this strip is where the per-promotion
+         CTA used to be, and that CTA has moved onto the artwork.
 
-  <div class="container-x">
-    <div class="flex justify-center mt-10" data-reveal="rise">
+         It keeps its own data-reveal off: the strip is inside .promo-showcase,
+         which the `panel` kind already arms and reveals as one piece. A second
+         reveal nested inside a revealed block is two arrivals for one thing. -->
+    <div class="promo-detail" id="promo-detail">
       <a href="#" class="btn-outline" data-i18n="promo.viewAll">ดูโปรโมชันทั้งหมด</a>
     </div>
   </div>
@@ -444,6 +464,13 @@
 
           <div class="member-actions">
             <a href="#" class="btn-primary" data-i18n="member.cta">สมัครสมาชิกเลย</a>
+            <!-- The sentence is back and whole, at the client's direction on
+                 2026-08-18 after one revision without it — but on its OWN LINE
+                 rather than beside the button, which is what the row above is
+                 forced to do here. The link inside it is orange; see
+                 .member-have in app.css for the plate that makes orange
+                 possible on this panel and for why the link is the size it
+                 is. -->
             <p class="member-have">
               <span data-i18n="member.have">เป็นสมาชิกอยู่แล้ว?</span>
               <a href="#" data-i18n="member.login">เข้าสู่ระบบที่นี่</a>
@@ -633,44 +660,27 @@
      on this same page states the call centre runs 8.30-18.00, and two numbers
      that disagree are worse than one that is missing. -->
 <section class="band-dark closing" id="closing">
-  <!-- The section's own words are gone. It carried a heading and a paragraph
-       of thanks beside a photograph of a chauffeur; it carries the brand's key
-       visual instead, and that artwork already says the same thing louder and
-       in the brand's own lettering. Two headlines in one band, one of them set
-       in type and one of them printed inside a JPEG, is the arrangement the
-       news section was rebuilt to get rid of.
+  <!-- THE KEY VISUAL IS GONE, at the client's direction on 2026-08-18, one
+       turn after its orange wash came off. What stood here was a full-bleed
+       figure holding closing-hero.webp — the brand artwork with the SIXT
+       lockup, the country line and the DRIVE YOUR / JOURNEY / OWN YOUR /
+       EXPERIENCE tagline printed into it.
 
-       Full bleed: it sits outside .container-x, so the picture runs edge to
-       edge and the container only comes back for the figures below it.
+       TWO THINGS IT WAS CARRYING THAT NOTHING ELSE DOES, so that removing it
+       is a decision on the record rather than a gap someone finds later:
 
-       Never cropped. The words are baked into the artwork — the lockup, the
-       country line and the two-line tagline — so there is no object-fit here
-       and no fixed frame for one to work against. The image sets its own
-       height from its own 2:1, at every width. This is the same rule the
-       promotion cards carry and for the same reason: a crop takes a headline
-       off a picture that has no other copy of it.
+         — it was the section's only content. This band is now the contact card
+           and nothing else, which is why .closing gives its padding back below;
+           the card used to ride up onto the picture and there is no picture to
+           ride onto.
+         — the FAQ car's overhang crossed onto it. The car still hangs into
+           this section, and it now lands on the band's black instead of on the
+           artwork's sky. It is a cutout with its own shadow, so it reads on
+           either — that was already written down when the black floor under it
+           was removed.
 
-       Transcribed rather than described, for the same reason. -->
-  <!-- THE ORANGE WASH IS GONE, at the client's direction on 2026-08-18. A
-       .closing-glow span used to sit over the foot of this artwork carrying a
-       multiply gradient, and it was the only parallaxed thing in this section:
-       the picture has words printed into it so it can never be cropped, which
-       means it has no slack to travel, which is why the drift was put on
-       something laid over it instead. Removing the wash removes the drift with
-       it — there is nothing left here that can move.
-
-       The figure keeps its wrapper. It is a figure round an image and it reads
-       as one; unwrapping it now would be a second change nobody asked for.
-
-       "image element" spelled out rather than written as a tag: a bare one in
-       prose here reads as real markup to anything scanning this file, and it
-       was reported as a src-less image the first time it was written. -->
-  <figure class="closing-hero">
-    <img src="assets/img/closing-hero.webp"
-         width="1774" height="887" loading="lazy" decoding="async"
-         data-i18n-attr="alt:closing.heroAlt" alt="">
-  </figure>
-
+       assets/img/closing-hero.webp is unreferenced now and stays in the tree
+       with the other retired artwork. -->
   <!-- CONTACT, NOT STATISTICS. Client direction, 2026-08-17: "make this contact
        details instead — customer service, social, and the LINE QR."
 

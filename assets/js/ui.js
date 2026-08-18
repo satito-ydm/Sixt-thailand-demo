@@ -458,13 +458,16 @@
 
   function renderPromos() {
     var stage = document.getElementById('promo-stage');
-    var detail = document.getElementById('promo-detail');
-    if (!stage || !detail) { return; }
+    if (!stage) { return; }
 
     var items = content.PROMOS;
     var total = items.length;
     clear(stage);
-    clear(detail);
+    /* #promo-detail is NOT cleared any more and is not touched here at all. It
+       holds the section's "all promotions" link, which is written in the markup
+       and translated by the i18n pass — clearing it on every render would
+       delete a control this function does not own. The per-promotion CTA that
+       used to be built into it is on the stage now. */
     promoIndex = Math.min(promoIndex, total - 1);
 
     var track = el('div', 'promo-track');
@@ -507,13 +510,25 @@
     /* Chevrons live on this row, flanking the words, not floating over the
        banners. Built before the text so the reading order matches the visual
        one: previous, what you are looking at, next. */
-    var textBlock = el('div', 'promo-detail__text');
-    var title = el('h3', 'promo-detail__title');
-    /* Solid white, not .lead. --on-dark-muted is white at 78%, which holds on
-       solid black but composites to 3.59:1 against the lightest ground the
-       scrim can leave behind — under AA. On this panel the body copy has to
-       be the full white. */
-    var body = el('p', 'promo-detail__body');
+    /* THE TITLE AND THE BODY ARE GONE, at the client's direction on 2026-08-18.
+       A .promo-detail__text block held an h3 and a paragraph describing
+       whichever banner was centred, rewritten on every slide change.
+
+       WHAT WENT WITH THEM, because none of it is obvious from the deletion:
+
+         — the aria-live region. That row was the only spoken version of a
+           slide change; the announcement was the text. With nothing to
+           announce the attribute is off the markup too, and each slide's own
+           alt and its "slide n of N" label are what a screen reader has now.
+           That is a real reduction and it is the client's call, not an
+           oversight.
+         — the reason .promo-detail__body was solid white rather than
+           --on-dark-muted: white at 78% composites to 3.59:1 against the
+           lightest pixel this panel can leave under a word, which is under AA.
+           Any copy put back on this strip inherits that constraint.
+
+       The row itself stays. It still carries the CTA, and .promo-ground's
+       height is measured to the foot of it. */
     /* One call to action under the words, not one per banner: it points at
        whichever promotion the words are describing, so there is only ever one
        of it and its label changes with them.
@@ -522,10 +537,29 @@
        display: none it would be unreachable by keyboard, and a control that
        exists for a mouse and not for a tab key is not a control — which is why
        the stylesheet reveals it on :focus-within as well as on :hover. */
+    /* ON THE ARTWORK, not under it, at the client's direction on 2026-08-18:
+       hovering a banner brings its details and its button up in the middle of
+       the picture, and the strip below carries the section's "all promotions"
+       exit instead.
+
+       It is one overlay over the STAGE rather than one per slide, and the
+       stage is where the centred banner always is — the track is transformed
+       so that whichever slide is current sits in the stage's middle, so a
+       block centred on the stage is centred on that banner without following
+       it. One element, one set of strings to keep in step, and nothing to
+       rebuild when the slide changes.
+
+       The title and body came back here after one revision without them. They
+       had been on the orange strip below and were removed with it; the client
+       asked for the detail on the hover instead, which is where they are. */
+    var overlay = el('div', 'promo-overlay');
+    var title = el('h3', 'promo-overlay__title');
+    var body = el('p', 'promo-overlay__body');
     var cta = el('a', 'promo-cta', i18n.t('promo.viewDetail'));
     cta.href = '#';
-    textBlock.appendChild(title);
-    textBlock.appendChild(body);
+    overlay.appendChild(title);
+    overlay.appendChild(body);
+    overlay.appendChild(cta);
 
     /* The modulo is the loop: last to first and first to last, with no end
        stop in either direction. The track jumps rather than travels when it
@@ -555,8 +589,7 @@
       return button;
     }
 
-    detail.appendChild(textBlock);
-    detail.appendChild(cta);
+    stage.appendChild(overlay);
     /* The chevrons sit on the picture's own edges, so they belong to the stage
        rather than to the row of words below it. */
     if (total > 1) {
@@ -591,7 +624,7 @@
         /* The chevrons live on the stage now. Without this a press on one of
            them starts a drag, and the click that should have changed the slide
            is spent on a gesture that goes nowhere. */
-        if (e.target.closest && e.target.closest('.promo-arrow')) { return; }
+        if (e.target.closest && e.target.closest('.promo-arrow, .promo-overlay')) { return; }
         dragging = true;
         delta = 0;
         startX = e.clientX;
@@ -843,100 +876,55 @@
      the layer moves whichever photograph is currently visible without three
      nodes having to stay in step. The cap in initParallax measures the node it
      is given, so a taller node simply gets its full authored travel. */
+  /* THREE CARDS, ONE EACH, at the client's direction on 2026-08-18. What this
+     function used to build — and what went with it — is written up at .svc-col
+     in app.css: a shared .svc-bg layer of three crossfading photographs, a flat
+     .svc-scrim over them, and wireServiceBanner(), which answered pointerenter,
+     focusin and click to decide which column was "active".
+
+     TWO THINGS THE DELETION IS WORTH NAMING FOR.
+
+     The alt text comes back. Under the banner each picture was a decorative
+     layer — only one of three ever visible, chosen by a hover, with the column
+     beside it naming the service in words — so its alt was empty on purpose and
+     each column carried a SECOND copy of the same image for the phone layout.
+     One card, one picture, one <img>: the descriptive alt each service already
+     carries in content.js is the right string again and is used.
+
+     Nothing is "active" any more. The banner never allowed all three to be
+     dimmed at once, because that state showed a photograph with no copy on it
+     and read as unfinished — hence the first column arriving active. Three
+     cards have no such state to protect. */
   function renderServices() {
     var host = document.getElementById('service-grid');
     clear(host);
     if (!content.SERVICES.length) { return; }
 
-    var bg = el('div', 'svc-bg');
-    bg.setAttribute('data-parallax', '34');
-    bg.setAttribute('data-parallax-zoom', '');
-
     var cols = el('div', 'svc-cols');
-    var imgs = [];
 
-    content.SERVICES.forEach(function (item, index) {
+    content.SERVICES.forEach(function (item) {
       var c = copy(item);
+      var col = el('div', 'svc-col');
 
-      /* The picture. alt is empty on purpose and this is the one place on this
-         page where that is right: the layer is decorative here. Only one of the
-         three is ever visible, which one depends on a hover, and the column
-         beside it already names the service in text. Three alt strings for a
-         backdrop that swaps under the pointer would be read out as three
-         unrelated photographs. The descriptive alt each of these carries in
-         content.js is not lost — it is still the string the bento used, and it
-         is still in the file if this ever becomes a picture that stands alone. */
       if (item.image) {
-        var img = el('img', 'svc-bg__img' + (index === 0 ? ' is-active' : ''));
+        var media = el('div', 'svc-col__media');
+        var img = el('img');
         img.src = item.image;
-        img.alt = '';
+        img.alt = c.alt || c.title;
         img.loading = 'lazy';
         img.decoding = 'async';
-        bg.appendChild(img);
-        imgs.push(img);
-      }
-
-      var col = el('div', 'svc-col' + (index === 0 ? ' is-active' : ''));
-      col.setAttribute('data-svc-index', String(index));
-
-      /* Two blocks: the title at the top, the detail and its CTA at the foot.
-
-         This is the third arrangement and each one answered the last. The
-         reference puts copy at the top and the title alone at the bottom; with
-         our CTA added that left the button stranded in the top block a long way
-         from the title it belongs to. Moving the CTA down to join the title
-         fixed the stranding and put both blocks at the bottom half. Inverting
-         them is what the client settled on, and it is the better read anyway: a
-         title is the first thing in a column, not the last, and the detail
-         arriving underneath it on hover is the detail answering the title rather
-         than preceding it.
-
-         It also makes the alignment free instead of contrived. The title is now
-         the first child, so all three sit on one line because they start at the
-         same edge — where before it depended on the pill below them being the
-         same height in every column. */
-      /* THE COLUMN'S OWN PICTURE, and it only exists below 768.
-
-         Above that this section is one banner with one photograph behind three
-         columns, and the layer that carries it is .svc-bg — three images
-         stacked, one opaque, crossfading as the pointer moves. That is a
-         pointer effect, and on a phone there is no pointer: the reader got one
-         picture at the top of the section and two services with no picture at
-         all, which is the arrangement the client called "each box should have
-         its own picture".
-
-         So each column carries a second copy of its own image, hidden by CSS
-         above 768. Two <img> tags for one photograph looks wasteful and is
-         not: the file is the same URL, so the browser fetches it once and the
-         hidden one costs a cache hit. The alternative — moving the image into
-         the column and rebuilding the shared layer from it — would mean the
-         crossfade reaching across three parents.
-
-         alt is empty and it is aria-hidden, for the same reason it is on the
-         layer above: the column's own <h3> names the service immediately after
-         it, and a screen reader does not need the picture announced twice. */
-      if (item.image) {
-        var colMedia = el('div', 'svc-col__media');
-        var colImg = el('img');
-        colImg.src = item.image;
-        colImg.alt = '';
-        colImg.setAttribute('aria-hidden', 'true');
-        colImg.loading = 'lazy';
-        colImg.decoding = 'async';
-        colMedia.appendChild(colImg);
-        col.appendChild(colMedia);
+        media.appendChild(img);
+        col.appendChild(media);
       }
 
       var head = el('div', 'svc-col__head');
       /* An <h3> and not a link: the CTA below is the link, and a second anchor
-         to the same destination is what the news list already decided against. */
+         to the same destination is what the news list already decided against.
+         The card-wide overlay hanging off that CTA is what makes the whole
+         card clickable without a second one. */
       head.appendChild(el('h3', 'svc-col__title', c.title));
       col.appendChild(head);
 
-      /* The half that fades, and it holds the column's only focusable child —
-         see .svc-col__body in app.css for why this is opacity and
-         pointer-events rather than visibility. Taking the CTA out of the tab
-         order would lock the keyboard out of the state it opens. */
       var body = el('div', 'svc-col__body');
       body.appendChild(el('p', 'svc-col__text', c.body));
       var cta = el('a', (item.variant === 'primary' ? 'btn-primary' : 'btn-secondary') + ' svc-col__cta', c.cta);
@@ -947,62 +935,7 @@
       cols.appendChild(col);
     });
 
-    host.appendChild(bg);
-    host.appendChild(el('div', 'svc-scrim'));
     host.appendChild(cols);
-
-    wireServiceBanner(cols, imgs);
-  }
-
-  /* Activation, and it answers three inputs rather than one.
-
-     The reference is hover-only. That is enough on a desktop mouse and nothing
-     at all otherwise: a touch screen has no hover, and a keyboard cannot hover
-     by definition. So:
-
-       — pointerenter, for the mouse.
-       — focusin, for the keyboard. The CTA inside each column is focusable
-         whether or not its column is active, which is what gives tab a way in.
-       — click, for touch on a screen wide enough to still be showing the
-         three-column layout. Below 768 every column is active and none of this
-         is needed; the listeners stay attached and simply have nothing to
-         change.
-
-     No mouseleave handler. Something is always active — the section never
-     returns to a state where all three columns are dimmed, because that state
-     shows a banner with no copy on it and reads as unfinished. The first column
-     is active on arrival for the same reason.
-
-     Delegated to the container. Three columns is not many, but renderAll
-     rebuilds this on every language change and per-column listeners would be
-     three more things to detach or leak. */
-  function wireServiceBanner(cols, imgs) {
-    var columns = Array.prototype.slice.call(cols.children);
-    if (columns.length < 2) { return; }
-
-    function activate(index) {
-      if (index < 0 || index >= columns.length) { return; }
-      columns.forEach(function (col, i) { col.classList.toggle('is-active', i === index); });
-      imgs.forEach(function (img, i) { img.classList.toggle('is-active', i === index); });
-    }
-
-    function indexFrom(target) {
-      var col = target.closest ? target.closest('.svc-col') : null;
-      return col ? columns.indexOf(col) : -1;
-    }
-
-    cols.addEventListener('pointerenter', function (e) {
-      var i = indexFrom(e.target);
-      if (i > -1) { activate(i); }
-    }, true);
-    cols.addEventListener('focusin', function (e) {
-      var i = indexFrom(e.target);
-      if (i > -1) { activate(i); }
-    });
-    cols.addEventListener('click', function (e) {
-      var i = indexFrom(e.target);
-      if (i > -1) { activate(i); }
-    });
   }
 
   /* An editorial list, not a card grid.

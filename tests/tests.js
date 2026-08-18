@@ -190,14 +190,14 @@
       T.ok(!/transform:[^;]*scale[XY]?\(\s*0\s*[,)]/.test(body),
         selector + ' arms with a zero scale, which has the same effect as a clip');
     }
-    /* Four, and the number is worth pinning: rise, wipe, drive and straddle are
-       the kinds that arm the observed element itself. The other five —
-       stagger, poster, panel, settle, fleet — arm descendants and are skipped
-       above by design. If this count drops, either a kind was removed or the
-       selector parse stopped matching, and a silent zero would make this whole
-       test pass by finding nothing. */
-    T.ok(checked >= 4, 'the armed rules must still be found — this test ' +
-      'measured ' + checked + ' of them and expects at least 4');
+    /* Three: rise, drive and straddle arm the observed element itself. The
+       other six — stagger, poster, panel, settle, fleet and, since the services
+       band became three cards, wipe — arm descendants and are skipped above by
+       design. If this count drops to zero the selector parse has stopped
+       matching, and a silent zero would make this whole test pass by finding
+       nothing to check. */
+    T.ok(checked >= 3, 'the armed rules must still be found — this test ' +
+      'measured ' + checked + ' of them and expects at least 3');
   });
 
   T.test('.price-total holds the size its orange depends on', function () {
@@ -633,6 +633,55 @@
         frame.toFixed(2) + ':1 frame — ' + (perEdge * 100).toFixed(1) +
         '% off each edge, budget ' + (budget * 100).toFixed(0) + '%');
     });
+  });
+
+  /* THE FIXED DESKTOP HEIGHT'S CROP IS DECLARED, NOT DISCOVERED.
+
+     From HERO_FIXED_FROM up the banner is a flat 768px, so the frame ratio is
+     viewport-width over 768 and the 6%-per-edge budget the test above enforces
+     stops describing anything at those widths. The cost did not go away; it
+     moved into a table in content.js. This test recomputes that table from the
+     slide dimensions and fails if the two disagree — so changing the height,
+     the breakpoint, or any slide's artwork forces the numbers to be restated
+     rather than letting them rot.
+
+     "Per edge" is not always half. A slide with `focus` pinned to 0% or 100%
+     on the cropped axis takes its whole loss on one edge, which is the case
+     that makes 1920 a 25% cut rather than a 12.5% one. */
+  T.test('the fixed desktop height crops exactly as much as content.js says', function () {
+    var C = root.SIXT.content;
+    Object.keys(C.HERO_FIXED_CROP).forEach(function (key) {
+      var width = Number(key);
+      var frame = width / C.HERO_FIXED_HEIGHT;
+      var worst = 0;
+      C.HERO_SLIDES.forEach(function (s) {
+        var ratio = s.width / s.height;
+        var vertical = ratio <= frame;
+        var total = vertical ? 1 - ratio / frame : 1 - frame / ratio;
+        /* focus is "x y"; the y half is what decides a vertical crop. Pinned to
+           an end, nothing comes off the opposite edge. */
+        var y = s.focus ? s.focus.split(/\s+/)[1] : null;
+        var pinned = vertical && (y === '100%' || y === '0%');
+        worst = Math.max(worst, pinned ? total : total / 2);
+      });
+      var declared = C.HERO_FIXED_CROP[key];
+      T.ok(Math.abs(worst - declared) < 0.005,
+        'at ' + width + 'px the worst per-edge crop is ' + (worst * 100).toFixed(1) +
+        '% but content.js declares ' + (declared * 100).toFixed(1) + '%');
+    });
+  });
+
+  T.test('the stylesheet and the data agree on the fixed height and its breakpoint', function () {
+    if (!fs) { return; }
+    var css = readProjectFile('assets/css/app.css');
+    var C = root.SIXT.content;
+    var m = css.match(/@media \(min-width: (\d+)px\) \{\s*\.hero-slider \{ height: (\d+)px; \}/);
+    T.ok(m, '.hero-slider must take its fixed height inside a min-width query');
+    if (!m) { return; }
+    T.ok(Number(m[2]) === C.HERO_FIXED_HEIGHT,
+      'CSS height is ' + m[2] + 'px, HERO_FIXED_HEIGHT is ' + C.HERO_FIXED_HEIGHT);
+    T.ok(Number(m[1]) === C.HERO_FIXED_FROM,
+      'CSS breakpoint is ' + m[1] + 'px, HERO_FIXED_FROM is ' + C.HERO_FIXED_FROM);
   });
 
   T.test('the frame ratio in the data matches the one in the stylesheet', function () {

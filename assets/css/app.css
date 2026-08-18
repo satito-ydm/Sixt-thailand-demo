@@ -1298,6 +1298,23 @@ body h3 { font-size: var(--text-h3); }
   gap: var(--space-4);
   overflow-y: auto;
 }
+/* A PANEL FROM 1024 UP, not the full-screen sheet. The drawer was built for a
+   phone, where `inset: 0; width: 100%` is right — it is the whole screen
+   because the whole screen is the menu. From 1024 the same declaration covers
+   a desktop window edge to edge to show four links, which reads as a page
+   navigating away rather than as a menu opening.
+
+   Capped at 26rem and its shadow is what separates it from the page behind.
+   The transform is unchanged: it still arrives from the left, from off-screen,
+   at the same 340ms — the distance it travels is smaller here but so is the
+   panel, and the two stay in proportion. */
+@media (min-width: 1024px) {
+  .drawer {
+    inset-inline-end: auto;
+    width: min(26rem, 90vw);
+    box-shadow: var(--shadow-lift);
+  }
+}
 .drawer:not(.is-open) { transition-duration: var(--dur-move); }
 .drawer.is-open { transform: translateX(0); }
 
@@ -1815,7 +1832,7 @@ body .booking-title {
 .hero-slider {
   position: relative;
   width: 100%;
-  aspect-ratio: 2 / 1;
+  aspect-ratio: 2.5 / 1;
   /* Full-bleed at every width, by request. Deliberately no ceiling on either
      axis: a max-height squeezes the frame below its own ratio and `cover` pays
      for it in crop, and a max-width leaves page ground down the sides. The
@@ -1843,6 +1860,25 @@ body .booking-title {
   /* Squarer on a phone so the artwork has some height, at the cost of the
      sides — see the README note on why this banner needs a portrait variant. */
   .hero-slider { aspect-ratio: 4 / 3; }
+}
+/* 768px FLAT FROM 1280 UP, at the client's direction on 2026-08-18, and it
+   overrules the paragraph above it: a definite height wins over aspect-ratio,
+   so from this breakpoint the frame is viewport-width over 768 and the 2:1
+   declaration governs only the widths below.
+
+   The direction was taken with the cost measured — see HERO_FIXED_CROP in
+   content.js, which carries the per-edge loss at five widths and the test that
+   keeps it honest. Short version: 5.1% at 1440, 25% off the top of the
+   MOBILIFE artwork at 1920, against a 6% budget.
+
+   1280 AND NOT 1024, and that is the one number here that is mine rather than
+   the client's. The loss runs the wrong way as the window narrows — a 768px
+   box at 1024 wide is a 1.33:1 frame and takes 18% off each side, worse than
+   anything the wide end does. 1280 is where this site's desktop layout starts
+   and it is the narrowest width where the fixed height costs less than the
+   phone breakpoint already does. Below it the banner keeps its ratio. */
+@media (min-width: 1280px) {
+  .hero-slider { height: 768px; }
 }
 
 .hero-slide {
@@ -2216,17 +2252,34 @@ body .booking-title {
 @media (min-width: 1024px) {
   #hero { position: relative; }
 
-  /* A 2:1 frame is only 512px tall at this breakpoint, and the upright form is
-     about 475px — too close to call. The floor keeps the panel inside the
-     picture at every desktop width; the ratio still governs everywhere it is
-     the larger of the two, which is from roughly 1120px up. */
+  /* THE FLOOR, AND IT DOES MORE WORK SINCE THE FRAME WENT TO 2.5:1. A 2:1
+     frame was 512px tall at this breakpoint against an upright form of about
+     475 — too close to call. At 2.5 the same width gives 410, so between 1024
+     and 1279 this floor is what the hero's height actually is, not the ratio.
+
+     What that costs, since it is a crop like any other: the frame is
+     width/560 in that range, so a 2.5:1 banner loses 13.4% off each side at
+     1024 and 4.3% at 1279. It is not in HERO_FIXED_CROP because that table
+     describes the fixed 768 from 1280 up; this range has its own governor and
+     this is where it is written down.
+
+     From 1280 the fixed height takes over and 560 never binds again. */
   .hero-slider { min-height: 560px; }
 
   .booking-dock {
     position: absolute;
     z-index: 5;
     top: 50%;
-    transform: translateY(-50%);
+    /* -50% centres it on the picture; the extra 30px is the client's, on
+       2026-08-18 — the panel sits a little above the banner's middle rather
+       than on it. Written into the transform and not into `top`, because top
+       is a percentage of the hero and 30px of a percentage is a different
+       distance at every width; this is 30 pixels everywhere.
+
+       The room it moves into is real: the hero is a flat 768px from 1280 up as
+       of the same day, and the upright form is about 475, so there is roughly
+       145px of clearance above and below before the panel meets an edge. */
+    transform: translateY(calc(-50% - 30px));
     /* Aligned to the page grid's right edge, so the panel lines up with the
        content below it rather than floating at an arbitrary offset. The gutter
        is clamped at zero — below the container width there is none — and the
@@ -2866,6 +2919,13 @@ body .booking-title {
     justify-content: center;
   }
   .member-panel .member-title { margin-inline: auto; }
+  /* AND THE SENTENCE UNDER THE BUTTON, which is the third time this exact trap
+     has been walked into on this page. .member-actions centres its children
+     here, but .member-have sets `align-self: flex-start` for the desktop
+     layout — and align-self beats a parent's align-items, so the line sat hard
+     left under a centred button and a centred heading. Centring a column is
+     never one declaration on this panel. */
+  .member-panel .member-have { align-self: center; }
   /* The column takes the band; the PARAGRAPH must not. Freeing the column's
      max-width is what centres it, and it also let the lead run the full 720px
      at 768 — a line of Thai that long is a measure problem the centring
@@ -3105,52 +3165,77 @@ body .booking-title {
   align-items: flex-start;
   gap: var(--space-5);
 }
-/* A row from 640 up, AND ALLOWED TO STOP BEING ONE. Both halves of that matter
-   and the second was missing.
+/* THE ROW IS GONE. From 640 up this was `flex-direction: row` with wrap, so
+   the "already a member?" sentence sat beside the button and dropped under it
+   only when the measure got tight. Client direction, 2026-08-18: it is on its
+   own line, always. .member-actions is simply the column it already is below
+   640 at every width now.
 
-   The row was written when the copy column was a flat 32rem, which is 512px
-   and fits the button, a --space-8 gap and the "already a member?" line beside
-   it at 479. The measure tapers now, down to 17.5rem at 1024 — see
-   .member-copy for why — and a row that cannot wrap does not degrade, it
-   crushes: flex shrinks the two items instead, the button loses the width its
-   label needs, and "สมัครสมาชิกเลย" breaks across two lines inside a pill that
-   was drawn for one. That is what it was doing at 1024, and the pill's radius
-   is 999px precisely so that a two-line box still reads as a capsule — so it
-   looked like a design choice rather than an overflow.
+   WHAT THAT RETIRES, and it was the longest note in this block: the row could
+   not degrade, it crushed. The measure tapers to 17.5rem at 1024 — see
+   .member-copy — and flex shrank the two items instead of wrapping, so
+   "สมัครสมาชิกเลย" broke across two lines inside a pill drawn for one, and the
+   999px radius meant a two-line box still read as a capsule, so it looked like
+   a design choice rather than an overflow. `flex-wrap: wrap` was the fix and
+   `white-space: nowrap` on the label was its other half — that one stays,
+   because a flex item's automatic minimum size is its longest unbreakable run
+   and Thai gives the browser breaks almost anywhere.
 
-   flex-wrap puts the sentence under the button instead, which is the layout
-   this same block already uses below 640. nowrap on the label is the other
-   half: without it the button is still free to break its own text before the
-   row decides to wrap, since a flex item's automatic minimum size is its
-   longest unbreakable run, and Thai gives the browser breaks almost anywhere. */
-@media (min-width: 640px) {
-  .member-actions {
-    flex-direction: row;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--space-5) var(--space-8);
-  }
-}
+   It also frees the sentence's plate to hug its own text. In the row it needed
+   flex-basis: 100% to claim a line, and flex-basis wins over width in flex
+   layout — the white ran about 110px past the last glyph and read as a bar
+   rather than as a plate under a sentence. */
 .member-actions .btn-primary { white-space: nowrap; }
-/* Solid ink, not a muted tone. It sits beside the button and reads as the
-   second of two choices, which a wash would not — and on the orange ground
-   there is no muted tone available anyway: black at 78% falls to 4.01:1 there.
-   See the note in tokens.css. */
+/* THE SENTENCE, ON ITS OWN LINE, WITH AN ORANGE LINK AND NO PLATE.
+
+   Client direction, 2026-08-18, in four steps: cut the sentence and make the
+   link orange; put the sentence back on its own line; and — after seeing it —
+   drop the white plate the orange was standing on. This is the fourth step and
+   it is a decision taken against a measurement rather than around one.
+
+   ITS OWN LINE IS A DECLARATION, NOT A CONSEQUENCE. .member-actions was a row
+   from 640 up and this line sat in it beside the button, wrapping under only
+   when the measure got tight. The row is gone — see the note on
+   .member-actions — so this is on its own row at every width.
+
+   THE ORANGE IS WAIVED ABOVE 1280 AND REFUSED BELOW IT, and the two halves are
+   not the same decision.
+
+   Above 1280 the copy stands on the artwork. That picture is not one colour:
+   its lightest region behind this column would give orange 3.28:1 and its
+   darkest is itself an orange, where the same ink is 1.09:1. Which of those a
+   given glyph lands on is not something CSS decides — it is where the crop
+   happens to put the photograph at that width. So the number recorded in
+   WAIVED is the worst one, 1.09, and the honest description is "the link is
+   legible over part of this artwork and not over the rest". What keeps it
+   FINDABLE either way is the underline, which is not a contrast property and
+   is why it stays.
+
+   Below 1280 there is no picture at all — the panel is flat --sixt-orange, and
+   orange on orange is 1.00:1 with no lighter region anywhere to rescue it. A
+   waiver describes something a reader can struggle through; that is nothing on
+   the screen. The ink stays white there, which is the same exception
+   .band-orange .btn-outline:hover already makes on the same ground: the one
+   place the orange cannot follow.
+
+   The white plate that carried the orange for one revision is gone at the
+   client's direction. What it bought is on the record in case it comes back:
+   on white the link measured 3.28 at 19px/700 and was legal outright. */
 .member-have {
+  align-self: flex-start;
+  max-width: 100%;
+  margin: 0;
   font-size: 0.9375rem;
   color: var(--on-orange);
 }
 .member-have a {
-  color: var(--on-orange);
+  color: var(--sixt-orange);
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 3px;
   text-decoration-thickness: 1px;
-  transition: text-decoration-thickness var(--transition);
+  transition: text-decoration-thickness var(--transition), color var(--transition);
 }
-/* The hover thickens the underline instead of changing colour. Nothing in the
-   palette can recolour 15px type on this ground: white is 3.28:1 and fails,
-   both oranges vanish into it, and black is already what it is. */
 .member-have a:hover { text-decoration-thickness: 3px; }
 
 /* ── The membership panel in white ─────────────────────────────────────────
@@ -3185,6 +3270,12 @@ body .booking-title {
   .member-panel .member-have a {
     color: var(--white);
   }
+  /* THE LINK GOES BACK TO WHITE HERE, and it is the one place on this panel
+     the client's orange cannot follow. Below 1280 the ground is flat
+     --sixt-orange: orange on orange is 1.00:1 and there is no lighter part of
+     it to land on, because there is no photograph — the link would not be
+     dim, it would be absent. Above 1280 it is orange on the artwork and
+     waived; see .member-have. */
   /* The white button, on the promotions CTA's model as asked. Its own label is
      black on white at 17.4:1 — the only thing on this panel that gained
      contrast — and the fill against the orange is 3.28:1, which is the 1.4.11
@@ -3247,11 +3338,11 @@ body .booking-title {
 
 @media (min-width: 1280px) {
   .member-panel .member-title,
-  .member-panel .member-body .lead,
-  .member-panel .member-have,
-  .member-panel .member-have a {
+  .member-panel .member-body .lead {
     color: var(--sixt-black);
   }
+  /* .member-have is excluded on purpose: its lead-in takes --on-orange from
+     its own rule and its link is the client's orange. */
   /* ORANGE FILL, WHITE LABEL, at the client's direction on 2026-08-17.
      .band-orange makes .btn-primary black-on-orange, which was right when the
      band was orange and is only inertia now that it is a photograph — so this
@@ -3443,18 +3534,17 @@ body .booking-title {
    the separation. The services band is the other place on this page that
    breaks the rhythm deliberately, and for the same kind of reason. */
 .closing {
-  /* No .section-y on this section, and no top padding of its own either: it
-     opens with a full-bleed picture and the picture starts at the section's
-     first pixel.
+  /* THE PADDING IS BACK, and the picture going is why. This was 0 because the
+     section opened with a full-bleed image that started at its section's first
+     pixel; with the image gone, zero would put the contact card hard against
+     the FAQ band above it.
 
-     There was a 112px band of black here for one revision, put in so the FAQ's
-     car had a black floor to land on. It went because the car does not need a
-     floor — it needs a section to cross into, and a strip of black between two
-     pictures is a gap dressed up as a design. The wheels land on the key visual
-     itself now, which is what "overlapping the section below" actually means.
-     The car is a cutout with its own shadow, so it reads on the artwork's sky
-     the same way it reads on the band above. */
-  padding-top: 0;
+     NOT because of the car. The FAQ's car used to hang down into this section
+     and the 112px band of black that once sat here was put in to give it a
+     floor; both are gone — the overhang was withdrawn the same day, so this
+     padding is doing one job only, which is the space above the contact card.
+     --space-12 is what that space measures. */
+  padding-top: var(--space-12);
   /* Zero, and the stats card is why. It hangs 4rem past the bottom of this
      section into the footer, and any padding here would be black added between
      the card and a join it is supposed to be sitting on. The separation the
@@ -3479,47 +3569,30 @@ body .booking-title {
   background: var(--sixt-black);
 }
 
-/* The key visual, full bleed. It sits outside .container-x so it runs edge to
-   edge, and it replaced a heading, a paragraph and a chauffeur photograph that
-   between them said what the artwork already says in the brand's own type.
+/* THE KEY VISUAL AND EVERYTHING THAT DRESSED IT ARE GONE, in two steps on
+   2026-08-18 and both at the client's direction: first the orange wash over
+   its foot, then the picture itself. .closing-hero, .closing-hero img and
+   .closing-glow were the three rules; assets/img/closing-hero.webp is
+   unreferenced and stays in the tree with the other retired artwork.
 
-   No aspect-ratio, no object-fit, no frame. The lockup, the country line and
-   the two-line tagline are printed into this picture, so any crop takes words
-   off it that exist nowhere else on the page. It keeps its own 2:1 at every
-   width and the layout works around it — the same rule .promo-art carries.
+   FOUR MEASUREMENTS DIE WITH IT, and they are written down here rather than
+   lost with the rules, because every one of them cost a session to find and
+   any picture put back in this slot has to answer the same questions:
 
-   .closing-lede and .closing-media were the two classes the removed half used.
-   They are gone rather than left unmatched; the --space-10 fault written up in
-   the last revision of this block went out with them, since the grid it broke
-   no longer exists. */
-.closing-hero {
-  display: block;
-  margin: 0;
-}
-.closing-hero img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-/* THE BRAND WASH THAT USED TO LIE OVER THE FOOT OF THIS ARTWORK IS GONE, at
-   the client's direction on 2026-08-18. .closing-glow was an empty span at
-   inset 0 carrying an orange gradient at mix-blend-mode: multiply, fading out
-   by 40% of the frame's height, and .closing-hero's `position: relative` and
-   `overflow: hidden` existed only to hold and clip it. All four are removed
-   together; the artwork now ships exactly as exported.
-
-   Two measurements are worth keeping, because they are what a replacement
-   would have to respect and neither is recoverable from the picture:
-
-     — 40%, not higher. The tagline printed into the artwork — DRIVE YOUR /
-       JOURNEY / OWN YOUR / EXPERIENCE — ends about 41% up from the bottom
-       edge, and EXPERIENCE is set in the same brand orange any wash here would
-       be made of. Past 40% the gradient starts subtracting from the one piece
-       of type on this page that cannot be restyled, only re-exported.
-     — multiply, not a flat alpha overlay. The lower third is a pale grey plaza
-       and a bright river; a plain wash over that comes out chalky, and
-       multiply puts the colour into the stone rather than in front of it. */
+     — the artwork was never cropped. Its lockup, country line and two-line
+       tagline are printed into the file, so it carried no aspect-ratio and no
+       object-fit and set its own height from its own 2:1 at every width. A
+       frame here is a crop, and a crop takes a headline off a picture that has
+       no other copy of it.
+     — the wash stopped at 40% of the frame's height. The tagline ends about
+       41% up and EXPERIENCE is set in the same brand orange any wash would be
+       made of.
+     — the wash was multiply, not a flat alpha. The lower third is pale stone
+       and a bright river, and a plain overlay turns both chalky.
+     — the contact card straddled the join with a fixed -4rem, which at 390
+       took 34% of the picture — the whole of its cars. That is why the top
+       margin became -5vw, and why it is now zero: there is nothing above the
+       card left to straddle. */
 
 /* The figures, in a white card on the black. Same --radius-lg and the same
    --shadow-rest every other surface on this page takes; on black the shadow
@@ -3551,7 +3624,7 @@ body .booking-title {
 .closing-contact {
   display: grid;
   gap: var(--space-6);
-  margin: -4rem 0;
+  margin: 0 0 -4rem;
   position: relative;
   z-index: 1;
   /* --space-5 top and bottom, down from --space-8. The card was 208px at 1440
@@ -3575,27 +3648,17 @@ body .booking-title {
   box-shadow: var(--shadow-rest);
   text-align: center;
 }
-/* THE OVERLAP HAS TO SHRINK WITH THE PICTURE, and on a phone the fixed 4rem
-   above did not. Client, 2026-08-18: the card was covering the artwork until
-   you could not see it.
+/* THE TOP OVERLAP IS GONE, because what it overlapped is gone. This was -4rem,
+   then -5vw below 768 on 2026-08-18 when the fixed value turned out to be
+   eating 34% of the artwork on a phone — and later the same day the artwork
+   itself was removed, which settles the question rather than tuning it.
 
-   The arithmetic, because "4rem" hides it: the artwork holds its own 2:1 at
-   every width, so its height is half the viewport — 188px at 390. A fixed 64px
-   bite out of that is 34% of the picture, and it is the bottom 34%, which is
-   where the cars and the plaza are. The tagline printed into the artwork
-   survives (it ends about 41% up, per the wash note above) so nothing looks
-   broken; the picture simply loses its subject and reads as a strip of sky.
-   At 1440 the same 64px is 9% and takes nothing, which is why this sat here
-   unnoticed — the fault is only visible at the widths the card is tallest.
-
-   5vw is 10% of the artwork's height at every width, by construction, since
-   the artwork is 50vw tall. The card still straddles the join, which is the
-   shape this section was designed around, and it now straddles by a tenth of
-   the picture instead of a third. The bottom -4rem is untouched: it hangs into
-   the footer's black, where there is nothing to cover. */
-@media (max-width: 767px) {
-  .closing-contact { margin-top: -5vw; }
-}
+   `margin: -4rem 0` became `margin: 0 0 -4rem`. The card still straddles, and
+   the straddle is still the shape this section is built around: it hangs 4rem
+   into the footer's black, which is the join that is left. A negative top
+   margin now would pull the card up into the FAQ's tint band, over a car that
+   is already hanging down into this section — two things crossing the same
+   join in opposite directions. */
 @media (min-width: 768px) {
   /* hotline + social packed together on the left, QR alone on the right.
 
@@ -3885,29 +3948,32 @@ body .booking-title {
   width: 100%;
   height: auto;
 }
-/* The overhang, and it belongs to this breakpoint alone.
+/* THE OVERHANG IS GONE, at the client's direction on 2026-08-18: the car stays
+   inside its own section. It was a negative bottom margin at 1024 and up —
+   `calc(-1 * (var(--space-18) + 4rem))`, the section's own bottom padding plus
+   4rem, so that the token paid for clearing the padding and the 4rem was the
+   part that actually crossed the join.
 
-   --space-18 is the section's own bottom padding, so that much of the negative
-   margin only pays for clearing it and the 4rem on top is what actually
-   crosses onto the key visual below. Written as the token plus a number so
-   that changing .section-y's padding does not silently change how far the car
-   hangs.
+   Three things went with it, and they are the reason this is a note and not a
+   silent deletion:
 
-   Below 1024 there are no columns: the aside is simply the first thing in the
-   section and the questions follow it, so there is nothing underneath the car
-   to hang past. The margin was unscoped for one revision and what it did at
-   390px was pull the questions up 112px — the first card sat 64px over the
-   car's roof. An overhang needs an edge to go over.
+     — the reason #faq is `position: relative; z-index: 2`. That existed so the
+       car could paint over #closing, which is a later sibling with a z-index
+       of its own. The rule is KEPT: #closing still straddles into the footer,
+       so the three sections at the foot of this page still have to be ordered,
+       and FAQ over closing over footer is still the order. Nothing crosses
+       from the FAQ end of it any more, which is the only part that changed.
+     — the reason .closing had `padding-top: 0`. The car needed a section to
+       land in; with nothing crossing, that padding is now about the contact
+       card's own spacing and says so at its own rule.
+     — the scoping trap, worth keeping because it will come back if an overhang
+       ever does: this margin has to be declared AFTER the base `.faq-media
+       { margin: 0 }`. It was written before it for one revision and did
+       nothing at all — a shorthand later in the file wins at equal specificity,
+       so the base rule was quietly resetting what the media query had just
+       set. Same declaration, same breakpoint, twenty lines apart, and the
+       difference was whether the car moved. */
 
-   It sits here, after the base rule, and not up in the layout block with the
-   rest of the 1024 rules. It was there first and did nothing: `margin: 0`
-   above is a shorthand, it comes later in the file, and at equal specificity
-   later wins — so the base rule was quietly resetting the overhang the media
-   query had just set. Same declaration, same breakpoint, twenty lines further
-   down, and the difference is whether the car moves at all. */
-@media (min-width: 1024px) {
-  .faq-media { margin-bottom: calc(-1 * (var(--space-18) + 4rem)); }
-}
 /* Cards need a gap; hairline rows needed none, because the rule was the join.
    --space-3 rather than --space-4: the cards already carry a shadow each, and
    at 16px the four of them stop reading as one list. */
@@ -4264,6 +4330,14 @@ body .booking-title {
    somewhere other than the window's edges too. The two dark panels agreeing on
    a width was worth less than that. */
 #services {
+  /* THE 40px SEPARATION IS PAID BY #fleet, NOT BY A MARGIN HERE, and the
+     screenshot that arrived is why. A margin on this band exposes the PAGE's
+     ground between the two sections — and the page is white while #fleet is a
+     warm tint, so 40px of margin read as a white notch cut between the two
+     rather than as air. "แหว่ง", in the client's word.
+
+     Extra bottom padding on #fleet gives the same 40px, in that section's own
+     colour, with nothing showing through. See its rule further down. */
   /* Down from clamp(3.5rem, 6vw, 7rem) — 86px top and bottom at 1440, now 65.
      This is the answer to "the service section looks too spread out" of
      2026-08-17, and it took two attempts to find: the first was to shrink the
@@ -4386,353 +4460,132 @@ body .booking-title {
    to text and to UI boundaries, and it was neither. Nothing in
    check-contrast.js changes by its going. */
 
+/* ── Three cards, one each ────────────────────────────────────────────────
+   Client direction, 2026-08-18: "แยกเป็น card 3 การ์ด แยกเป็นคนละการ์ดใครการ์ดมัน".
+
+   WHAT THIS REPLACED, because it was a lot of machinery and none of it is
+   coming back by accident: one banner holding one photograph behind three
+   columns — .svc-bg with the three images stacked and crossfading, .svc-scrim
+   at a flat 0.62 over all of it, and an activation model in ui.js answering
+   pointerenter, focusin and click so that hovering a column swapped the
+   picture, turned that column's title orange, faded the other two and painted
+   an orange wash up from the foot.
+
+   THE ARRANGEMENT IT LANDS ON WAS ALREADY WRITTEN. Below 768 this section had
+   been three separate dark cards since 17 August, each with its own picture,
+   because "each box should have its own picture" was the client's answer to a
+   phone having no pointer to hover with. That layout is now what the section
+   is at every width — the media query that held it is gone, not duplicated,
+   and the desktop simply adopts it in three columns.
+
+   THAT IS WHY THIS COSTS NO NEW CONTRAST WORK AND RETIRES SOME. The copy is on
+   flat --black-true, where white is 21:1 and needs no scrim to be safe, and the
+   scrim was the ground every pair in this section was derived against. Gone
+   with it: the hover wash and its two caption ends, the dimmed-title pair, and
+   the WAIVED failure at 1.49:1 — an active title in orange over the scrim,
+   shipped on a client decision on 17 August. That one is not waived now; it
+   does not exist. The titles are white on black.
+
+   The pictures keep 16:9. These three files are 1360x380, cut for a wide strip,
+   and a 3.58:1 crop in a card this width is a letterbox rather than a
+   photograph; 16:9 takes the loss off the sides, where these compositions have
+   the most room. Measured when the phone cards were built and unchanged here. */
 .svc-banner {
+  display: grid;
+  gap: var(--space-6);
+}
+@media (min-width: 768px) {
+  .svc-banner { grid-template-columns: repeat(3, 1fr); }
+}
+/* The renderer still nests the three columns in a .svc-cols wrapper. `display:
+   contents` lifts them onto the grid above rather than making the wrapper a
+   grid of its own — one less box to keep in step, and it is what the phone
+   layout already did. */
+.svc-cols { display: contents; }
+
+.svc-col {
+  /* Positioned for the whole-card overlay at the foot of this block. */
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: 0 0 var(--space-6);
+  background: var(--black-true);
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-rest);
+  transition: transform var(--transition-move), box-shadow var(--transition);
+}
+/* :focus-within as well as :hover, on the rule the whole page follows — the
+   card's only focusable child is the CTA, and a keyboard reaching it should
+   get the same state a pointer does. */
+.svc-col:hover,
+.svc-col:focus-within {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lift);
 }
 
-/* The pictures, stacked. All three are laid on top of each other and only one
-   is opaque; switching column crossfades between them. They are absolutely
-   positioned so the banner's height comes from the columns' content and not
-   from whichever photograph happens to be tallest. */
-.svc-bg {
-  position: absolute;
-  inset: 0;
+.svc-col__media {
+  display: block;
+  margin: 0 0 var(--space-2);
+  overflow: hidden;
 }
-/* Brightened on the PICTURE, and this is the one lever that is free.
-   The banner read too dark and the obvious move — lightening the scrim — is
-   ruled out by a number the project already has: at 0.55 alpha white copy fails
-   4.5:1, which is why C.serviceScrimThin sits in the FORBIDDEN list. The scrim
-   cannot give.
-
-   A filter on the photograph can. It cannot push a pixel past white, so the
-   worst ground it can produce is white — which is exactly the ground every pair
-   in this section was already composited against. The picture gets visibly
-   brighter and not one measured number moves. The bento's own note said this
-   about its hover lift; the difference here is that the lift is permanent
-   rather than a state, so it is the resting picture that got brighter.
-
-   1.14 and 1.06 are that hover's values, kept rather than re-picked: they were
-   arrived at on these same three photographs. */
-.svc-bg__img {
-  position: absolute;
-  inset: 0;
+.svc-col__media img {
+  display: block;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
-  filter: brightness(1.14) saturate(1.06);
-  opacity: 0;
-  /* --dur-layout, not a number: tokens.css takes it to 1ms under
-     prefers-reduced-motion, so the crossfade becomes a cut without a second
-     rule here to disagree with it. */
-  transition: opacity var(--dur-layout) var(--ease-out);
+  transition: transform var(--transition-move);
 }
-.svc-bg__img.is-active { opacity: 1; }
+.svc-col:hover .svc-col__media img { transform: scale(1.04); }
 
-/* ACCESSIBILITY CONTRACT — do not weaken.
-   Flat black at 0.62 across the whole banner, which is C.serviceScrim in
-   check-contrast.js: black at 62% composited over WHITE, because white is the
-   lightest pixel any photograph can hold and the words have to survive the
-   worst case rather than the average one. Every white string in this section
-   is measured against it.
+/* Everything that is not the picture keeps the card's padding; the picture
+   runs full-bleed to the card's own corners. */
+.svc-col__head,
+.svc-col__body { padding-inline: var(--space-6); }
 
-   Flat, not a gradient. A gradient means the ground under a word depends on
-   where the word sits, which means every string has to be re-measured whenever
-   the copy or the layout moves. One number holds for all of them.
-
-   It does not lift on hover any more. The bento's scrim went to 0.45 when a
-   tile was pointed at, and that was safe only because it had been measured to
-   4.97:1 at the tightest point — half a point of margin. There is no reason to
-   spend that margin here: the active state is already carried by the picture
-   changing and the copy arriving, so the ground can simply stay where it is
-   safest. */
-.svc-scrim {
-  position: absolute;
-  inset: 0;
-  background: rgba(26, 26, 26, 0.62);
-  pointer-events: none;
+/* Solid white, at every card, always. It used to be white at rest and orange
+   on the active card, and the orange is what carried the 1.49:1 waiver — on
+   this ground white is 21:1 and there is no state to be in. */
+.svc-col__title {
+  margin: 0;
+  font-size: clamp(1.25rem, 1.6vw, 1.5rem);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--white);
 }
 
-.svc-cols {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: 1fr;
-}
-@media (min-width: 768px) {
-  /* minmax(0, 1fr) rather than 1fr: a grid track's default minimum is auto, so
-     one long unbroken title would push its column wider than its third and
-     take the other two with it. The reference's columns are equal at every
-     state and this is what holds that. */
-  .svc-cols { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-
-/* Copy at the top, title and CTA at the foot, and the picture in between. The
-   space-between is doing the composition — the two blocks are pushed to the
-   two ends and whatever the photograph needs is what is left over.
-
-   min-height is a client number now: 500px, asked for directly on 2026-08-17
-   ("the service box, make it about 500 tall"). It reads through this clamp as
-   the cap, reached at 1429 and held above it.
-
-   IT WENT DOWN FIRST, IN THE SAME SESSION, AND THAT IS NOT A CONTRADICTION —
-   the two directions were about different space. The one before this was "the
-   service section looks too spread out", which was answered at 21vw, near 302,
-   and the answer was wrong: the room is not what was spread out. It is the
-   band around the banner. So the height came back up past where it started and
-   the section's own padding came down instead, on #services above — the box is
-   bigger and the section it sits in is 43px shorter.
-
-   What that costs, stated rather than discovered later: space-between opens the
-   whole surplus between the title and the copy. At 1440 the content is 246px —
-   64 of padding, a 43px title, a 139px body — so a 500px column carries a
-   254px void between its two blocks. That is more than the 244 the very first
-   version had, and the note that version left behind called it "the text is
-   placed at random". The difference is what fills it: the banner is one
-   photograph now rather than three tiles, and a tall column is what lets it be
-   seen. If it ever reads as a hole again, the lever is this number and the
-   history is here — 32rem, 26vw, 21vw, 500px.
-
-   The floor and the taper below the cap are ours, not the client's: 20rem
-   holds the shape at 768 where three columns are only 256 wide, and 35vw is
-   what carries it from there to 500 without a step. */
-.svc-col {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: var(--space-8);
-  padding: var(--space-6);
-  min-height: 20rem;
-}
-@media (min-width: 768px) {
-  .svc-col { min-height: clamp(20rem, 35vw, 31.25rem); padding: var(--space-8); }
-}
-
-/* The head holds the title and nothing else. It is the first child, so the
-   three titles line up across the banner because they all start at the column's
-   top edge — no longer because a pill below them happens to be the same height,
-   which is what the previous arrangement was leaning on. */
-/* Hidden above 768: up there the photograph is the banner's shared layer and a
-   second copy inside the column would sit on top of the words. It is display
-   rather than visibility so it leaves the accessibility tree as well as the
-   layout — a decorative duplicate should not be reachable at the widths where
-   it is not drawn. */
-.svc-col__media { display: none; }
-
-.svc-col__head {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-/* The detail, at the foot, with its button. --space-5 between the two: they are
-   one block, and the larger step is the one space-between puts between this
-   block and the title at the other end of the column. */
 .svc-col__body {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: var(--space-5);
+  flex: 1 1 auto;
 }
-
-/* The hairlines, on the second and third columns only — a border on all three
-   would draw one down the banner's own left edge. rgba white rather than a
-   grey token, for the same reason the footer's tiers use it: it has to sit on
-   a photograph and stay a seam rather than becoming a rule. */
-@media (min-width: 768px) {
-  .svc-col + .svc-col { border-inline-start: 1px solid rgba(255, 255, 255, 0.18); }
-}
-
-/* The copy, and the CTA with it. Both arrive when the column becomes active.
-
-   opacity and pointer-events, NOT visibility or display, and the distinction
-   is what makes this reachable by keyboard. The CTA inside here is the only
-   real link in the column; a visibility:hidden or display:none parent would
-   take it out of the tab order entirely, nothing in the column could then
-   receive focus, and :focus-within — the thing that reveals this in the first
-   place — could never fire. A deadlock that looks like a working hover.
-
-   pointer-events: none is the other half of it. An element at opacity 0 is
-   still hit-testable, so without this a tap on a phone-sized touch on a wide
-   screen could follow a link the person could not see. Pointer-events does not
-   affect focusability, so the keyboard keeps its route in and the pointer
-   cannot reach what it cannot see. */
-.svc-col__body {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--dur-layout) var(--ease-out);
-}
-.svc-col.is-active .svc-col__body {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* A black wash rising under the active column's foot, so the detail copy is
-   read off a darker ground than the photograph gives it. Client direction,
-   17 August 2026: "on hover, bring a bit of black up so the detail text is
-   easy to read."
-
-   THE SCRIM ITSELF IS NOT TOUCHED, and that is deliberate — its own comment
-   above says it does not lift on hover and the reason still holds. This is the
-   opposite direction anyway: the scrim can only be weakened by lifting it, and
-   what is wanted here is more black, not less. Adding it per column, under the
-   words, costs the section nothing and every measured pair in it improves:
-   white goes from 4.88 to 10.21 at the foot, against a bar of 4.5.
-
-   z-index: -1, AND IT IS THE WHOLE OF WHY THIS IS A PSEUDO-ELEMENT AND NOT AN
-   OVERLAY. .svc-cols is position: relative with z-index: 1, so it is a
-   stacking context; .svc-col is positioned but z-index: auto, so it is not.
-   A -1 layer therefore paints inside .svc-cols — above the scrim, which is a
-   sibling below it — and below every column's in-flow text. At z-index 0 or
-   auto it would paint above that text instead and hide the copy it is there
-   to help.
-
-   It could not be an overlay wrapped around the copy either: .svc-col__body
-   must not become a containing block, because .svc-col__cta::before is
-   absolutely positioned and has to resolve against .svc-col to cover the whole
-   column. See the note on that rule — this is the second time the same
-   constraint has decided the shape of a change here.
-
-   The stops answer the layout. space-between puts the copy in the bottom third
-   — 171px of a 500px column at 1440, padding included — so the wash is at full
-   strength through 45% and gone by 82%, which leaves it clear of the title
-   entirely.
-
-   WHICH MEANS THIS DOES NOT RESCUE THE ORANGE TITLE. Its waiver is measured at
-   the top of the column where this is fully transparent, so 1.49 is still
-   1.49. It is worth knowing that it COULD: orange over 0.55 of black over the
-   scrim is 3.11 and clears the 3.0 bar — the wash would have to run the full
-   height of the column at that strength, which is a much darker banner than
-   "a bit of black at the foot". The pair is measured in check-contrast.js so
-   the option is costed rather than rediscovered. */
-.svc-col::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0;
-  background: linear-gradient(to top,
-                rgba(26, 26, 26, 0.55) 0 45%,
-                rgba(26, 26, 26, 0) 82%);
-  transition: opacity var(--dur-layout) var(--ease-out);
-}
-.svc-col.is-active::before { opacity: 1; }
-
-/* Solid white, and white-space: pre-line so the line breaks written into
-   content.js are honoured while everything else collapses — the author decides
-   where a line turns and a narrow column can still wrap past it.
-
-   --on-dark-muted is not available here. It is white at 78%, which holds on
-   solid black and composites to 3.59:1 against the lightest ground this scrim
-   can leave. The same arithmetic that keeps the promotions detail copy solid. */
 .svc-col__text {
   white-space: pre-line;
   font-size: 0.9375rem;
   font-weight: 300;
   line-height: 1.7;
   color: var(--white);
-  max-width: 24rem;
-  margin: 0 0 var(--space-5);
-}
-
-/* All three titles are solid white, and the active one is orange. Client
-   direction, 17 August 2026: "the heading in each box should be white, and
-   turn orange on hover."
-
-   THE OPACITY FADE IS GONE, AND THAT IS AN ACCESSIBILITY GAIN. What stood here
-   was an inactive title at white 0.2 over this scrim — 1.47:1 against a bar of
-   4.5, illegible, and carried in check-contrast.js under WAIVED as a shipped
-   failure. Two of the three titles were in that state at any moment. White is
-   4.88:1 on the same ground and simply passes, so that waiver is retired
-   rather than moved.
-
-   THE ORANGE IS A NEW ONE, AND SMALLER. --sixt-orange on the scrim's worst
-   ground is 1.49:1 against a bar of 3.0 for large text. Two things bound what
-   that costs, and neither applied to the state it replaces:
-
-     — it is one column of three, not two of three, and it is the column the
-       pointer or the keyboard is already on. Nobody is trying to read a title
-       they are not pointing at, and every other title is at 4.88.
-     — 1.49 is the worst case and the worst case is a white pixel. The scrim's
-       ground is a photograph; 1.49 is orange over 62% black over WHITE, which
-       is what these three pictures hold in their brightest strip. Over their
-       dark half the same orange is 6.40.
-
-   Put to the client with the number. It is in check-contrast.js under WAIVED
-   with the date, and the FORBIDDEN entry below it is what stops the obvious
-   "fix" — lightening the scrim — from being tried, since that moves the white
-   titles too and they are the 4.88 this arrangement is built on.
-
-   color AND opacity, because a third direction the same afternoon put a fade
-   back on the two titles that are not being pointed at — see the rule under
-   this one, which is where the dimming and its number live now. */
-.svc-col__title {
   margin: 0;
-  font-size: clamp(1.375rem, 2.2vw, 2rem);
-  line-height: 1.25;
-  letter-spacing: -0.01em;
-  color: var(--white);
-  transition: color var(--dur-layout) var(--ease-out),
-              opacity var(--dur-layout) var(--ease-out);
-}
-.svc-col.is-active .svc-col__title { color: var(--sixt-orange); }
-
-/* The other two fade WHILE THE POINTER IS ON THE BANNER, and only then.
-   Client direction, 17 August 2026: "when a service is hovered, the ones that
-   are not should go fainter."
-
-   0.65, AND THE NUMBER IS THE WHOLE POINT. This is the reference's dimming
-   coming back, and the first time it came back it was 0.2 — 1.47:1, illegible,
-   and it spent a session in WAIVED. White over this scrim at 0.65 composites
-   to rgb(205) on rgb(113) and measures 3.07:1, which passes: the title is
-   31.68px at 700 at 1440 and clamps no lower than 22px, and bold above 18.66px
-   is large text, whose bar is 3.0. 0.62 is 2.95 and fails. So 0.65 is not a
-   taste value, it is the floor with two points of margin on it, and anything
-   fainter is a waiver rather than a tweak.
-
-   :hover on the CONTAINER and not on the column, which is what makes this a
-   hover state rather than a resting one. .is-active is set by script and never
-   cleared — something is always active so the banner never shows three dim
-   columns — so `:not(.is-active)` alone would have dimmed two titles
-   permanently, which is the state that was just taken off this page. Gating it
-   on .svc-cols:hover means the pointer leaving restores all three to solid
-   white with no second listener to write.
-
-   :focus-within is the keyboard's half of the same rule, and it has to be
-   spelled out separately: a selector list is invalid in full if any part of it
-   is unsupported, so these cannot be folded into one :is(). Tabbing into a
-   column dims its neighbours exactly as pointing at it does.
-
-   Not below 768. Everything is expanded down there and there is no pointer to
-   answer — see the block at the foot of this section. */
-@media (min-width: 768px) {
-  .svc-cols:hover .svc-col:not(.is-active) .svc-col__title { opacity: 0.65; }
-  .svc-cols:focus-within .svc-col:not(.is-active) .svc-col__title { opacity: 0.65; }
+  /* Takes the slack so the three CTAs sit on one line however unevenly the
+     copy breaks. The max-width the banner version carried is gone: a card is
+     already about 24rem at the widths this runs at, and a second cap inside it
+     only left the last line short of its own box. */
+  flex: 1 1 auto;
 }
 
-/* The whole column is the target, and the CTA is what carries the link: an
-   overlay stretched from the button out to the column's edges means a pointer
-   anywhere in the column follows the same destination the button does, with no
-   second link to the same place. The news list settled on that for the reason.
+/* THE WHOLE CARD IS THE TARGET, and the overlay is a ::before on the CTA rather
+   than on the card, which is the bug this replaced in its previous life:
+   ::after on these buttons is already the trailing arrow, so an overlay written
+   there did not sit beside the arrow, it WAS the arrow — the glyph kept its
+   mask and its 1.125em box and got `position: absolute; inset: 0` on top,
+   which pinned it to the card's top-left corner. One pseudo-element cannot
+   hold two jobs.
 
-   ::before, and NOT ::after, which is the bug this replaced. ::after on these
-   buttons is already the trailing arrow — every CTA on the page grew one — so
-   an overlay written there did not sit beside the arrow, it *was* the arrow:
-   the glyph kept its mask and its 1.125em box and got `position: absolute;
-   inset: 0` on top, which pinned it to the pill's top-left corner. The arrow
-   appeared to jump in front of the label. One pseudo-element cannot hold two
-   jobs, and the symptom looked like a text-direction problem rather than a
-   collision.
-
-   position: static on the button is the other half. The overlay has to resolve
-   against .svc-col, not against the button, so the button must not be a
-   containing block. Kept as a guard rather than deleted: .btn-outline used to
-   set position: relative for its travelling light, and any button class that
-   picks that up again would silently break this overlay. */
+   position: static on the button is the other half: the overlay has to resolve
+   against .svc-col, so the button must not be a containing block of its own. */
 .svc-col__cta { position: static; }
 .svc-col__cta::before {
   content: '';
@@ -4741,129 +4594,16 @@ body .booking-title {
   z-index: 1;
 }
 
-/* Below 768 every column is active and nothing is dimmed or hidden.
+/* THE 40px BETWEEN THE FLEET SECTION AND THE SERVICES BAND, at the client's
+   direction on 2026-08-18 — asked for as 20, then 40 on seeing it, then moved
+   here from a margin on #services when the first version showed the page's
+   white through the gap.
 
-   There is no hover on a touch screen, so a pattern whose only affordance is
-   hover has no affordance at all down here — and three stacked columns showing
-   one title each, two of them at 20% opacity, is a section that appears broken
-   rather than interactive. Stacked, they are simply three services with their
-   copy, which is what they were before this layout arrived.
-
-   This is also what removes the touch hazard the pointer-events note above
-   describes at its root: at the width where taps are the only input, there is
-   nothing invisible to tap. */
-@media (max-width: 767px) {
-  /* The picture becomes a strip above the columns instead of a ground behind
-     them, and it has to.
-
-     These three photographs are 1360x380 — a 3.58:1 banner strip, cut to the
-     shape this section is at 1440, where cover keeps 100% of their width. Down
-     here the columns stack, so the box behind them is 391x812, which is 0.48:1
-     — and cover against that keeps 13.5% of the picture. A vertical sliver of a
-     sunset. Measured, not guessed: 100% of the width at 1440, 58.4% at 768,
-     13.5% at 390.
-
-     So below 768 .svc-bg leaves the absolute layer, takes its own ratio, and
-     sits at the top of the banner with the columns in flow underneath it.
-
-     The scrim does NOT change. It still covers the whole banner at inset 0, so
-     the copy underneath keeps the exact ground every pair in this section was
-     measured against — the strip is simply darkened along with it, which is what
-     it is at every other width anyway. Giving the columns their own ground here
-     would have meant a new pair to derive for the sake of a breakpoint. */
-  .svc-banner { display: flex; flex-direction: column; }
-  .svc-bg {
-    position: relative;
-    inset: auto;
-    aspect-ratio: 1360 / 380;
-    flex: none;
-  }
-  /* And the parallax comes off it here. The whole effect depends on the picture
-     having slack inside a frame to travel through; in flow with its own ratio
-     there is no frame and no slack, so scale(1.14) simply made the strip 14%
-     bigger than its own box. Measured: the strip's top sat 5px above the
-     banner's and its bottom ran 8px under the first column. Clipped and
-     invisible, but the layout was wrong underneath.
-
-     Neutralised rather than unhooked. ui.js keeps writing --par-y to the node
-     and this ignores it, which is one declaration in the place the breakpoint
-     already is, against a per-breakpoint teardown in the script. */
-  .svc-bg.parallax-zoom { transform: none; }
-
-  /* THREE CARDS, EACH WITH ITS OWN PICTURE, AND NO HOVER STATE AT ALL.
-     Client direction, 2026-08-17: "on mobile make it a box each, a picture
-     each, and no hover."
-
-     What this replaces is the banner laid on its side: one shared photograph
-     as a strip at the top, three text blocks under it divided by hairlines.
-     That arrangement is honest about what it is above 768 — one picture that
-     CHANGES as the pointer moves between columns — and it is indefensible
-     without a pointer, because two of the three services then have no picture
-     at all and the one at the top appears to belong to the first.
-
-     So the shared layer goes and each column carries its own image, rendered by
-     ui.js and hidden everywhere but here.
-
-     The scrim goes with it, and that is the part with a number attached. Every
-     white pair in this section is measured against C.serviceScrim — black at
-     62% over the worst pixel a photograph can hold — because the words sit ON
-     the picture. Down here they do not: the picture is above the words and the
-     words are on flat --black-true, which is 21:1 for white and needs no scrim
-     to be safe. Removing it here removes nothing that was protecting anything.
-
-     No hover, no active state, no crossfade. The script still toggles
-     .is-active on tap and every rule that reads it is cancelled below. */
-  .svc-bg, .svc-scrim { display: none; }
-  .svc-banner {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-    border-radius: 0;
-    overflow: visible;
-    box-shadow: none;
-  }
-  .svc-cols { display: contents; }
-
-  .svc-col {
-    justify-content: flex-start;
-    gap: var(--space-5);
-    min-height: 0;
-    padding: 0 0 var(--space-6);
-    background: var(--black-true);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    box-shadow: var(--shadow-rest);
-  }
-  /* No hairline between them any more — they are separate boxes with a gap, and
-     a divider inside a card that already has an edge is one edge too many. */
-  .svc-col + .svc-col { border-inline-start: 0; border-top: 0; }
-
-  /* The picture, full-bleed to the card's own corners. 16:9 rather than the
-     3.58:1 the banner uses: these files are cut for a wide strip, and at 358px
-     a 3.58 crop is 100px tall, which is a letterbox rather than a photograph.
-     16:9 gives it 201 and takes the loss off the sides, where these three
-     compositions have the most room. */
-  .svc-col__media {
-    display: block;
-    margin: 0 0 var(--space-2);
-  }
-  .svc-col__media img {
-    display: block;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-  }
-  /* Everything that is not the picture keeps the card's padding. */
-  .svc-col__head,
-  .svc-col__body { padding-inline: var(--space-6); }
-
-  /* Every trace of the pointer states, cancelled in one place rather than
-     three. The copy is always visible, the title is always white, and the foot
-     wash never paints. */
-  .svc-col__body { opacity: 1; pointer-events: auto; }
-  .svc-col.is-active::before { opacity: 0; }
-  .svc-col.is-active .svc-col__title { color: var(--white); }
-}
+   It is padding on this section rather than a margin on either, because the
+   two grounds meet directly: #fleet is a warm tint, #services is a full-bleed
+   dark band, and anything BETWEEN them shows the page's own white. Padding
+   inside the tint extends the tint. */
+#fleet { padding-bottom: calc(var(--space-18) + 40px); }
 
 /* ══ Value props ═════════════════════════════════════════════════════════
    Three equal columns on the page's own white, each a ringed icon over a
@@ -5061,8 +4801,17 @@ body .booking-title {
    foot of the image. Centre it again and the copy lands on 2.95:1. */
 .promo-ground {
   position: absolute;
-  left: 6%;
-  right: 6%;
+  /* FULL WIDTH, at the client's direction on 2026-08-18. It was inset 6% a
+     side so that the banners cropped at the window's edges ran PAST the
+     colour on both sides — the panel read as a card the carousel overflowed.
+     Edge to edge it reads as a band the carousel sits on instead, which is the
+     shape that was asked for, and the two cropped banners now stop inside it.
+
+     The radius goes with the inset. A 24px corner needs an edge to turn on,
+     and against the window there is none: the curve would cut a notch out of
+     the colour at each side with page ground showing through it. */
+  left: 0;
+  right: 0;
   /* The panel runs from here to the foot of the showcase, so its height is
      whatever is left below this line: 42% left 58%, and 36% leaves 64% —
      about 10% more panel. The part above the banner's bottom edge is hidden
@@ -5070,7 +4819,7 @@ body .booking-title {
      where the extra reads. */
   top: 36%;
   bottom: 0;
-  border-radius: 24px;
+  border-radius: 0;
   background: url('../img/promo-ground.jpg') center bottom / cover no-repeat;
 }
 
@@ -5221,12 +4970,12 @@ body .booking-title {
   inset-inline-end: calc((100% - var(--promo-slide-w)) / 2 + var(--space-4));
 }
 
-/* On the orange strip, in white, held inside the panel's own inset so the
-   words never run past the colour they depend on.
+/* The orange strip. It held the centred banner's title, body and CTA; it holds
+   the section's "all promotions" link and nothing else as of 2026-08-18.
 
-   Under the picture rather than over it: every banner already prints its own
-   headline and price, and a second set of words laid on top of that would be
-   two voices saying the same thing at once. */
+   The row is one centred control at every width now, which is why the phone
+   stack and the text rules below it are gone: both existed to stop a headline
+   and an unbreakable pill fighting over one line. */
 .promo-detail {
   /* Positioned for paint order, not for placement — it lays out in the normal
      flow and this rule moves it nowhere. .promo-ground is absolute, and an
@@ -5249,9 +4998,12 @@ body .booking-title {
   margin-top: var(--space-12);
   padding-bottom: var(--space-12);
   display: flex;
+  /* Centred, both axes. It was `align-items: center` against `text-align:
+     start` because the row was copy on the left and a button on the right;
+     with the copy gone the button is the whole row and has nothing to be
+     start-aligned against. */
   align-items: center;
-  gap: var(--space-6);
-  text-align: start;
+  justify-content: center;
   color: var(--white);
 }
 /* STACKED BELOW 768, because a row cannot survive this width and was not
@@ -5268,34 +5020,158 @@ body .booking-title {
    Centred with it, at the client's direction: text-align on the container for
    the two paragraphs, align-items for the button, which is a flex child and
    ignores text-align. */
-@media (max-width: 767px) {
-  .promo-detail {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: var(--space-5);
-  }
-  .promo-detail__body { margin-inline: auto; }
+/* The phone override is gone with the copy. It stacked the row because a
+   250px unbreakable pill beside a headline left the text about 100px and broke
+   it seven lines deep — every pixel the row could not afford came off the half
+   that yields. One centred button has no such half, and it is the same
+   arrangement at every width now. */
+/* THE EXIT'S INK ON THE STRIP, and it is white for a measured reason rather
+   than to match the copy that used to be here.
+
+   The strip is the bottom of promo-ground.jpg — `center bottom / cover`, so at
+   1440 the visible band is the source's bottom sixth, which runs rgb(205,35,12)
+   at its lightest to rgb(80,0,0) at its darkest. Against those:
+
+     white  5.47:1 at its worst — clears the 4.5 a label needs
+     black  1.11:1 at its worst — invisible on the dark red
+
+   .btn-outline's default ink is black, so moving this button onto the strip
+   put a black label and a black ring on a ground that cannot carry either. The
+   ring matters as much as the label: it is the whole of this button's boundary.
+
+   THE DISC INVERTS TOO, and this is the one ground on the page where it does
+   so because of the light half rather than the dark. Orange on the strip's
+   lightest pixel is 1.67:1 — the brand orange and this photograph's orange are
+   nearly the same colour. It reaches 4.77 on the dark end, which is exactly the
+   trap: it would look fine wherever the tester happened to hover.
+
+   The hover fills WHITE with a black label, on .band-dark's model rather than
+   the default orange fill. An orange fill here is the same collision as the
+   disc, one size larger. */
+.promo-detail .btn-outline {
+  --outline-ink: var(--white);
+  --cta-disc: var(--white);
 }
-/* Takes the middle and lets the two chevrons sit hard against it rather than
-   drifting to the panel's edges — the row reads as one control with its label
-   inside, which is what puts the arrows on the same line as the words. */
-/* Takes the width the chevrons and the button leave, so the copy runs from
-   the picture's left edge and stops short of them rather than being centred
-   between them. */
-.promo-detail__text { flex: 1 1 auto; min-width: 0; }
-.promo-detail__title {
+.promo-detail .btn-outline:hover {
+  --outline-ink: var(--sixt-black);
+  --cta-disc: var(--sixt-orange);
+  background: var(--white);
+  color: var(--sixt-black);
+}
+
+/* THE HOVER VEIL, AND THE CTA IN THE MIDDLE OF IT.
+
+   Client direction, 2026-08-18: hovering a banner brings the button up in the
+   centre of the picture, on an orange ground at 80% with a blur behind it.
+
+   SIZED TO THE CENTRE SLIDE, NOT TO THE STAGE. The stage runs the full width
+   and shows a cropped banner at each end; the veil is --promo-slide-w wide and
+   centred, which is exactly where the current banner sits, because the track
+   is transformed so that whichever slide is current lands in the stage's
+   middle. Same radius as .promo-slide, so it stops on the picture's own
+   corners rather than squaring them off.
+
+   BLACK, NOT ORANGE, on the client's second look the same day — and it is the
+   better ground by a distance rather than only a preference. At 80% orange the
+   composite depended on the picture underneath: rgb(255,115,51) over a white
+   pixel, rgb(204,64,0) over a black one, and NO INK cleared 4.5 across that
+   range — black ran 6.42 down to 3.56 and white 2.71 up to 4.88. Black at 80%
+   composites to rgb(51,51,51) at its very lightest, where white is 12.6:1, so
+   the copy is legal wherever the picture goes and the detail block underneath
+   needs no plate of its own.
+
+   It also solves what the first version had. The button spent one revision at
+   the foot of the picture with nothing behind it, and its own note said so: a
+   white pill on three different photographs has no measurable ground and was
+   leaning on --shadow-lift to be seen, which is not a contrast measurement.
+
+   backdrop-filter, so the blur is of the PHOTOGRAPH and not of the veil. A
+   filter on this element would soften the flat colour, which has nothing in it
+   to soften. Unsupported browsers get the 80% orange alone, which is the whole
+   effect minus the softness — nothing depends on the blur.
+
+   pointer-events: none on the veil. It covers the picture, and the drag
+   gesture, the chevrons and the button all live under or over it; only the
+   button takes the pointer back. */
+.promo-stage::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--promo-slide-w);
+  border-radius: var(--radius-md);
+  background: rgba(0, 0, 0, 0.8);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity var(--transition);
+}
+.promo-stage:hover::before,
+.promo-stage:focus-within::before { opacity: 1; }
+
+/* THE DETAIL BLOCK, DEAD CENTRE OF THAT VEIL.
+
+   Title, body and button, at the client's direction on 2026-08-18 — the words
+   that used to sit on the orange strip below now arrive on the picture with
+   the button. :focus-within as well as :hover, on the rule this page follows
+   everywhere: the button inside is focusable whether or not the block is
+   visible, and a control that exists for a mouse and not for a tab key is not
+   a control. opacity and pointer-events rather than display, for the same
+   reason — display: none would take it out of the tab order entirely.
+
+   NO PLATE, AND THAT IS THE VEIL'S DOING. This block carried a solid orange
+   ground for one revision because the veil was orange at 80% and its composite
+   moved with the photograph — over a white pixel it landed on rgb(255,115,51),
+   over a black one on rgb(204,64,0), and no ink cleared 4.5 across that range.
+   A black veil has no such spread: 80% black over the brightest pixel a
+   photograph can hold is rgb(51,51,51), where white is 12.6:1. The words stand
+   on the veil itself and the block is transparent.
+
+   Capped at 30rem and centred: the body is a sentence, not a column, and a
+   line running the full width of a 16:9 banner is unreadable at any contrast.
+
+   .promo-detail__text, __title and __body are gone — the strip below is one
+   centred exit now, and these are their replacements one layer up. */
+.promo-overlay {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: min(30rem, 80%);
+  padding: var(--space-6) var(--space-8);
   color: var(--white);
-  margin-bottom: var(--space-2);
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition), transform var(--transition-move);
 }
-/* Solid white. There is no muted tone available on this ground — the pixels
-   under it only just clear AA for full white, and anything softer falls
-   under. */
-.promo-detail__body {
+.promo-stage:hover .promo-overlay,
+.promo-stage:focus-within .promo-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+.promo-overlay__title {
+  margin: 0;
+  color: var(--white);
+}
+/* Solid white, not --on-dark-muted. White at 78% over the veil's lightest
+   composite is 7.4 and still legal, but the muted tone is written for flat
+   black grounds and this one is a photograph underneath — the full white is
+   the value that does not need re-deriving if a brighter banner joins. */
+.promo-overlay__body {
+  margin: 0;
   color: var(--white);
   font-weight: 300;
   font-size: var(--text-body);
-  max-width: 46rem;
 }
 
 /* ══ Section reveals ═════════════════════════════════════════════════════
@@ -5471,15 +5347,14 @@ body .booking-title {
 @keyframes reveal-poster   { from { transform: scale(1.04); } }
 @keyframes reveal-drive    { from { opacity: 0; transform: translate(-56px, 22px); } }
 
-/* SERVICES — the banner opens left to right.
+/* SERVICES — each card opens left to right, in turn.
 
-   The block is one continuous photograph read across three columns, and the
-   only interaction it has is a crossfade between those columns' pictures. A
-   wipe is that sentence as an entrance: the picture arrives the way the eye
-   already reads it, and the three service titles are uncovered in order by the
-   edge passing over them rather than by three animations of their own. That is
-   why there is no stagger here — the wipe IS the stagger, and a second one
-   underneath it would be two clocks disagreeing.
+   Written first for one continuous photograph read across three columns, which
+   is what this block was until 2026-08-18: a wipe was that sentence as an
+   entrance, and the three service titles were uncovered in order by the edge
+   passing over them rather than by three animations of their own. The block is
+   three separate cards now and the gesture survives the rewrite intact — three
+   pictures, each read left to right, arriving in the order they are read.
 
    --ease-wipe, NOT --ease-out, and the difference is measurable. --ease-out is
    cubic-bezier(0.16, 1, 0.3, 1), an exponential decel built for something being
@@ -5518,9 +5393,29 @@ body .booking-title {
    ANY FUTURE KIND THAT WANTS TO ARM WITH clip-path, transform: scale(0),
    visibility or display HAS THE SAME PROBLEM. Arm with opacity; animate the
    rest. */
-[data-reveal="wipe"].is-armed { opacity: 0; }
-[data-reveal="wipe"].is-revealed {
+/* THREE WIPES IN SEQUENCE, NOT ONE, as of 2026-08-18 — the section became
+   three separate cards the same day and the wipe followed it rather than being
+   replaced. The sentence it makes is still the section's own: each card opens
+   left to right the way its picture is read, and they open in the order they
+   are read too.
+
+   The armed rule targets the CARDS and not the observed element, which sounds
+   like a detail and is the whole reason this is safe: .svc-banner carries the
+   data-reveal and stays unclipped, so IntersectionObserver still sees its full
+   box. Arming the observed element with a clip is the deadlock written up
+   above, and the test in tests/tests.js refuses it.
+
+   The indices are declared here because the generic nth-child block only
+   reaches a container's direct children, and .svc-cols sits between — it is
+   `display: contents`, which lifts the cards onto the grid visually but leaves
+   the DOM exactly as nested as it was. */
+[data-reveal="wipe"].is-armed .svc-col { opacity: 0; }
+[data-reveal="wipe"] .svc-cols > *:nth-child(1) { --i: 0; }
+[data-reveal="wipe"] .svc-cols > *:nth-child(2) { --i: 1; }
+[data-reveal="wipe"] .svc-cols > *:nth-child(3) { --i: 2; }
+[data-reveal="wipe"].is-revealed .svc-col {
   animation: reveal-wipe var(--dur-enter) var(--ease-wipe) backwards;
+  animation-delay: calc(var(--i, 0) * var(--stagger-reveal));
 }
 
 /* NEWS — three posters landing.
