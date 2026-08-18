@@ -97,6 +97,51 @@
     });
   });
 
+  /* THE DISC CANNOT BE ORANGE ON AN ORANGE GROUND. Every CTA arrow now sits in
+     a circle, the circle is orange by default, and orange on orange is 1.00:1 —
+     not a dim button but a button with no arrow on it at all. That failure is
+     silent in every way that matters: nothing overlaps, nothing shifts, the
+     page looks finished, and the tests that watch the shared box all pass.
+
+     It has already happened once. The membership CTA turns orange above 1280
+     and had been checked at desktop width only; the disc went with it and the
+     arrow disappeared at exactly the width the client looks at the page.
+
+     So: any rule that puts --sixt-orange under a button carrying a disc must
+     say what the disc becomes. The two header hovers are the stated exception
+     and the reason is inheritance, not oversight — they reach the same orange
+     as the bare .btn-outline:hover, which sets the disc for all three, and
+     restating it there would be a second answer to one question. */
+  var DISC_BUTTONS = ['btn-primary', 'btn-secondary', 'btn-outline', 'promo-cta'];
+  var INHERITS_THE_DISC = [
+    '.site-header .btn-outline:hover',
+    '.site-header.is-stuck .btn-outline:hover'
+  ];
+
+  T.test('no orange ground leaves the CTA disc orange on top of it', function () {
+    if (!fs) { return; }
+    /* Comments carry braces in this file — the mask idiom is quoted in prose —
+       so they come out before the rule split, not after. */
+    var css = readProjectFile('assets/css/app.css').replace(/\/\*[\s\S]*?\*\//g, '');
+    var rule = /([^{}]+)\{([^{}]*)\}/g;
+    var m;
+    var checked = 0;
+    while ((m = rule.exec(css)) !== null) {
+      var selector = m[1].replace(/\s+/g, ' ').trim();
+      var body = m[2];
+      if (!/background:\s*var\(--sixt-orange\)/.test(body)) { continue; }
+      var isButton = DISC_BUTTONS.some(function (c) { return selector.indexOf('.' + c) !== -1; });
+      if (!isButton) { continue; }
+      if (INHERITS_THE_DISC.indexOf(selector) !== -1) { continue; }
+      checked++;
+      T.ok(/--cta-disc:/.test(body),
+        selector + ' fills orange and does not say what --cta-disc becomes; ' +
+        'the disc would be invisible and the button would lose its arrow');
+    }
+    T.ok(checked >= 3, 'the orange-ground rules must still be found — ' +
+      'this test measured ' + checked + ' of them and expects at least 3');
+  });
+
   T.test('.price-total holds the size its orange depends on', function () {
     if (!fs) { return; }
     var css = readProjectFile('assets/css/app.css');

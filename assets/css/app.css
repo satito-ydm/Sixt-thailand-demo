@@ -159,22 +159,83 @@ body h3 { font-size: var(--text-h3); }
        the entire control — there is nothing else marking where the button is.
        The inset ring below stays at full opacity for that reason.
 
-   The arrow is mask-and-currentColor rather than a background-image so it
-   inherits each button's own ink: white on the orange fill, black on the
-   orange band, white on black. A coloured SVG would have needed one file per
-   ink. */
+   The arrow sits inside a disc, at the client's direction, and that one change
+   rewrote how it is drawn. It used to be `background: currentColor` under a
+   mask, so the glyph took each button's own ink for free — white on the orange
+   fill, black on the orange band, white on black. A disc cannot do that: a
+   pseudo-element carries one paint, and once that paint is the disc there is
+   nothing left to draw the arrow with.
+
+   SO THE ARROW IS A HOLE. The mask is the disc's own box with the glyph
+   EXCLUDED from it, which makes the arrow exactly the ground the button is
+   standing on: orange showing through a white disc on .btn-primary, the white
+   section showing through an orange disc on .btn-outline, the black bar
+   showing through it in the header. No per-context ink to get wrong, and no
+   pair that can drift apart, because one of the two colours IS the button.
+   Layer order is arrow, then box — a composite value applies to its layer
+   against the accumulated result of the layers below it, so `exclude` on the
+   arrow is what cuts it out, and `add` on the box has nothing under it and is
+   ignored. That is the same three-line idiom the outline halo used before it
+   was withdrawn, and it fails the same way if the order is reversed: a solid
+   disc with no arrow in it.
+
+   --cta-disc carries the one real constraint. The disc is orange everywhere
+   EXCEPT where the button's own ground is already orange, where it inverts to
+   white — orange on orange is 1.00:1 and the disc would simply not be there.
+   Five rules set it and each is stated at the ground that needs it: the orange
+   fill on .btn-primary, the orange hover on .btn-outline, and the three places
+   .band-dark and .band-orange put a button on some OTHER colour and have to
+   hand it back.
+
+   SIZE, AND WHY THE MARGIN IS NEGATIVE. 1.75em is 33px against the 19px label.
+   A 33px child inside 12px of vertical padding makes a 57px button, which is
+   precisely the bug the drawer's login button once was; the negative block
+   margin pulls the disc's margin box back under the label's own 22.8px line
+   box, so the shared 48px box is unchanged and the disc overflows into padding
+   that was already empty. Check the height, not just the look, if this size is
+   ever touched. */
+.btn-primary,
+.btn-secondary,
+.btn-outline,
+.promo-cta { --cta-disc: var(--sixt-orange); }
+/* And the end padding comes in to meet the disc, at the client's direction.
+   --space-6 was written for a label ending in a word; against a 33px circle it
+   left a band of empty pill wider than the gap between the label and the disc,
+   and the circle read as floating in the middle of the right-hand end rather
+   than sitting at it. --space-2 is 8px, which is the same 7.4px the disc
+   already clears above and below it — the circle is now equidistant from three
+   edges instead of one.
+
+   Stated HERE rather than in the shared box rule, and scoped with :not(), for
+   one reason: only a button with a disc has earned the tighter end. .vehicle-cta
+   carries no arrow at all and is deliberately absent from this list, and
+   .btn-no-arrow opts out per instance — the booking form's submit is one — so
+   both keep the symmetric padding a plain label needs. Take the :not() off and
+   those buttons go visibly lopsided with nothing in the space. */
+.btn-primary:not(.btn-no-arrow),
+.btn-secondary:not(.btn-no-arrow),
+.btn-outline:not(.btn-no-arrow),
+.promo-cta:not(.btn-no-arrow) { padding-inline-end: var(--space-2); }
 .btn-primary::after,
 .btn-secondary::after,
 .btn-outline::after,
 .promo-cta::after {
   content: '';
   flex: none;
-  width: 1.125em;
-  height: 1.125em;
-  background: currentColor;
-  -webkit-mask: var(--arrow-glyph) center / contain no-repeat;
-  mask: var(--arrow-glyph) center / contain no-repeat;
-  transition: transform var(--transition-move);
+  width: 1.75em;
+  height: 1.75em;
+  margin-block: -0.3em;
+  border-radius: 50%;
+  background: var(--cta-disc);
+  -webkit-mask:
+    var(--arrow-glyph) center / 1em no-repeat,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor, source-over;
+  mask:
+    var(--arrow-glyph) center / 1em no-repeat,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude, add;
+  transition: transform var(--transition-move), background var(--transition);
 }
 /* 3px, the same restraint .link-arrow already takes — enough to read as "this
    goes somewhere", not enough to look like the label is coming apart. */
@@ -220,122 +281,25 @@ body h3 { font-size: var(--text-h3); }
    Add this class to opt out. */
 .btn-no-arrow::after { display: none; }
 
-/* ── The travelling light ─────────────────────────────────────────────────
-   The other half of what the client asked for from poscoflow.com, and it turned
-   out not to be a hover at all. Their CTA runs a continuous 3s loop in which
-   two bright segments travel around the pill's perimeter, drawn as a
-   conic-gradient used as a mask over a coloured ring. Read out of their
-   stylesheet rather than guessed at, and confirmed live: --cta-angle sampled at
-   139.992deg on a button nobody was touching.
+/* ── The travelling light, removed ────────────────────────────────────────
+   .btn-outline once carried a continuous 3s halo — two bright segments running
+   around the pill's perimeter, a conic-gradient masked into a ring, taken from
+   poscoflow.com's .btn_cta at the client's direction. Withdrawn on 2026-08-18,
+   at the same client's direction, along with the @property --cta-angle
+   registration, the cta-border-rotate keyframe, the ::before that drew it, the
+   position/isolation the ::before needed, and its prefers-reduced-motion
+   withdrawal. Nothing else depended on any of them: the button's boundary has
+   always been its own 1px inset ring, the halo sat outside that edge at
+   inset -3px and never carried a word, so nothing measured changes.
 
-   The technique, in the order the three pieces matter:
-
-     1. @property is not optional. A bare custom property named in a keyframe is
-        not interpolated — it flips at 100% and the light would never move. The
-        registration below is what makes --cta-angle an animatable <angle>, and
-        it is the piece most likely to be dropped by someone tidying up.
-     2. The ring is a box with a hole: `padding` sets the ring's thickness, and
-        mask-composite subtracts the content-box from the border-box so only the
-        rim is painted. That is why there are two mask layers.
-     3. The conic gradient carries two light segments a half-turn apart, so the
-        pill always has one on the way in and one on the way out.
-
-   THREE THINGS CHANGED FROM THE REFERENCE.
-
-   It is on .btn-outline only, not on all five button classes. Theirs appears
-   twice on a page; ours would be thirteen elements each repainting a masked
-   conic gradient every frame, which is both a cost and a page that will not sit
-   still. .btn-outline is the direct equivalent of their .btn_cta — the outline
-   pill that leaves a section — so it is the one that gets it.
-
-   It sits OUTSIDE the button's own edge, at inset -3px, rather than replacing
-   that edge. Their light travels along a 3px border set at 40% alpha; ours
-   cannot, because .btn-outline's 1px inset ring is the only thing marking where
-   the control is and dropping it to 40% would take a button's boundary to
-   1.2:1. So the light is a halo around a ring that stays as measured. Nothing
-   about the affordance depends on the animation.
-
-   It is orange, not their blue, and it is a light rather than ink: it never
-   carries a word, so it is measured at nothing and owes nothing. */
-@property --cta-angle {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
-}
-@keyframes cta-border-rotate { to { --cta-angle: 360deg; } }
-
-.btn-outline {
-  /* The ring needs a positioned box to resolve against, and .btn-outline had
-     none of its own. */
-  position: relative;
-  /* And it needs its own stacking context, which is the second thing that went
-     wrong. The halo is a z-index: -1 child so it paints under the label; but a
-     relatively-positioned element with no z-index is NOT a stacking context, so
-     the halo escaped past the button and painted behind the nearest ancestor
-     that was one — which in the header is the black bar itself. The button
-     looked correct and the light was simply not there. `isolation: isolate`
-     contains it: the halo now paints above this button's own background, which
-     is transparent, and below its text. */
-  isolation: isolate;
-}
-/* THREE MASK LAYERS, and the count is the whole fix. The first attempt copied
-   the reference's two-layer `destination-out` shorthand, and in the standard
-   syntax that came out as a solid orange slab with the label buried under it —
-   two separate faults at once, both worth naming because both are the usual way
-   this technique fails:
-
-     — the hole was never cut. A ring is border-box MINUS content-box, which
-       needs its own pair of layers composited with `exclude`; the conic then
-       `intersect`s that ring to become the light travelling along it. Composite
-       values apply to each layer against the accumulated result of the layers
-       below, so the order here is light, hole, box — and the last value in the
-       list is ignored because nothing sits under it.
-     — z-index: -1. An absolutely positioned ::before paints above the button's
-       non-positioned text, so the halo covered the label. Negative z-index puts
-       it behind the content and, since .btn-outline's own background is
-       transparent, it stays visible through it. */
-.btn-outline::before {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  padding: 3px;
-  z-index: -1;
-  border-radius: inherit;
-  pointer-events: none;
-  background: var(--sixt-orange);
-  animation: cta-border-rotate 3s linear infinite;
-  -webkit-mask:
-    conic-gradient(from var(--cta-angle),
-      transparent 0% 26%,
-      rgba(0, 0, 0, 0.1) 29%, rgba(0, 0, 0, 0.8) 35%, #000 38%, rgba(0, 0, 0, 0.8) 41%, rgba(0, 0, 0, 0.1) 45%,
-      transparent 47% 76%,
-      rgba(0, 0, 0, 0.1) 79%, rgba(0, 0, 0, 0.8) 85%, #000 88%, rgba(0, 0, 0, 0.8) 91%, rgba(0, 0, 0, 0.1) 95%,
-      transparent 97% 100%),
-    linear-gradient(#000 0 0),
-    linear-gradient(#000 0 0);
-  -webkit-mask-clip: border-box, content-box, border-box;
-  -webkit-mask-composite: source-in, destination-out, source-over;
-  mask:
-    conic-gradient(from var(--cta-angle),
-      transparent 0% 26%,
-      rgba(0, 0, 0, 0.1) 29%, rgba(0, 0, 0, 0.8) 35%, #000 38%, rgba(0, 0, 0, 0.8) 41%, rgba(0, 0, 0, 0.1) 45%,
-      transparent 47% 76%,
-      rgba(0, 0, 0, 0.1) 79%, rgba(0, 0, 0, 0.8) 85%, #000 88%, rgba(0, 0, 0, 0.8) 91%, rgba(0, 0, 0, 0.1) 95%,
-      transparent 97% 100%),
-    linear-gradient(#000 0 0),
-    linear-gradient(#000 0 0);
-  mask-clip: border-box, content-box, border-box;
-  mask-composite: intersect, exclude, add;
-}
-/* Withdrawn entirely, not slowed. An infinite loop is the clearest case
-   prefers-reduced-motion exists for, and a frozen ring is worse than no ring:
-   the animation is the only reason those two arcs are asymmetric, so stopping
-   it leaves two bright patches parked on one side of the button looking like a
-   rendering fault. `display: none` removes the halo and the button is exactly
-   the measured outline pill it was before any of this. */
-@media (prefers-reduced-motion: reduce) {
-  .btn-outline::before { display: none; }
-}
+   If it is ever asked for again, the three pieces that made it work and are
+   the ones a rebuild gets wrong: @property is what makes --cta-angle an
+   animatable <angle> (without it the value flips at 100% and the light never
+   moves); the ring is border-box MINUS content-box, which needs its own pair
+   of mask layers composited with `exclude` before the conic `intersect`s them;
+   and the ::before needs z-index: -1 inside an `isolation: isolate` button, or
+   it paints over the label — or, with no stacking context, escapes to the
+   nearest ancestor that has one and vanishes behind the header. */
 
 /* ── The press ────────────────────────────────────────────────────────────
    Every button on the page compresses 2.5% under a press, and it is stated
@@ -392,6 +356,10 @@ body h3 { font-size: var(--text-h3); }
 .btn-primary {
   background: var(--sixt-orange);
   color: var(--white);
+  /* The fill IS the disc's colour, so the disc inverts. White on orange is
+     3.28:1, which a disc clears as non-text, and the arrow cut out of it comes
+     back as the fill itself. */
+  --cta-disc: var(--white);
   transition: background var(--transition), transform var(--dur-press) ease;
 }
 .btn-primary:hover,
@@ -445,6 +413,12 @@ body h3 { font-size: var(--text-h3); }
   --outline-ink: var(--sixt-orange);
   background: var(--sixt-orange);
   color: var(--white);
+  /* Same inversion as .btn-primary, and here it arrives on the pointer: the
+     disc crosses from orange to white as the fill comes up under it. The
+     header's two hovers reach this same orange and deliberately do not restate
+     it — they set no --cta-disc of their own, so this rule keeps carrying
+     them. */
+  --cta-disc: var(--white);
 }
 
 /* Link with an orange arrow. The word stays black because orange text at body
@@ -2392,7 +2366,9 @@ body .booking-title {
 /* The orange focus ring is only 1.9:1 on black. Swap it for white. */
 .band-dark :focus-visible { outline-color: var(--white); }
 .band-dark .btn-outline { --outline-ink: var(--white); }
-.band-dark .btn-outline:hover { background: var(--white); color: var(--sixt-black); }
+/* Fills WHITE here rather than orange, so the inversion on .btn-outline:hover
+   does not apply and the disc is handed straight back. */
+.band-dark .btn-outline:hover { background: var(--white); color: var(--sixt-black); --cta-disc: var(--sixt-orange); }
 
 .band-orange {
   background: var(--sixt-orange);
@@ -2406,15 +2382,18 @@ body .booking-title {
 .band-orange :focus-visible { outline-color: var(--sixt-black); }
 /* The brand colour is the ground here, so a filled orange button would vanish.
    Black inverts cleanly at 17.4:1. */
-.band-orange .btn-primary { background: var(--sixt-black); color: var(--white); }
+.band-orange .btn-primary { background: var(--sixt-black); color: var(--white); --cta-disc: var(--sixt-orange); }
 .band-orange .btn-primary:hover { background: var(--white); color: var(--sixt-black); }
-.band-orange .btn-outline { --outline-ink: var(--sixt-black); }
+/* The one ground where the disc inverts with no hover involved: this button is
+   transparent, so its "fill" is the orange band, and an orange disc on it would
+   not be there at all standing still. */
+.band-orange .btn-outline { --outline-ink: var(--sixt-black); --cta-disc: var(--white); }
 /* The one ground where the orange hover cannot follow. Every other outline
    button on the page fills orange on hover; here the ground is already that
    orange, so the fill would be 1.00:1 and the button would appear to vanish
    under the pointer. Black inverts instead. This is an exception on purpose,
    not one that was missed. */
-.band-orange .btn-outline:hover { background: var(--sixt-black); color: var(--white); }
+.band-orange .btn-outline:hover { background: var(--sixt-black); color: var(--white); --cta-disc: var(--sixt-orange); }
 .band-orange a { color: var(--on-orange); }
 
 /* The quiet band. --grey-50 is what tokens.css already calls the alternating
@@ -3288,6 +3267,14 @@ body .booking-title {
   .member-panel .btn-primary {
     background: var(--sixt-orange);
     color: var(--white);
+    /* And the disc inverts with the fill. .band-orange hands the disc back to
+       orange for the black button it expects here; this rule puts the orange
+       fill back, so it has to take the disc's inversion back too, or the
+       circle is orange on orange and there is no arrow on this button at all
+       above 1280. It is the one place on the page where the ground changes at
+       a breakpoint rather than by class, which is exactly why it was missed
+       first time round. */
+    --cta-disc: var(--white);
   }
   .member-panel .btn-primary:hover {
     background: var(--sixt-orange-deep);
@@ -3600,6 +3587,27 @@ body .booking-title {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-rest);
   text-align: center;
+}
+/* THE OVERLAP HAS TO SHRINK WITH THE PICTURE, and on a phone the fixed 4rem
+   above did not. Client, 2026-08-18: the card was covering the artwork until
+   you could not see it.
+
+   The arithmetic, because "4rem" hides it: the artwork holds its own 2:1 at
+   every width, so its height is half the viewport — 188px at 390. A fixed 64px
+   bite out of that is 34% of the picture, and it is the bottom 34%, which is
+   where the cars and the plaza are. The tagline printed into the artwork
+   survives (it ends about 41% up, per the wash note above) so nothing looks
+   broken; the picture simply loses its subject and reads as a strip of sky.
+   At 1440 the same 64px is 9% and takes nothing, which is why this sat here
+   unnoticed — the fault is only visible at the widths the card is tallest.
+
+   5vw is 10% of the artwork's height at every width, by construction, since
+   the artwork is 50vw tall. The card still straddles the join, which is the
+   shape this section was designed around, and it now straddles by a tenth of
+   the picture instead of a third. The bottom -4rem is untouched: it hangs into
+   the footer's black, where there is nothing to cover. */
+@media (max-width: 767px) {
+  .closing-contact { margin-top: -5vw; }
 }
 @media (min-width: 768px) {
   /* hotline + social packed together on the left, QR alone on the right.
@@ -4739,8 +4747,9 @@ body .booking-title {
 
    position: static on the button is the other half. The overlay has to resolve
    against .svc-col, not against the button, so the button must not be a
-   containing block — .btn-outline sets position: relative for its own halo and
-   this makes sure a service CTA never inherits that behaviour by accident. */
+   containing block. Kept as a guard rather than deleted: .btn-outline used to
+   set position: relative for its travelling light, and any button class that
+   picks that up again would silently break this overlay. */
 .svc-col__cta { position: static; }
 .svc-col__cta::before {
   content: '';
@@ -5489,10 +5498,9 @@ body .booking-title {
   .btn-outline:hover::after,
   .promo-cta:hover::after,
   .vehicle-cta:hover::after { transform: none; }
-  /* And the service CTAs' looping arrow stops entirely rather than slowing. It
-     is the second infinite animation on the page after the outline buttons'
-     travelling light, and both are withdrawn for the same reason: a loop is
-     what this query exists to stop. */
+  /* And the service CTAs' looping arrow stops entirely rather than slowing.
+     Since the outline buttons' travelling light was removed it is the page's
+     only infinite animation, and a loop is what this query exists to stop. */
   .svc-col__cta:hover::after { animation: none; }
   /* .service-card:hover was listed here and the class no longer exists — the
      bento became .svc-* and its lift went with it. The banner's own states are

@@ -203,6 +203,24 @@ var PAIRS = [
     'white on orange, legal only as large text — .btn-outline is held at ' +
     '19px/700 for this and nothing else. Drop it to 16px and this pair needs ' +
     '4.5 and fails'],
+  /* THE CTA DISC. Every arrow on the page now sits in a circle, and the circle
+     is non-text: it carries no word, so 3.0 is its bar on both counts — the
+     disc against the button it sits on, and the arrow cut out of it against
+     the disc. The second of those is measured as the button's own ground,
+     because the arrow IS a hole and shows whatever is behind it. Six pairs,
+     one per ground the disc actually appears on. Orange-on-orange is the pair
+     that must never exist here, and it is in FORBIDDEN below. */
+  ['CTA disc on .btn-primary (non-text)',   C.white,      C.orange,   3.0,
+    'the disc inverts to white on the orange fill; 3.28:1 as a shape'],
+  ['CTA arrow cut out of that disc',        C.orange,     C.white,    3.0,
+    'the same pair read the other way — the hole shows the orange fill'],
+  ['CTA disc on .btn-secondary (non-text)', C.orange,     C.black,    3.0,
+    'orange disc on the black fill'],
+  ['CTA disc on .btn-outline over white',   C.orange,     C.white,    3.0,
+    'the rest state on every light section, and on .promo-cta\'s white pill'],
+  ['CTA disc on .btn-outline over grey-50', C.orange,     C.grey50,   3.0, ''],
+  ['CTA disc on the black header',          C.orange,     C.black,    3.0,
+    'the header bar, and .band-dark on the same reasoning'],
   ['.badge label on black',                 C.white,      C.black,    4.5,
     '11px, so it must clear the normal-text bar — this is why the badge is not orange'],
   ['footer link on black',                  C.white,      C.black,    4.5, ''],
@@ -598,6 +616,13 @@ var PAIRS = [
 
 // Documented as failing on purpose, so nobody "fixes" it by shipping it.
 var FORBIDDEN = [
+  ['an orange CTA disc left on an orange ground', C.orange, C.orange, 3.0,
+    '1.00:1 — the circle is simply not on the page. This is the whole reason ' +
+    '--cta-disc exists and the only thing the five override rules are ' +
+    'protecting. It is a live risk rather than a theoretical one: the disc is ' +
+    'orange by default, so ANY new orange ground under a CTA — a new band, a ' +
+    'new hover fill, a panel that turns brand-coloured — gets this by ' +
+    'omission and looks like a missing arrow rather than a contrast fault'],
   ['an unselected tab pill against the warm tint', C.white, C.tintWarm, 3.0,
     'the white pill has no perceivable outline on this ground, and it is ' +
     'listed rather than fixed on purpose. What WCAG 1.4.11 asks to be visible ' +
