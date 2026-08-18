@@ -207,14 +207,20 @@
          display:none would download both — 322 KB to show one of them, on the
          connection least able to afford it.
 
-         The media query is the same 767px the stylesheet changes the frame at,
+         The media query is the same 1023px the stylesheet changes the frame at,
          and it has to be: the source is cut for 4:3 and the frame is only 4:3
-         below that. If .hero-slider's breakpoint moves, this moves with it.
-         Nothing enforces that pairing yet — it is two numbers in two files. */
+         below that. If .hero-slider's breakpoint moves, this moves with it —
+         a test pins the two numbers together, which is the only thing that
+         does.
+
+         RAISED FROM 767 on 2026-08-18. A tablet in portrait was getting the
+         landscape file in a 2.5:1 frame, which at 768 is 301px tall against
+         the 575 the same window shows at 767. The phone cut is laid out for a
+         tall frame and is the right file for both. */
       if (slide.mobile) {
         var picture = el('picture');
         var source = el('source');
-        source.media = '(max-width: 767px)';
+        source.media = '(max-width: 1023px)';
         source.srcset = slide.mobile.image;
         source.width = slide.mobile.width;
         source.height = slide.mobile.height;

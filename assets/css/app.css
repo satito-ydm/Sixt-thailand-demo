@@ -1856,9 +1856,24 @@ body .booking-title {
   user-select: none;
   -webkit-user-select: none;
 }
-@media (max-width: 767px) {
-  /* Squarer on a phone so the artwork has some height, at the cost of the
-     sides — see the README note on why this banner needs a portrait variant. */
+/* 4:3 UP TO 1023, RAISED FROM 767 on 2026-08-18 — the tablet pass, and the
+   number moved because of what 768 was actually doing.
+
+   The frame is 2.5:1, so at 768 the banner came out 301px tall: a letterbox
+   with the artwork's type shrunk into a third of the height it has on a phone.
+   The step at the breakpoint was the giveaway — 575px at 767 and 301px at 768,
+   the hero HALVING as the window got wider.
+
+   Every slide now carries a 1448x1086 phone cut laid out for a tall frame, and
+   that file is right for a tablet in portrait for exactly the reason it is
+   right for a phone: the frame is 4:3 and so is the file, so nothing is
+   cropped at any width in this range. 576px tall at 768, 767px at 1023, and
+   the whole of every lockup and headline on screen.
+
+   ui.js serves the same file at the same breakpoint and a test pins the two
+   numbers together — they are two literals in two files and nothing else ties
+   them. */
+@media (max-width: 1023px) {
   .hero-slider { aspect-ratio: 4 / 3; }
 }
 /* 768px FLAT FROM 1280 UP, at the client's direction on 2026-08-18, and it
@@ -2141,14 +2156,23 @@ body .booking-title {
   box-shadow: var(--shadow-widget);
   padding: var(--space-6);
 }
-/* SOLID AND FULL-BLEED BELOW 768, at the client's direction: "make the box
-   solid black, no frame, let the colour run on from the picture."
+/* SOLID AND FULL-BLEED BELOW 1024, at the client's direction — 767 first, then
+   raised to 1023 on 2026-08-18 with "tablet portrait should be solid black like
+   mobile". The original ask was "make the box solid black, no frame, let the
+   colour run on from the picture."
 
-   The glass was designed for the width where this card floats ON the hero
-   photograph. Down here it does not: the picture stops and the card sits under
-   it, in flow, over the page's own white — so a 0.70 black card is a grey
-   rectangle with nothing to be translucent about. The effect had already lost
-   its subject; what was left was the cost of it.
+   THE BREAKPOINT IS NOT A PREFERENCE, IT IS WHERE THE CARD STOPS FLOATING.
+   The glass was designed for the width where this card sits ON the hero
+   photograph, and .booking-dock only goes absolute from 1024. Below that the
+   picture stops and the card sits under it, in flow, over the page's own white
+   — so a 0.70 black card is a grey rectangle with nothing to be translucent
+   about. The effect has no subject there; what is left is the cost of it. That
+   was true at 767 and it is true at 1023 for exactly the same reason, which is
+   why the number moves with the dock rather than being chosen.
+
+   It also lands with the hero's own breakpoint, which moved to 1023 the same
+   day: the picture above runs full width there, and a full-bleed card meets it
+   edge to edge the way it does on a phone.
 
    Which is the same reason it is solid rather than merely darker: with the
    card on white, --sixt-black restores the ink to 17.40:1 and the muted labels
@@ -2161,7 +2185,7 @@ body .booking-title {
    The picture above already runs 0..390 and the card now meets it edge to edge
    with the 0px gap it always had — the frame was the only thing making them
    read as two objects. */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .booking-dock { padding-inline: 0; max-width: none; }
   .booking-card {
     background: var(--sixt-black);
@@ -2269,17 +2293,21 @@ body .booking-title {
   .booking-dock {
     position: absolute;
     z-index: 5;
-    top: 50%;
-    /* -50% centres it on the picture; the extra 30px is the client's, on
-       2026-08-18 — the panel sits a little above the banner's middle rather
-       than on it. Written into the transform and not into `top`, because top
-       is a percentage of the hero and 30px of a percentage is a different
-       distance at every width; this is 30 pixels everywhere.
+    /* THE PICTURE'S CENTRE, NOT THE SECTION'S, and the difference was a real
+       24px. This resolves against #hero, which is the slider PLUS the section's
+       own 3rem of bottom padding — so a plain `top: 50%` put the panel 24px
+       below the middle of the photograph it is supposed to be centred on. At
+       1440 that hid inside 130px of slack; at 1024 the hero is 560 against a
+       515px form and the same 24px pushed the panel's foot 2px past the
+       picture's bottom edge. Measured on the tablet pass, 2026-08-18.
 
-       The room it moves into is real: the hero is a flat 768px from 1280 up as
-       of the same day, and the upright form is about 475, so there is roughly
-       145px of clearance above and below before the panel meets an edge. */
-    transform: translateY(calc(-50% - 30px));
+       Subtracting the padding is exact and needs no per-breakpoint number: it
+       is the same expression whatever the hero's height turns out to be. If
+       the section's pb-12 ever changes, this changes with it. */
+    top: calc((100% - 3rem) / 2);
+    /* Centred on it. The 30px lift the client asked for is in the next block,
+       and it is scoped rather than global for a measured reason — see there. */
+    transform: translateY(-50%);
     /* Aligned to the page grid's right edge, so the panel lines up with the
        content below it rather than floating at an arbitrary offset. The gutter
        is clamped at zero — below the container width there is none — and the
@@ -2290,6 +2318,34 @@ body .booking-title {
     width: min(30rem, 34vw);
     padding: 0;
   }
+
+  /* THE 30px LIFT, AND IT ONLY APPLIES WHERE THERE IS ROOM FOR IT.
+
+   NESTED INSIDE THE 1024 QUERY, AND DECLARED AFTER THE RULE IT OVERRIDES. It
+   sat before that rule for one revision and did nothing at all: both set
+   `transform` on the same selector at equal specificity, so the later one
+   wins, and the later one was the plain centring. Measured before believing
+   it — 133px of clearance above AND below at 1440, which is a centred panel,
+   not a lifted one. Same source-order tie the overhang and the services ground
+   have each been caught by.
+
+   Client direction, 2026-08-18: the panel should sit a little above the
+   banner's middle. Applied at every desktop width first, and the tablet pass
+   caught what that cost at 1024 — the hero is 560px there against a form of
+   about 515, so the whole slack is 45px and the lift spent 30 of it on one
+   side. Measured: 16px between the form's top and the picture's, against 28 at
+   the bottom. Not an overflow, but a panel wedged into a corner of a photograph.
+
+   From 1280 the hero is a flat 768 and the same form has roughly 125px each
+   side, so 30px is a nudge rather than a squeeze. Above 1280 it is the
+   client's number; between 1024 and 1279 the panel stays centred, which at
+   that size is the only thing it can be.
+
+   In the transform and not in `top`, because top is a percentage of the hero
+   and 30px of a percentage is a different distance at every width. */
+@media (min-width: 1280px) {
+  .booking-dock { transform: translateY(calc(-50% - 30px)); }
+}
 
   /* NO BACKGROUND HERE. It restated `background: var(--sixt-black)` — the same
      value the base rule already set, which is exactly the kind of harmless
@@ -5146,7 +5202,12 @@ body .booking-title {
   flex-direction: column;
   align-items: center;
   gap: var(--space-4);
-  width: min(30rem, 80%);
+  /* Measured against the SLIDE, not against the stage. `min(30rem, 80%)` was
+     80% of .promo-stage, which runs the full window — so at 768 the block came
+     out 480px wide inside a 422px banner and hung 29px off each end of the
+     picture it belongs to. --promo-slide-w is the banner's own width and the
+     0.78 leaves it a margin at every breakpoint the carousel has. */
+  width: min(30rem, calc(var(--promo-slide-w) * 0.78));
   padding: var(--space-6) var(--space-8);
   color: var(--white);
   text-align: center;
